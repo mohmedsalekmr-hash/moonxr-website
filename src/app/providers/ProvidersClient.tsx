@@ -9,27 +9,23 @@ import { X, Globe, MapPin, Calendar, ShieldCheck, TrendingUp, Building2, Externa
 // Image component that falls back to Google Favicons if Clearbit fails
 const CompanyLogoImage = ({ domain, alt, className }: { domain: string, alt: string, className?: string }) => {
   const [imgSrc, setImgSrc] = useState(`https://logo.clearbit.com/${domain}`);
-  const [isLoading, setIsLoading] = useState(true);
 
   return (
-    <div className="relative flex items-center justify-center w-full h-full">
-      {isLoading && (
-        <div className="absolute inset-0 bg-black/5 animate-pulse rounded-lg" />
-      )}
-      <img 
-        src={imgSrc} 
-        alt={alt}
-        className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-        onLoad={() => setIsLoading(false)}
-        onError={() => {
-          if (imgSrc.includes('clearbit')) {
-            setImgSrc(`https://www.google.com/s2/favicons?domain=${domain}&sz=256`);
-          } else {
-            setIsLoading(false);
-          }
-        }}
-      />
-    </div>
+    <img 
+      src={imgSrc} 
+      alt={alt}
+      className={className}
+      onError={(e) => {
+        if (imgSrc.includes('clearbit')) {
+          setImgSrc(`https://www.google.com/s2/favicons?domain=${domain}&sz=256`);
+        } else {
+          // If both fail, use UI Avatars as an absolute last resort
+          const target = e.target as HTMLImageElement;
+          target.onerror = null;
+          target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(alt)}&background=9D00FF&color=fff&size=256&bold=true`;
+        }
+      }}
+    />
   );
 };
 

@@ -37,31 +37,42 @@ export function Header() {
       >
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           
-          {/* Incredible Animated Logo */}
+          {/* Incredible Animated VR Logo */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="flex items-center space-x-3 group cursor-pointer"
           >
-            <div className="relative flex items-center justify-center w-12 h-12">
-              <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 rounded-full border border-cyan-500/30 border-dashed"
-              />
-              <motion.div 
-                animate={{ rotate: -360 }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-1 rounded-full border-t border-purple-500/50"
-              />
-              <Boxes className="w-5 h-5 text-cyan-400 relative z-10 drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]" />
+            <div className="relative flex items-center justify-center w-14 h-14">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 relative z-10 drop-shadow-[0_0_15px_rgba(0,229,255,0.8)] group-hover:scale-110 transition-transform duration-500">
+                {/* Background Glow */}
+                <circle cx="32" cy="32" r="24" fill="url(#core-glow)" opacity="0.5" className="animate-pulse" />
+                {/* Outer VR Headset Frame */}
+                <path d="M12 30C12 26.6863 14.6863 24 18 24H46C49.3137 24 52 26.6863 52 30V38C52 42.4183 48.4183 46 44 46H20C15.5817 46 12 42.4183 12 38V30Z" fill="url(#visor-gradient)" stroke="#00E5FF" strokeWidth="2" />
+                {/* Glowing Visor Line */}
+                <path d="M16 35H48" stroke="#9D00FF" strokeWidth="4" strokeLinecap="round" className="animate-pulse" style={{ filter: 'drop-shadow(0 0 8px #9D00FF)' }} />
+                {/* Head Strap */}
+                <path d="M14 28H8C5.79086 28 4 29.7909 4 32V34" stroke="white" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.4" />
+                <path d="M50 28H56C58.2091 28 60 29.7909 60 32V34" stroke="white" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.4" />
+                <defs>
+                  <linearGradient id="visor-gradient" x1="12" y1="24" x2="52" y2="46" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#1A1A24" />
+                    <stop offset="1" stopColor="#0A0A0F" />
+                  </linearGradient>
+                  <radialGradient id="core-glow" cx="32" cy="32" r="24" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#00E5FF" stopOpacity="0.6" />
+                    <stop offset="1" stopColor="#9D00FF" stopOpacity="0" />
+                  </radialGradient>
+                </defs>
+              </svg>
+              
               <motion.div
                 animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 0.5] }}
                 transition={{ duration: 2, repeat: Infinity }}
                 className="absolute -top-1 -right-1"
               >
-                <Sparkles className="w-3 h-3 text-purple-400" />
+                <Sparkles className="w-4 h-4 text-purple-400" />
               </motion.div>
             </div>
             
