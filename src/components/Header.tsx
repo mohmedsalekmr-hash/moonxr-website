@@ -63,34 +63,41 @@ export function Header() {
                 viewBox="0 0 64 64"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-10 h-10 relative z-10 drop-shadow-[0_0_15px_rgba(0,122,255,0.8)] group-hover:scale-110 transition-transform duration-500"
+                className="w-10 h-10 relative z-10 drop-shadow-[0_0_15px_rgba(251,183,48,0.5)] group-hover:scale-110 transition-transform duration-500"
               >
-                <circle cx="32" cy="32" r="24" fill="url(#core-glow)" opacity="0.5" className="animate-pulse" />
-                <path
-                  d="M12 30C12 26.6863 14.6863 24 18 24H46C49.3137 24 52 26.6863 52 30V38C52 42.4183 48.4183 46 44 46H20C15.5817 46 12 42.4183 12 38V30Z"
-                  fill="url(#visor-gradient)"
-                  stroke="#007aff"
-                  strokeWidth="2"
+                {/* Crescent Moon */}
+                <path 
+                  d="M 32 2 A 30 30 0 1 0 62 32 A 22 22 0 1 1 32 2 Z" 
+                  fill="url(#moon-gradient)" 
                 />
-                <path
-                  d="M16 35H48"
-                  stroke="#0c3585"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  className="animate-pulse"
-                  style={{ filter: "drop-shadow(0 0 8px #0c3585)" }}
+                
+                {/* Sleek VR Visor Overlapping the Moon */}
+                <rect 
+                  x="24" y="24" width="36" height="16" rx="6" 
+                  fill="url(#visor-gradient)" 
+                  stroke="rgba(255,255,255,0.9)" 
+                  strokeWidth="1.5" 
+                  className="drop-shadow-[0_0_10px_rgba(0,122,255,0.5)]"
                 />
-                <path d="M14 28H8C5.79086 28 4 29.7909 4 32V34" stroke="white" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.4" />
-                <path d="M50 28H56C58.2091 28 60 29.7909 60 32V34" stroke="white" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.4" />
+                {/* Visor Glow Line */}
+                <path 
+                  d="M 28 32 H 56" 
+                  stroke="#007aff" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  className="animate-pulse" 
+                  style={{ filter: "drop-shadow(0 0 6px #007aff)" }}
+                />
+
                 <defs>
-                  <linearGradient id="visor-gradient" x1="12" y1="24" x2="52" y2="46" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#1A1A24" />
-                    <stop offset="1" stopColor="#0A0A0F" />
+                  <linearGradient id="moon-gradient" x1="4" y1="4" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#FBB730" />
+                    <stop offset="1" stopColor="#D97706" />
                   </linearGradient>
-                  <radialGradient id="core-glow" cx="32" cy="32" r="24" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#007aff" stopOpacity="0.6" />
-                    <stop offset="1" stopColor="#0c3585" stopOpacity="0" />
-                  </radialGradient>
+                  <linearGradient id="visor-gradient" x1="24" y1="24" x2="60" y2="40" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#0f172a" />
+                    <stop offset="1" stopColor="#1e293b" />
+                  </linearGradient>
                 </defs>
               </svg>
 
@@ -104,11 +111,13 @@ export function Header() {
             </div>
 
             <div className="flex flex-col">
-              <span className="font-display font-bold text-2xl tracking-widest leading-none">
-                <span className="text-white">Moon</span>
-                <span className="text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.6)]">XR</span>
+              <span className="font-display font-bold text-3xl tracking-wider leading-none lowercase flex items-center">
+                <span className="text-white">m</span>
+                <span className="text-moon-yellow">o</span>
+                <span className="text-white">on</span>
+                <span className="text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.6)] uppercase ml-1.5 text-2xl">XR</span>
               </span>
-              <span className="text-[9px] uppercase tracking-[0.3em] text-white/40 mt-1">Virtual Reality</span>
+              <span className="text-[9px] uppercase tracking-[0.3em] text-white/40 mt-1 pl-1">Virtual Reality</span>
             </div>
           </motion.div>
 
