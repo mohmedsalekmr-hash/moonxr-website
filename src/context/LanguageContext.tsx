@@ -1,6 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 
 type Language = "en" | "fr";
 
@@ -13,30 +20,46 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguage] = useState<Language>("en");
+  const [language, setLanguageState] = useState<Language>("en");
 
-  // On mount, check if there's a saved language or prefer-language
+  // Restore saved language preference on first mount only
   useEffect(() => {
-    const saved = localStorage.getItem("xr-lang") as Language;
-    if (saved) {
-      setLanguage(saved);
-    } else {
-      const isFrench = navigator.language.startsWith("fr");
-      if (isFrench) setLanguage("fr");
+    try {
+      const saved = localStorage.getItem("xr-lang") as Language | null;
+      if (saved === "en" || saved === "fr") {
+        setLanguageState(saved);
+      } else if (navigator.language.startsWith("fr")) {
+        setLanguageState("fr");
+      }
+    } catch {
+      // localStorage may not be available (e.g., private mode edge cases)
     }
   }, []);
 
-  const handleSetLanguage = (lang: Language) => {
-    setLanguage(lang);
-    localStorage.setItem("xr-lang", lang);
-  };
+  const setLanguage = useCallback((lang: Language) => {
+    setLanguageState(lang);
+    try {
+      localStorage.setItem("xr-lang", lang);
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
 
-  const t = (enText: string, frText: string) => {
-    return language === "fr" ? frText : enText;
-  };
+  // Memoize `t` so consuming components only re-render when language actually changes
+  const t = useCallback(
+    (enText: string, frText: string): string => {
+      return language === "fr" ? frText : enText;
+    },
+    [language]
+  );
+
+  const value = useMemo(
+    () => ({ language, setLanguage, t }),
+    [language, setLanguage, t]
+  );
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, t }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );

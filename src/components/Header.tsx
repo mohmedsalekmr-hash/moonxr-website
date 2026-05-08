@@ -2,57 +2,84 @@
 
 import { useLanguage } from "@/context/LanguageContext";
 import { LanguageToggle } from "./LanguageToggle";
+import Link from "next/link";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { Boxes, Sparkles, FileText, X, Mail, Phone, MapPin, Send } from "lucide-react";
-import { useState } from "react";
+import { Boxes, Sparkles, FileText, X, Mail, Phone, MapPin } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export function Header() {
   const { t } = useLanguage();
   const { scrollY } = useScroll();
   const [isContactOpen, setIsContactOpen] = useState(false);
-  
+
+  useEffect(() => {
+    const handleOpen = () => setIsContactOpen(true);
+    window.addEventListener("openContactModal", handleOpen);
+    return () => window.removeEventListener("openContactModal", handleOpen);
+  }, []);
+
+  // Close modal on Escape key
+  useEffect(() => {
+    if (!isContactOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsContactOpen(false);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isContactOpen]);
+
   const backgroundColor = useTransform(
     scrollY,
-    [0, 50],
-    ["rgba(10, 10, 11, 0)", "rgba(10, 10, 11, 0.6)"]
+    [0, 60],
+    ["rgba(7, 26, 60, 0)", "rgba(7, 26, 60, 0.85)"]
   );
-  
-  const backdropBlur = useTransform(
-    scrollY,
-    [0, 50],
-    ["blur(0px)", "blur(16px)"]
-  );
-
+  const backdropBlur = useTransform(scrollY, [0, 60], ["blur(0px)", "blur(18px)"]);
   const borderColor = useTransform(
     scrollY,
-    [0, 50],
-    ["rgba(255, 255, 255, 0)", "rgba(0, 229, 255, 0.15)"]
+    [0, 60],
+    ["rgba(255,255,255,0)", "rgba(0,122,255,0.18)"]
   );
+  // Separate transform for the accent line opacity — avoids calling useTransform inside JSX
+  const accentLineOpacity = useTransform(scrollY, [0, 60], [0, 1]);
 
   return (
     <>
       <motion.header
         style={{ backgroundColor, backdropFilter: backdropBlur, borderBottomColor: borderColor }}
-        className="fixed top-0 left-0 right-0 z-40 transition-all duration-500 border-b"
+        className="fixed top-0 left-0 right-0 z-40 border-b"
       >
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          
-          {/* Incredible Animated VR Logo */}
-          <motion.div 
+
+          {/* Logo */}
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            transition={{ duration: 0.5 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="flex items-center space-x-3 group cursor-pointer"
           >
             <div className="relative flex items-center justify-center w-14 h-14">
-              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 relative z-10 drop-shadow-[0_0_15px_rgba(0,229,255,0.8)] group-hover:scale-110 transition-transform duration-500">
-                {/* Background Glow */}
+              <svg
+                viewBox="0 0 64 64"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-10 h-10 relative z-10 drop-shadow-[0_0_15px_rgba(0,122,255,0.8)] group-hover:scale-110 transition-transform duration-500"
+              >
                 <circle cx="32" cy="32" r="24" fill="url(#core-glow)" opacity="0.5" className="animate-pulse" />
-                {/* Outer VR Headset Frame */}
-                <path d="M12 30C12 26.6863 14.6863 24 18 24H46C49.3137 24 52 26.6863 52 30V38C52 42.4183 48.4183 46 44 46H20C15.5817 46 12 42.4183 12 38V30Z" fill="url(#visor-gradient)" stroke="#00E5FF" strokeWidth="2" />
-                {/* Glowing Visor Line */}
-                <path d="M16 35H48" stroke="#9D00FF" strokeWidth="4" strokeLinecap="round" className="animate-pulse" style={{ filter: 'drop-shadow(0 0 8px #9D00FF)' }} />
-                {/* Head Strap */}
+                <path
+                  d="M12 30C12 26.6863 14.6863 24 18 24H46C49.3137 24 52 26.6863 52 30V38C52 42.4183 48.4183 46 44 46H20C15.5817 46 12 42.4183 12 38V30Z"
+                  fill="url(#visor-gradient)"
+                  stroke="#007aff"
+                  strokeWidth="2"
+                />
+                <path
+                  d="M16 35H48"
+                  stroke="#0c3585"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  className="animate-pulse"
+                  style={{ filter: "drop-shadow(0 0 8px #0c3585)" }}
+                />
                 <path d="M14 28H8C5.79086 28 4 29.7909 4 32V34" stroke="white" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.4" />
                 <path d="M50 28H56C58.2091 28 60 29.7909 60 32V34" stroke="white" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.4" />
                 <defs>
@@ -61,140 +88,154 @@ export function Header() {
                     <stop offset="1" stopColor="#0A0A0F" />
                   </linearGradient>
                   <radialGradient id="core-glow" cx="32" cy="32" r="24" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#00E5FF" stopOpacity="0.6" />
-                    <stop offset="1" stopColor="#9D00FF" stopOpacity="0" />
+                    <stop stopColor="#007aff" stopOpacity="0.6" />
+                    <stop offset="1" stopColor="#0c3585" stopOpacity="0" />
                   </radialGradient>
                 </defs>
               </svg>
-              
+
               <motion.div
                 animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity }}
+                transition={{ duration: 2.5, repeat: Infinity }}
                 className="absolute -top-1 -right-1"
               >
                 <Sparkles className="w-4 h-4 text-purple-400" />
               </motion.div>
             </div>
-            
+
             <div className="flex flex-col">
-              <span className="font-display font-bold text-2xl tracking-widest text-white leading-none">
-                Moon<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-600">XR</span>
+              <span className="font-display font-bold text-2xl tracking-widest leading-none">
+                <span className="text-white">Moon</span>
+                <span className="text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.6)]">XR</span>
               </span>
-              <span className="text-[9px] uppercase tracking-[0.3em] text-white/40 mt-1">
-                Virtual Reality
-              </span>
+              <span className="text-[9px] uppercase tracking-[0.3em] text-white/40 mt-1">Virtual Reality</span>
             </div>
           </motion.div>
 
-          {/* Executive Navigation */}
-          <motion.nav 
+          {/* Navigation */}
+          <motion.nav
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="hidden md:flex items-center relative bg-[#0A0A0B]/80 backdrop-blur-xl px-2 py-2 rounded-full border border-cyan-500/30 shadow-[0_0_20px_rgba(0,229,255,0.15)]"
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="hidden md:flex items-center relative bg-brand-dark/40 backdrop-blur-2xl px-1.5 py-1.5 rounded-full border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
           >
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-cyan-500/10 blur-md -z-10" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-moon-blue-light/5 via-moon-blue/10 to-moon-blue-light/5 blur-md -z-10" />
 
-            <a href="/#providers" className="relative group px-6 py-2 rounded-full overflow-hidden transition-colors">
-              <div className="absolute inset-0 bg-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
-              <span className="relative z-10 flex items-center space-x-2 text-[11px] font-bold uppercase tracking-widest text-white/70 group-hover:text-purple-400 transition-colors">
-                <Boxes className="w-3 h-3" />
+            <Link href="/#providers" className="relative group px-6 py-2.5 rounded-full overflow-hidden transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-r from-moon-blue-light/10 to-moon-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
+              <span className="relative z-10 flex items-center space-x-2 text-[11px] font-bold uppercase tracking-[0.15em] text-white/80 group-hover:text-moon-blue-light transition-colors">
+                <Boxes className="w-3.5 h-3.5" />
                 <span>{t("Providers", "Fournisseurs")}</span>
               </span>
-            </a>
+            </Link>
 
-            <button 
+            <button
               onClick={() => setIsContactOpen(true)}
-              className="relative group px-6 py-2 rounded-full overflow-hidden transition-colors"
+              className="relative group px-6 py-2.5 rounded-full overflow-hidden transition-all duration-300"
             >
-              <div className="absolute inset-0 bg-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
-              <span className="relative z-10 flex items-center space-x-2 text-[11px] font-bold uppercase tracking-widest text-white/70 group-hover:text-purple-400 transition-colors">
-                <FileText className="w-3 h-3" />
+              <div className="absolute inset-0 bg-gradient-to-r from-moon-yellow/10 to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
+              <span className="relative z-10 flex items-center space-x-2 text-[11px] font-bold uppercase tracking-[0.15em] text-white/80 group-hover:text-moon-yellow transition-colors">
+                <FileText className="w-3.5 h-3.5" />
                 <span>{t("Contact", "Contact")}</span>
               </span>
             </button>
           </motion.nav>
 
-          {/* Right Section */}
-          <motion.div 
+          {/* Language Toggle */}
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
             className="flex items-center"
           >
             <LanguageToggle />
           </motion.div>
-          
         </div>
-        
-        <motion.div 
-          style={{ opacity: useTransform(scrollY, [0, 50], [0, 1]) }}
+
+        {/* Accent progress line */}
+        <motion.div
+          style={{ opacity: accentLineOpacity }}
           className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"
         />
       </motion.header>
 
-      {/* Incredible Contact Modal */}
+      {/* Contact Modal */}
       <AnimatePresence>
         {isContactOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-            <motion.div 
+            {/* Backdrop */}
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsContactOpen(false)}
-              className="absolute inset-0 bg-[#0A0A0B]/90 backdrop-blur-xl"
+              className="absolute inset-0 bg-brand-dark/90 backdrop-blur-xl"
             />
-            
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: "spring", bounce: 0.3 }}
-              className="relative w-full max-w-4xl bg-gradient-to-br from-[#121214] to-[#0A0A0B] border border-white/10 rounded-3xl shadow-[0_0_100px_rgba(157,0,255,0.2)] overflow-hidden"
-            >
-              {/* Background Orbs */}
-              <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-600/20 blur-[100px] rounded-full pointer-events-none" />
-              <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-600/20 blur-[100px] rounded-full pointer-events-none" />
 
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ type: "spring", stiffness: 280, damping: 28 }}
+              className="relative w-full max-w-4xl bg-brand-dark border border-white/10 rounded-3xl overflow-hidden"
+            >
               <div className="relative z-10 flex flex-col md:flex-row">
-                
-                {/* Center: Contact Info Only (No Form) */}
-                <div className="w-full bg-white/5 p-12 flex flex-col justify-center items-center text-center backdrop-blur-sm relative">
-                  <button 
+                <div className="w-full bg-transparent p-10 md:p-12 flex flex-col justify-center items-center text-center backdrop-blur-sm relative">
+                  <button
                     onClick={() => setIsContactOpen(false)}
-                    className="absolute top-6 right-6 p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/50 hover:text-white transition-colors"
+                    aria-label="Close modal"
+                    className="absolute top-5 right-5 p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/50 hover:text-white transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>
 
-                  <h2 className="text-4xl font-black text-white mb-4">{t("Get in Touch", "Contactez-nous")}</h2>
-                  <p className="text-white/60 mb-12 max-w-md">{t("Ready to revolutionize your enterprise with VR? Reach out to our executive team directly.", "Prêt à révolutionner votre entreprise avec la VR ? Contactez directement notre équipe de direction.")}</p>
-                  
-                  <div className="grid md:grid-cols-3 gap-8 w-full max-w-3xl">
-                    <div className="flex flex-col items-center p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-purple-500/30 transition-colors group">
-                      <div className="w-14 h-14 rounded-full bg-purple-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <Mail className="w-6 h-6 text-purple-400" />
+                  <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-moon-white via-moon-blue-light to-moon-blue mb-4 tracking-tight">
+                    {t("Get in Touch", "Contactez-nous")}
+                  </h2>
+                  <p className="text-white/60 mb-10 max-w-md">
+                    {t(
+                      "Ready to revolutionize your enterprise with VR? Reach out to our executive team directly.",
+                      "Prêt à révolutionner votre entreprise avec la réalité virtuelle ? Contactez directement notre équipe dirigeante."
+                    )}
+                  </p>
+
+                  <div className="grid md:grid-cols-3 gap-5 w-full max-w-3xl">
+                    {/* Email */}
+                    <div className="relative flex flex-col items-center p-7 bg-transparent rounded-3xl border border-white/5 hover:border-moon-blue-light/40 transition-all duration-500 group overflow-hidden hover:shadow-[0_0_40px_rgba(0,122,255,0.15)]">
+                      <div className="absolute inset-0 bg-gradient-to-br from-moon-blue-light/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="w-14 h-14 rounded-2xl bg-moon-blue-dark/50 flex items-center justify-center mb-5 group-hover:shadow-[0_0_30px_rgba(0,122,255,0.4)] group-hover:scale-110 transition-all duration-500 border border-moon-blue-light/20 relative z-10">
+                        <Mail className="w-6 h-6 text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.8)]" />
                       </div>
-                      <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-2">{t("Email Us", "Envoyez un Email")}</p>
-                      <a href="mailto:contact@moonxr.com" className="text-white font-medium hover:text-purple-400 transition-colors">contact@moonxr.com</a>
+                      <p className="text-moon-blue-light/80 text-[10px] font-bold uppercase tracking-[0.2em] mb-2 relative z-10">{t("Email Us", "Envoyez un Email")}</p>
+                      <a href="mailto:mohamedsaleck@moon.mr" className="text-white text-base font-medium hover:text-moon-blue-light transition-colors relative z-10 break-all">
+                        mohamedsaleck@moon.mr
+                      </a>
                     </div>
 
-                    <div className="flex flex-col items-center p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-cyan-500/30 transition-colors group">
-                      <div className="w-14 h-14 rounded-full bg-cyan-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <Phone className="w-6 h-6 text-cyan-400" />
+                    {/* Phone */}
+                    <div className="relative flex flex-col items-center p-7 bg-transparent rounded-3xl border border-white/5 hover:border-moon-yellow/40 transition-all duration-500 group overflow-hidden hover:shadow-[0_0_40px_rgba(251,183,48,0.15)]">
+                      <div className="absolute inset-0 bg-gradient-to-br from-moon-yellow/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="w-14 h-14 rounded-2xl bg-amber-950/50 flex items-center justify-center mb-5 group-hover:shadow-[0_0_30px_rgba(251,183,48,0.4)] group-hover:scale-110 transition-all duration-500 border border-moon-yellow/20 relative z-10">
+                        <Phone className="w-6 h-6 text-moon-yellow drop-shadow-[0_0_8px_rgba(251,183,48,0.8)]" />
                       </div>
-                      <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-2">{t("Call Us", "Appelez-nous")}</p>
-                      <a href="tel:+2220000000" className="text-white font-medium hover:text-cyan-400 transition-colors">+222 00 00 00 00</a>
+                      <p className="text-moon-yellow/80 text-[10px] font-bold uppercase tracking-[0.2em] mb-2 relative z-10">{t("Call Us", "Appelez-nous")}</p>
+                      <a href="tel:+22230454777" className="text-white text-base font-medium hover:text-moon-yellow transition-colors relative z-10">
+                        +222 30454777
+                      </a>
                     </div>
 
-                    <div className="flex flex-col items-center p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-emerald-500/30 transition-colors group">
-                      <div className="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <MapPin className="w-6 h-6 text-emerald-400" />
+                    {/* Location */}
+                    <div className="relative flex flex-col items-center p-7 bg-transparent rounded-3xl border border-white/5 hover:border-emerald-500/40 transition-all duration-500 group overflow-hidden hover:shadow-[0_0_40px_rgba(16,185,129,0.15)]">
+                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="w-14 h-14 rounded-2xl bg-emerald-950/50 flex items-center justify-center mb-5 group-hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] group-hover:scale-110 transition-all duration-500 border border-emerald-500/20 relative z-10">
+                        <MapPin className="w-6 h-6 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
                       </div>
-                      <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-2">{t("Location", "Emplacement")}</p>
-                      <span className="text-white font-medium">Nouakchott, Mauritania</span>
+                      <p className="text-emerald-400/80 text-[10px] font-bold uppercase tracking-[0.2em] mb-2 relative z-10">{t("Location", "Emplacement")}</p>
+                      <span className="text-white text-base font-medium relative z-10">Nouakchott, Mauritania</span>
                     </div>
                   </div>
                 </div>
-
               </div>
             </motion.div>
           </div>

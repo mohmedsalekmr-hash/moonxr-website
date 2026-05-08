@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { useLanguage } from "@/context/LanguageContext";
@@ -290,9 +291,6 @@ export function StrategicReport() {
 
   return (
     <section id="strategic-dossier" className="py-24 relative z-10 bg-brand-dark overflow-hidden">
-      {/* Background Decor */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-purple-500/10 blur-[120px] rounded-full pointer-events-none" />
-      
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="mb-16">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 mb-6">

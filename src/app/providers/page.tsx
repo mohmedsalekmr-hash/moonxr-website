@@ -1,34 +1,45 @@
-import { CanvasBackground } from "@/components/CanvasBackground";
 import { Header } from "@/components/Header";
 import { partnersData } from "@/data/partners";
 import { ProvidersClient } from "./ProvidersClient";
+import { CanvasBackgroundLazy } from "./CanvasBackgroundLazy";
+import { Footer } from "@/components/Footer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "VR Providers | MoonXR",
+  description: "Explore our global network of top Virtual Reality providers across 6 industry sectors.",
+};
 
 export default function ProvidersPage() {
   return (
     <main className="relative min-h-screen">
-      <CanvasBackground />
+      <CanvasBackgroundLazy />
       <Header />
-      
-      <div className="pt-32 pb-20 relative z-10 max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-6">
-            Our VR <span className="text-gradient">Providers</span>
-          </h1>
-          <p className="text-xl text-white/60 max-w-2xl mx-auto">
-            Connect with top virtual reality companies tailored to your industry's needs.
-          </p>
+
+      {/* ── Page hero ── */}
+      <div className="relative z-10 pt-36 pb-16 text-center px-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] mb-6">
+          <span className="w-2 h-2 rounded-full bg-moon-blue-light animate-pulse flex-shrink-0" />
+          <span className="text-[11px] font-semibold text-white/50 uppercase tracking-widest">
+            Partner Ecosystem
+          </span>
         </div>
-        
+        <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-5 leading-[1.08]">
+          Our{" "}
+          <span className="text-gradient">Providers</span>
+        </h1>
+        <p className="text-lg text-white/50 max-w-2xl mx-auto leading-relaxed">
+          We partner with the world&apos;s leading VR and simulation companies to deliver
+          industry-specific solutions for the Mauritanian market.
+        </p>
+      </div>
+
+      {/* ── Providers ── */}
+      <div className="relative z-10 max-w-[1400px] mx-auto px-6 pb-28">
         <ProvidersClient partners={partnersData} />
       </div>
 
-      <footer className="relative z-10 border-t border-white/10 bg-brand-dark/80 backdrop-blur-md py-12">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-white/40 text-sm">
-            © 2026 MoonXR. Connecting you to top VR providers.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }

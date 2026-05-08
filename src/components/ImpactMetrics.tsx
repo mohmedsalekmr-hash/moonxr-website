@@ -39,7 +39,7 @@ const Counter = ({ value, suffix = "" }: { value: number, suffix?: string }) => 
 export function ImpactMetrics() {
   const { t } = useLanguage();
   return (
-    <section className="py-20 relative z-10 border-t border-b border-white/5 bg-gradient-to-b from-transparent to-[#0A0A0B]/50">
+    <section className="py-20 relative z-10 border-t border-b border-white/5 bg-gradient-to-b from-transparent to-brand-dark/50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-3 gap-12 text-center divide-y md:divide-y-0 md:divide-x divide-white/10">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="p-6">
