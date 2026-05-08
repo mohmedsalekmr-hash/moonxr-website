@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { partnersData, Partner } from "@/data/partners";
 import { useLanguage } from "@/context/LanguageContext";
@@ -24,8 +25,6 @@ const getS = (n: string) => SECTORS[n] ?? { label: n, labelFr: n, icon: <Zap cla
 
 /* ── Clean Elegant Card ────────────────────────────────────────────────── */
 function ElegantCard({ partner, lang, onClick }: { partner: Partner; lang: string; onClick: () => void }) {
-  const [loaded, setLoaded] = useState(false);
-  const [failed, setFailed] = useState(false);
   const s = getS(partner.sector);
   const initials = partner.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
@@ -55,25 +54,20 @@ function ElegantCard({ partner, lang, onClick }: { partner: Partner; lang: strin
     >
       {/* Large Beautiful Icon Container */}
       <div className="w-[84px] h-[84px] bg-white rounded-2xl flex items-center justify-center flex-shrink-0 relative overflow-hidden transition-transform duration-300 group-hover:scale-105 shadow-inner">
-        {failed ? (
-          <span className="font-black text-slate-400 text-2xl select-none">{initials}</span>
-        ) : (
-          <>
-            {!loaded && (
-              <span className="absolute font-bold text-slate-400 text-xl select-none">{initials}</span>
-            )}
-            <img
-              src={`https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
-              alt={partner.name}
-              loading="eager"
-              decoding="async"
-              className="w-[60px] h-[60px] object-contain relative z-10"
-              style={{ opacity: loaded ? 1 : 0, transition: "opacity 0.3s" }}
-              onLoad={() => setLoaded(true)}
-              onError={() => setFailed(true)}
-            />
-          </>
-        )}
+        <span className="absolute font-bold text-slate-400 text-xl select-none z-0">{initials}</span>
+        <img
+          src={`https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
+          alt={partner.name}
+          loading="lazy"
+          className="w-full h-full p-2.5 object-contain relative z-10 bg-white"
+          onError={(e) => {
+            e.currentTarget.style.opacity = '0';
+          }}
+          onLoad={(e) => {
+            e.currentTarget.style.opacity = '1';
+          }}
+          style={{ opacity: 0, transition: 'opacity 0.2s' }}
+        />
       </div>
 
       {/* Simplified Info */}
@@ -100,8 +94,15 @@ function ScrollRow({
   partners, reverse, lang, onSelect,
 }: { partners: Partner[]; reverse: boolean; lang: string; onSelect: (p: Partner) => void }) {
   const [paused, setPaused] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 300);
+    return () => clearTimeout(t);
+  }, []);
+
   const CARD_PX = 364; // 340px card + 24px gap
-  const reps = Math.max(Math.ceil(3500 / (partners.length * CARD_PX)), 3);
+  const reps = partners.length > 0 ? Math.max(Math.ceil(2500 / (partners.length * CARD_PX)), 1) : 1;
   const base = Array(reps).fill(null).flatMap(() => partners);
   const track = [...base, ...base];
   const durationSec = Math.round((base.length * CARD_PX) / 60);
@@ -121,9 +122,13 @@ function ScrollRow({
         className="flex gap-6 py-4 px-2"
         style={{
           width: "max-content",
-          animation: `${reverse ? "marquee-reverse" : "marquee"} ${durationSec}s linear infinite`,
-          animationPlayState: paused ? "paused" : "running",
-          willChange: "transform",
+          ...(mounted ? {
+            animation: `${reverse ? "marquee-reverse" : "marquee"} ${durationSec}s linear infinite`,
+            animationPlayState: paused ? "paused" : "running",
+            willChange: "transform",
+          } : {
+            transform: "translateX(0)",
+          })
         }}
       >
         {track.map((p, i) => (
@@ -161,9 +166,12 @@ function Modal({ partner, onClose }: { partner: Partner; onClose: () => void }) 
         
         <div className="flex items-center gap-5 p-6 border-b border-white/[0.04]">
           <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center flex-shrink-0 shadow-lg">
-            <img
+            <Image
               src={`https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
-              alt={partner.name} className="w-[60px] h-[60px] object-contain"
+              alt={partner.name}
+              width={128}
+              height={128}
+              className="w-[60px] h-[60px] object-contain"
             />
           </div>
           <div className="flex-1 min-w-0">

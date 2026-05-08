@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useLanguage } from "@/context/LanguageContext";
 import { partnersData, Partner } from "@/data/partners";
 import { motion, AnimatePresence } from "framer-motion";
@@ -113,15 +114,16 @@ function PartnerCover({ partner, size = "card" }: { partner: Partner; size?: "ca
             <>
               {/* Initials shown until real logo loads */}
               {!logoLoaded && (
-                <span className="text-white font-bold text-lg leading-none select-none">{initials}</span>
+                <span className="text-white font-bold text-lg leading-none select-none absolute z-0">{initials}</span>
               )}
-              <img
+              <Image
                 src={`https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
                 alt={partner.name}
+                width={128}
+                height={128}
                 loading="eager"
                 decoding="async"
-                fetchPriority="high"
-                className={`w-full h-full object-contain transition-opacity duration-300 ${logoLoaded ? "opacity-100" : "opacity-0 absolute inset-0"}`}
+                className={`w-full h-full object-contain relative z-10 ${logoLoaded ? "opacity-100" : ""}`}
                 onLoad={() => setLogoLoaded(true)}
                 onError={() => setLogoFailed(true)}
               />
@@ -407,14 +409,15 @@ function PartnerLogoOnly({ partner }: { partner: Partner }) {
 
   return (
     <>
-      {!loaded && <span className="text-white font-bold text-xl absolute">{initials}</span>}
-      <img
+      {!loaded && <span className="text-white font-bold text-xl absolute z-0">{initials}</span>}
+      <Image
         src={`https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
         alt={partner.name}
+        width={128}
+        height={128}
         loading="eager"
         decoding="async"
-        fetchPriority="high"
-        className={`w-full h-full object-contain transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+        className={`w-full h-full object-contain relative z-10 ${loaded ? "opacity-100" : ""}`}
         onLoad={() => setLoaded(true)}
         onError={() => setFailed(true)}
       />

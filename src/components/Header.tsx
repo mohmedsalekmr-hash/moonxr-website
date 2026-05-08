@@ -178,17 +178,19 @@ export function Header() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, y: 20 }}
               transition={{ type: "spring", stiffness: 280, damping: 28 }}
-              className="relative w-full max-w-4xl bg-brand-dark border border-white/10 rounded-3xl overflow-hidden"
+              className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar bg-brand-dark border border-white/10 rounded-3xl"
             >
               <div className="relative z-10 flex flex-col md:flex-row">
-                <div className="w-full bg-transparent p-10 md:p-12 flex flex-col justify-center items-center text-center backdrop-blur-sm relative">
-                  <button
-                    onClick={() => setIsContactOpen(false)}
-                    aria-label="Close modal"
-                    className="absolute top-5 right-5 p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/50 hover:text-white transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+                <div className="w-full bg-transparent p-6 sm:p-10 md:p-12 flex flex-col justify-center items-center text-center backdrop-blur-sm relative min-h-max">
+                  <div className="sticky top-0 right-0 w-full flex justify-end z-50 mb-4 md:absolute md:top-5 md:right-5 md:mb-0">
+                    <button
+                      onClick={() => setIsContactOpen(false)}
+                      aria-label="Close modal"
+                      className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white/70 hover:text-white transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
 
                   <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-moon-white via-moon-blue-light to-moon-blue mb-4 tracking-tight">
                     {t("Get in Touch", "Contactez-nous")}
