@@ -63,25 +63,33 @@ export function Header() {
                 viewBox="0 0 64 64"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-10 h-10 relative z-10 drop-shadow-[0_0_15px_rgba(251,183,48,0.5)] group-hover:scale-110 transition-transform duration-500"
+                className="w-10 h-10 relative z-10 drop-shadow-[0_0_15px_rgba(251,183,48,0.3)] group-hover:scale-110 transition-transform duration-500"
               >
-                {/* Crescent Moon */}
+                {/* Beautiful Thick Crescent Moon */}
                 <path 
-                  d="M 32 2 A 30 30 0 1 0 62 32 A 22 22 0 1 1 32 2 Z" 
+                  d="M 36 4 A 28 28 0 0 0 36 60 A 36 36 0 0 1 36 4 Z" 
                   fill="url(#moon-gradient)" 
                 />
                 
-                {/* Sleek VR Visor Overlapping the Moon */}
-                <rect 
-                  x="24" y="24" width="36" height="16" rx="6" 
-                  fill="url(#visor-gradient)" 
-                  stroke="rgba(255,255,255,0.9)" 
-                  strokeWidth="1.5" 
-                  className="drop-shadow-[0_0_10px_rgba(0,122,255,0.5)]"
-                />
-                {/* Visor Glow Line */}
+                {/* Minimalist Premium VR Headset */}
                 <path 
-                  d="M 28 32 H 56" 
+                  d="M 22 22 
+                     C 30 22 42 22 50 22 
+                     C 53.3 22 56 24.7 56 28 
+                     V 36 
+                     C 56 39.3 53.3 42 50 42 
+                     C 44 42 40 36 36 36 
+                     C 32 36 28 42 22 42 
+                     C 18.7 42 16 39.3 16 36 
+                     V 28 
+                     C 16 24.7 18.7 22 22 22 Z" 
+                  fill="#ffffff" 
+                  className="drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]"
+                />
+
+                {/* Cyberpunk XR Glow Line */}
+                <path 
+                  d="M 24 32 H 48" 
                   stroke="#007aff" 
                   strokeWidth="2.5" 
                   strokeLinecap="round" 
@@ -90,13 +98,9 @@ export function Header() {
                 />
 
                 <defs>
-                  <linearGradient id="moon-gradient" x1="4" y1="4" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                  <linearGradient id="moon-gradient" x1="8" y1="4" x2="36" y2="60" gradientUnits="userSpaceOnUse">
                     <stop stopColor="#FBB730" />
                     <stop offset="1" stopColor="#D97706" />
-                  </linearGradient>
-                  <linearGradient id="visor-gradient" x1="24" y1="24" x2="60" y2="40" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#0f172a" />
-                    <stop offset="1" stopColor="#1e293b" />
                   </linearGradient>
                 </defs>
               </svg>
