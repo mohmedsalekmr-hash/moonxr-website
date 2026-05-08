@@ -62,7 +62,12 @@ export function Benefits() {
             className="text-3xl md:text-4xl font-display font-bold text-white mb-4"
           >
             {t("Why Choose ", "Pourquoi Choisir ")}
-            <span className="text-gradient">MoonXR</span>
+            <span className="inline-flex items-center lowercase align-middle">
+              <span className="text-white">m</span>
+              <span className="text-moon-yellow">o</span>
+              <span className="text-white">on</span>
+              <span className="text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.6)] uppercase ml-1.5 text-[0.8em]">XR</span>
+            </span>
           </motion.h2>
           
           <motion.p
