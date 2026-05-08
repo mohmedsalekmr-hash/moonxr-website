@@ -63,55 +63,34 @@ export function Header() {
                 viewBox="0 0 64 64"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-10 h-10 relative z-10 drop-shadow-[0_0_15px_rgba(251,183,48,0.3)] group-hover:scale-110 transition-transform duration-500"
+                className="w-10 h-10 relative z-10 drop-shadow-[0_0_15px_rgba(0,122,255,0.3)] group-hover:scale-110 transition-transform duration-500"
               >
-                {/* Beautiful Thick Crescent Moon */}
-                <path 
-                  d="M 36 4 A 28 28 0 0 0 36 60 A 36 36 0 0 1 36 4 Z" 
-                  fill="url(#moon-gradient)" 
-                />
-                
                 {/* Minimalist Premium VR Headset */}
                 <path 
-                  d="M 22 22 
-                     C 30 22 42 22 50 22 
-                     C 53.3 22 56 24.7 56 28 
+                  d="M 18 22 
+                     C 26 22 38 22 46 22 
+                     C 49.3 22 52 24.7 52 28 
                      V 36 
-                     C 56 39.3 53.3 42 50 42 
-                     C 44 42 40 36 36 36 
-                     C 32 36 28 42 22 42 
-                     C 18.7 42 16 39.3 16 36 
+                     C 52 39.3 49.3 42 46 42 
+                     C 40 42 36 36 32 36 
+                     C 28 36 24 42 18 42 
+                     C 14.7 42 12 39.3 12 36 
                      V 28 
-                     C 16 24.7 18.7 22 22 22 Z" 
+                     C 12 24.7 14.7 22 18 22 Z" 
                   fill="#ffffff" 
                   className="drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]"
                 />
 
                 {/* Cyberpunk XR Glow Line */}
                 <path 
-                  d="M 24 32 H 48" 
+                  d="M 20 32 H 44" 
                   stroke="#007aff" 
                   strokeWidth="2.5" 
                   strokeLinecap="round" 
                   className="animate-pulse" 
                   style={{ filter: "drop-shadow(0 0 6px #007aff)" }}
                 />
-
-                <defs>
-                  <linearGradient id="moon-gradient" x1="8" y1="4" x2="36" y2="60" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#FBB730" />
-                    <stop offset="1" stopColor="#D97706" />
-                  </linearGradient>
-                </defs>
               </svg>
-
-              <motion.div
-                animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 0.5] }}
-                transition={{ duration: 2.5, repeat: Infinity }}
-                className="absolute -top-1 -right-1"
-              >
-                <Sparkles className="w-4 h-4 text-purple-400" />
-              </motion.div>
             </div>
 
             <div className="flex flex-col">
