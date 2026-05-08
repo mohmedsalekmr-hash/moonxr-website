@@ -44,7 +44,7 @@ const CONTACT_CARDS = [
 ] as const;
 
 export function ContactSection() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <section id="contact" className="py-24 relative z-10">
@@ -56,8 +56,12 @@ export function ContactSection() {
           className="w-full"
         >
           <div className="w-full p-10 md:p-14 flex flex-col justify-center items-center text-center">
-            <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-moon-white via-moon-blue-light to-moon-blue mb-5 tracking-tight">
-              {t("Get in Touch", "Contactez-nous")}
+            <h2 className="text-4xl md:text-5xl font-black mb-5 tracking-tight">
+              {language === "en" ? (
+                <><span className="text-white">Get</span> <span className="text-moon-yellow">in</span> <span className="text-gradient">Touch</span></>
+              ) : (
+                <><span className="text-white">Contactez</span><span className="text-moon-yellow">-</span><span className="text-gradient">nous</span></>
+              )}
             </h2>
             <p className="text-white/60 mb-14 max-w-lg text-lg">
               {t(

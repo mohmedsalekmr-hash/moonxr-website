@@ -32,10 +32,11 @@ export function AboutPlatform() {
             </div>
 
             <h2 className="text-4xl md:text-5xl font-display font-bold mb-8 text-white">
-              {t("Pioneering the ", "Pionniers de l'")}
-              <span className="text-gradient">
-                {t("Immersive Future", "Futur Immersif")}
-              </span>
+              {language === "en" ? (
+                <>Pioneering the <span className="text-moon-yellow">Immersive</span> <span className="text-gradient">Future</span></>
+              ) : (
+                <>Pionniers du <span className="text-gradient">Futur</span> <span className="text-moon-yellow">Immersif</span></>
+              )}
             </h2>
           </motion.div>
         </div>
