@@ -109,7 +109,7 @@ export function Hero() {
             transition={{ duration: 0.7, ease: "easeOut" }}
           >
             <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] mb-6">
-              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse flex-shrink-0" />
+              <span className="w-2 h-2 rounded-full bg-moon-yellow animate-pulse flex-shrink-0 drop-shadow-[0_0_8px_rgba(251,183,48,0.6)]" />
               <span className="text-[11px] font-medium text-white/45 uppercase tracking-widest">
                 {t("Virtual Reality Platform", "Plateforme de Réalité Virtuelle")}
               </span>
@@ -134,7 +134,7 @@ export function Hero() {
                 href="#providers"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex items-center space-x-2 px-8 py-4 bg-white text-black rounded-full font-semibold shadow-[0_0_0_1px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.15)] transition-shadow duration-300"
+                className="flex items-center space-x-2 px-8 py-4 bg-white text-black rounded-full font-semibold shadow-[0_0_0_1px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(251,183,48,0.3)] hover:text-moon-yellow transition-all duration-300"
               >
                 <span>{t("Explore Our Providers", "Explorer nos Fournisseurs")}</span>
                 <ArrowRight className="w-4 h-4" />

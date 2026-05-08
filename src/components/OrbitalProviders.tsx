@@ -271,8 +271,11 @@ export function OrbitalProviders() {
             </span>
           </div>
           <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-5">
-            {t("Our VR ","Nos ")}
-            <span className="text-gradient">{t("Providers","Fournisseurs VR")}</span>
+            {language === "en" ? (
+              <>Our <span className="text-moon-yellow">VR</span> <span className="text-gradient">Providers</span></>
+            ) : (
+              <>Nos <span className="text-gradient">Fournisseurs</span> <span className="text-moon-yellow">VR</span></>
+            )}
           </h2>
         </motion.div>
       </div>

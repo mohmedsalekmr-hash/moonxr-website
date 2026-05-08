@@ -48,7 +48,7 @@ export function Benefits() {
             viewport={{ once: true }}
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] mb-4"
           >
-            <span className="w-2 h-2 rounded-full bg-moon-blue-light animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-moon-yellow animate-pulse drop-shadow-[0_0_8px_rgba(251,183,48,0.6)]" />
             <span className="text-[10px] font-semibold text-white/50 uppercase tracking-widest">
               {t("Our Value", "Notre Valeur")}
             </span>
