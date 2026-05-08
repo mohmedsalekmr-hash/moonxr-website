@@ -115,9 +115,9 @@ export function Hero() {
               </span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-display font-bold leading-[1.08] mb-6">
-              <span className="text-white">Moon</span>
-              <span className="text-moon-blue-light drop-shadow-[0_0_20px_rgba(0,122,255,0.35)]">XR</span>
+            <h1 className="text-5xl md:text-7xl font-display font-bold leading-[1.08] mb-6 lowercase flex items-center">
+              <span className="text-white">m</span><span className="text-moon-yellow">o</span><span className="text-white">on</span>
+              <span className="text-moon-blue-light drop-shadow-[0_0_20px_rgba(0,122,255,0.35)] uppercase ml-3 text-[0.85em]">XR</span>
             </h1>
 
             <p className="text-lg md:text-xl text-white/45 mb-10 max-w-xl leading-relaxed" style={{ minHeight: "4rem" }}>

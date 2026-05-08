@@ -20,9 +20,9 @@ export function AboutPlatform() {
               <Network className="w-4 h-4 text-purple-400 flex-shrink-0" />
               <span className="text-xs font-medium text-purple-400 uppercase tracking-wider">
                 {t("About ", "À propos de ")}
-                <span className="font-bold">
-                  <span className="text-white">Moon</span>
-                  <span className="text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.6)]">XR</span>
+                <span className="font-bold lowercase inline-flex items-center align-middle">
+                  <span className="text-white">m</span><span className="text-moon-yellow">o</span><span className="text-white">on</span>
+                  <span className="text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.6)] uppercase ml-1.5 text-[0.85em]">XR</span>
                 </span>
               </span>
             </div>
@@ -50,18 +50,18 @@ export function AboutPlatform() {
               <p>
                 {language === "en" ? (
                   <>
-                    <span className="font-bold">
-                      <span className="text-white">Moon</span>
-                      <span className="text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.6)]">XR</span>
+                    <span className="font-bold lowercase inline-flex items-center align-middle">
+                      <span className="text-white">m</span><span className="text-moon-yellow">o</span><span className="text-white">on</span>
+                      <span className="text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.6)] uppercase ml-1.5 text-[0.85em]">XR</span>
                     </span>{" "}
                     operates at the convergence of enterprise innovation and spatial computing. We bridge the gap between
                     global organizations and the world&apos;s most advanced Virtual Reality ecosystems.
                   </>
                 ) : (
                   <>
-                    <span className="font-bold">
-                      <span className="text-white">Moon</span>
-                      <span className="text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.6)]">XR</span>
+                    <span className="font-bold lowercase inline-flex items-center align-middle">
+                      <span className="text-white">m</span><span className="text-moon-yellow">o</span><span className="text-white">on</span>
+                      <span className="text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.6)] uppercase ml-1.5 text-[0.85em]">XR</span>
                     </span>{" "}
                     opère à la convergence de l&apos;innovation d&apos;entreprise et de l&apos;informatique spatiale. Nous éliminons
                     les barrières entre les organisations mondiales et les écosystèmes de réalité virtuelle les plus

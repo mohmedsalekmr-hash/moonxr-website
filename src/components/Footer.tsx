@@ -190,9 +190,7 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-1">
             <h3 className="text-3xl font-display font-bold mb-4 lowercase flex items-center">
-              <span className="text-white">m</span>
-              <span className="text-moon-yellow">o</span>
-              <span className="text-white">on</span>
+              <span className="text-white">m</span><span className="text-moon-yellow">o</span><span className="text-white">on</span>
               <span className="text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.6)] uppercase ml-1.5 text-2xl">XR</span>
             </h3>
             <p className="text-white/50 text-sm leading-relaxed mb-6 max-w-xs">

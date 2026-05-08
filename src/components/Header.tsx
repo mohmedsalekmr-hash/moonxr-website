@@ -95,9 +95,7 @@ export function Header() {
 
             <div className="flex flex-col">
               <span className="font-display font-bold text-3xl tracking-wider leading-none lowercase flex items-center">
-                <span className="text-white">m</span>
-                <span className="text-moon-yellow">o</span>
-                <span className="text-white">on</span>
+                <span className="text-white">m</span><span className="text-moon-yellow">o</span><span className="text-white">on</span>
                 <span className="text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.6)] uppercase ml-1.5 text-2xl">XR</span>
               </span>
               <span className="text-[9px] uppercase tracking-[0.3em] text-white/40 mt-1 pl-1">Virtual Reality</span>
