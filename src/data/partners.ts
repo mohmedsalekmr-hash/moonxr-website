@@ -269,5 +269,83 @@ export const partnersData: Partner[] = [
       en: "Targeting banks (BMCI), Telecoms (Mauritel), and oil operators needing English training.",
       fr: "Cible les banques (BMCI), Télécoms (Mauritel) et opérateurs pétroliers ayant des besoins en anglais."
     }
+  },
+  {
+    id: "manheng",
+    name: "Shanghai Manheng",
+    sector: "Formation Professionnelle et Technique",
+    country: "China",
+    flag: "🇨🇳",
+    domain: "ideaxr.com",
+    headquarters: "Shanghai, China",
+    compliance: "IdeaXR Engine",
+    roiMetrics: {
+      en: "Hardware Agnostic | Heavy Industry Focus",
+      fr: "Agnostique au Matériel | Focus Industrie Lourde"
+    },
+    description: {
+      en: "Powerful creation engine (IdeaXR) with an exhaustive library for mining, construction, and oil & gas.",
+      fr: "Moteur de création puissant (IdeaXR) et bibliothèque exhaustive (mines, BTP, pétrole)."
+    },
+    pricing: {
+      en: "IdeaXR Pro license from $4,200 – $8,500/year per seat. Content modules extra.",
+      fr: "Licence IdeaXR Pro dès 4 200 – 8 500 $/an par poste. Modules de contenu en supplément."
+    },
+    opportunities: {
+      en: "Co-development project required for French localization. Ideal for GTA gas and SNIM mining projects.",
+      fr: "Projet de co-développement requis pour le français. Idéal pour les projets gaziers GTA et miniers SNIM."
+    }
+  },
+  {
+    id: "unidraw",
+    name: "Beijing Unidraw",
+    sector: "Santé et VR Médicale",
+    country: "China",
+    flag: "🇨🇳",
+    domain: "unidrawvr.com",
+    headquarters: "Beijing, China",
+    compliance: "Little Giant Status",
+    roiMetrics: {
+      en: "National Lab Pedigree | Hardware-Light Software",
+      fr: "Pedigree de Labo National | Logiciel Léger en Matériel"
+    },
+    description: {
+      en: "Spin-off from the National VR Laboratory; a 'Little Giant' specializing in medical software simulation.",
+      fr: "Spin-off du Laboratoire National de VR ; 'Petit Géant' spécialisé en simulation logicielle médicale."
+    },
+    pricing: {
+      en: "Pure software shipping for tablets and headsets. Reduces heavy hardware costs.",
+      fr: "Logiciel pur pour tablettes et casques. Réduit les coûts matériels lourds."
+    },
+    opportunities: {
+      en: "English interface exists; French localization project needed. Perfect for Nouakchott Faculty of Medicine.",
+      fr: "Interface en Anglais existante ; Projet de localisation en Français requis. Parfait pour la Faculté de Médecine de Nouakchott."
+    }
+  },
+  {
+    id: "netdragon",
+    name: "NetDragon Websoft",
+    sector: "Éducation des Enfants (6-16 Ans)",
+    country: "China",
+    flag: "🇨🇳",
+    domain: "netdragon.com",
+    headquarters: "Fuzhou, China",
+    compliance: "UNESCO IITE Partner",
+    roiMetrics: {
+      en: "Massive Government Scale | Pop-up Classrooms",
+      fr: "Échelle Gouvernementale | Classes Modulaires"
+    },
+    description: {
+      en: "Global leader with massive African government contracts. Offers VR Mysticraft and Pop-Up Smart Classrooms.",
+      fr: "Leader mondial avec des contrats gouvernementaux massifs en Afrique. Propose VR Mysticraft et Pop-Up Smart Classrooms."
+    },
+    pricing: {
+      en: "Pop-Up Smart Classroom: modular class ready in hours, roughly $28,000 per unit.",
+      fr: "Pop-Up Smart Classroom : classe modulaire prête en quelques heures, environ 28 000 $ l'unité."
+    },
+    opportunities: {
+      en: "French already present in IP portfolio. Perfect for dispersed populations in Mauritania.",
+      fr: "Français déjà présent dans le portfolio IP. Parfaitement adapté aux populations dispersées de la Mauritanie."
+    }
   }
 ];
