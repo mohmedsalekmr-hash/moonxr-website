@@ -14,12 +14,9 @@ import { createPortal } from "react-dom";
 
 /* ── Sector config ─────────────────────────────────────────────────────── */
 const SECTORS: Record<string, { label: string; labelFr: string; icon: React.ReactNode; color: string }> = {
-  "Oil, Gas, and Energy Industry":            { label: "Energy",       labelFr: "Énergie",       icon: <Zap className="w-3.5 h-3.5" />,           color: "#f59e0b" },
-  "Mining and Resource Extraction":           { label: "Mining",       labelFr: "Mines",          icon: <Shield className="w-3.5 h-3.5" />,        color: "#fb923c" },
-  "Fisheries and Maritime Navigation":        { label: "Maritime",     labelFr: "Maritime",       icon: <Anchor className="w-3.5 h-3.5" />,        color: "#38bdf8" },
-  "Construction and Engineering":             { label: "Construction", labelFr: "Construction",   icon: <Building2 className="w-3.5 h-3.5" />,     color: "#a3e635" },
-  "Technical and Vocational Education (TVET)":{ label: "Education",    labelFr: "Éducation",      icon: <GraduationCap className="w-3.5 h-3.5" />, color: "#a78bfa" },
-  "Medicine and Healthcare":                  { label: "Healthcare",   labelFr: "Santé",          icon: <HeartPulse className="w-3.5 h-3.5" />,    color: "#fb7185" },
+  "Formation Professionnelle et Technique": { label: "Vocational",   labelFr: "Formation Pro",  icon: <Building2 className="w-3.5 h-3.5" />,     color: "#a3e635" },
+  "Santé et VR Médicale":                   { label: "Healthcare",   labelFr: "Santé",          icon: <HeartPulse className="w-3.5 h-3.5" />,    color: "#fb7185" },
+  "Éducation des Enfants (6-16 Ans)":       { label: "Education",    labelFr: "Éducation",      icon: <GraduationCap className="w-3.5 h-3.5" />, color: "#a78bfa" },
 };
 const getS = (n: string) => SECTORS[n] ?? { label: n, labelFr: n, icon: <Zap className="w-3.5 h-3.5" />, color: "#22d3ee" };
 
