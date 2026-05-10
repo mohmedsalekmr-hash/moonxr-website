@@ -24,6 +24,7 @@ export interface Partner {
     fr: string;
   };
   compliance?: string;
+  logoUrl?: string;
 }
 
 export const partnersData: Partner[] = [
@@ -305,6 +306,7 @@ export const partnersData: Partner[] = [
     domain: "unidraw.com",
     headquarters: "Beijing, China",
     compliance: "Little Giant Status",
+    logoUrl: "https://www.unidraw.com/uploads/image/20260429/1777445000.png",
     roiMetrics: {
       en: "National Lab Pedigree | Hardware-Light Software",
       fr: "Pedigree de Labo National | Logiciel Léger en Matériel"

@@ -53,7 +53,7 @@ function ElegantCard({ partner, lang, onClick }: { partner: Partner; lang: strin
       <div className="w-[84px] h-[84px] bg-white rounded-2xl flex items-center justify-center flex-shrink-0 relative overflow-hidden transition-transform duration-300 group-hover:scale-105 shadow-inner">
         <span className="absolute font-bold text-slate-400 text-xl select-none z-0">{initials}</span>
         <img
-          src={`https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
+          src={partner.logoUrl || `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
           alt={partner.name}
           loading="lazy"
           className="w-full h-full p-2.5 object-contain relative z-10 bg-white"
@@ -164,7 +164,7 @@ function Modal({ partner, onClose }: { partner: Partner; onClose: () => void }) 
         <div className="flex items-center gap-5 p-6 border-b border-white/[0.04]">
           <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center flex-shrink-0 shadow-lg">
             <Image
-              src={`https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
+              src={partner.logoUrl || `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
               alt={partner.name}
               width={128}
               height={128}
