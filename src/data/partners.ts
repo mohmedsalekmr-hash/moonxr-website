@@ -277,7 +277,7 @@ export const partnersData: Partner[] = [
     sector: "Formation Professionnelle et Technique",
     country: "China",
     flag: "🇨🇳",
-    domain: "ideaxr.com",
+    domain: "www.gdi.com.cn",
     headquarters: "Shanghai, China",
     compliance: "IdeaXR Engine",
     roiMetrics: {
