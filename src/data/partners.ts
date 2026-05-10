@@ -302,7 +302,7 @@ export const partnersData: Partner[] = [
     sector: "Santé et VR Médicale",
     country: "China",
     flag: "🇨🇳",
-    domain: "unidrawvr.com",
+    domain: "unidraw.com",
     headquarters: "Beijing, China",
     compliance: "Little Giant Status",
     roiMetrics: {
