@@ -142,52 +142,70 @@ function Modal({ partner, onClose }: { partner: Partner; onClose: () => void }) 
   const s = getS(partner.sector);
 
   useEffect(() => {
+    // Lock scroll
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = "hidden";
+    
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
+    
+    return () => {
+      document.body.style.overflow = originalStyle;
+      window.removeEventListener("keydown", h);
+    };
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        onClick={onClose} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
+      <motion.div 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        exit={{ opacity: 0 }}
+        onClick={onClose} 
+        className="absolute inset-0 bg-black/80 backdrop-blur-md" 
+      />
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl z-10 [&::-webkit-scrollbar]:hidden"
-        style={{ background: "#0a0d14", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 24px 50px rgba(0,0,0,0.5)" }}
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        transition={{ type: "spring", stiffness: 350, damping: 25 }}
+        className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-[32px] z-10 custom-scrollbar shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)]"
+        style={{ 
+          background: "#080b11", 
+          border: "1px solid rgba(255,255,255,0.1)",
+        }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div className="h-1.5 w-full" style={{ background: `linear-gradient(90deg, ${s.color}, transparent)` }} />
-        
-        <div className="flex items-center gap-5 p-6 border-b border-white/[0.04]">
-          <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center flex-shrink-0 shadow-lg">
-            <Image
-              src={partner.logoUrl || `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
-              alt={partner.name}
-              width={128}
-              height={128}
-              className="w-[60px] h-[60px] object-contain"
-            />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 mb-1.5">
-              <h3 className="text-2xl font-bold text-white truncate">{partner.name}</h3>
-              <span className="text-xl">{partner.flag}</span>
+        <div className="sticky top-0 z-20" style={{ background: "#080b11", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+          <div className="h-1.5 w-full" style={{ background: `linear-gradient(90deg, ${s.color}, transparent)` }} />
+          <div className="flex items-center gap-5 p-6 backdrop-blur-md bg-[#080b11]/80">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white flex items-center justify-center flex-shrink-0 shadow-lg p-3">
+              <Image
+                src={partner.logoUrl || `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
+                alt={partner.name}
+                width={128}
+                height={128}
+                className="w-full h-full object-contain"
+              />
             </div>
-            <div className="flex items-center gap-3">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider"
-                style={{ background: `${s.color}15`, color: s.color, border: `1px solid ${s.color}25` }}>
-                {s.icon} {language === "en" ? s.label : s.labelFr}
-              </span>
-              <span className="text-[13px] text-white/40 font-medium">{partner.country}</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-1.5">
+                <h3 className="text-xl sm:text-2xl font-bold text-white truncate">{partner.name}</h3>
+                <span className="text-xl">{partner.flag}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-bold uppercase tracking-wider"
+                  style={{ background: `${s.color}15`, color: s.color, border: `1px solid ${s.color}25` }}>
+                  {s.icon} {language === "en" ? s.label : s.labelFr}
+                </span>
+                <span className="text-[12px] sm:text-[13px] text-white/40 font-medium hidden sm:inline">{partner.country}</span>
+              </div>
             </div>
+            <button onClick={onClose} aria-label="Close"
+              className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-colors">
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          <button onClick={onClose} aria-label="Close"
-            className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-colors">
-            <X className="w-5 h-5" />
-          </button>
         </div>
 
         <div className="p-6 space-y-6">
