@@ -15,11 +15,16 @@ export function ScrollFeatures() {
   });
 
   useEffect(() => {
-    // Immediately check current scroll position on mount
-    setShowBackToTop(scrollY.get() > 400);
+    // Immediately check current scroll position on mount (deferred)
+    setTimeout(() => {
+      setShowBackToTop(scrollY.get() > 400);
+    }, 0);
 
     return scrollY.on("change", (latest) => {
-      setShowBackToTop(latest > 400);
+      // Defer state update to avoid synchronous setState during render/effect cycles
+      setTimeout(() => {
+        setShowBackToTop(latest > 400);
+      }, 0);
     });
   }, [scrollY]);
 

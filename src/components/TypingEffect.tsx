@@ -7,10 +7,16 @@ export function TypingEffect({ text }: { text: string }) {
   const [done, setDone] = useState(false);
   const rafRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    // Reset whenever text changes
+  const [prevText, setPrevText] = useState(text);
+
+  // Reset state during render when text changes to avoid synchronous setState in effect
+  if (text !== prevText) {
+    setPrevText(text);
     setDisplayed("");
     setDone(false);
+  }
+
+  useEffect(() => {
     let index = 0;
 
     const tick = () => {

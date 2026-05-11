@@ -26,11 +26,14 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem("xr-lang") as Language | null;
-      if (saved === "en" || saved === "fr") {
-        setLanguageState(saved);
-      } else if (navigator.language.startsWith("fr")) {
-        setLanguageState("fr");
-      }
+      // Defer state update to avoid synchronous setState during mount
+      setTimeout(() => {
+        if (saved === "en" || saved === "fr") {
+          setLanguageState(saved);
+        } else if (navigator.language.startsWith("fr")) {
+          setLanguageState("fr");
+        }
+      }, 0);
     } catch {
       // localStorage may not be available (e.g., private mode edge cases)
     }
