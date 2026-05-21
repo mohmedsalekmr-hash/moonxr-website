@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "Explore our global network of top Virtual Reality providers across strategic industry sectors.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function ProvidersPage() {
   return (
     <main className="relative min-h-screen" style={{ background: "#020617" }}>

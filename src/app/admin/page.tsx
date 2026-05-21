@@ -19,7 +19,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Building2, Globe, MapPin, Calendar, ShieldCheck, TrendingUp, 
   Trash2, Edit3, Users, Plus, X, Search, RefreshCw, LogIn,
-  Shield, Check, UserPlus, Download, AlertTriangle, Languages, Mail
+  Shield, Check, UserPlus, Download, AlertTriangle, Languages, Mail,
+  Eye, EyeOff
 } from "lucide-react";
 
 // Predefined industrial sectors match existing configurations
@@ -76,7 +77,8 @@ export default function AdminPage() {
     roiMetrics_en: "",
     roiMetrics_fr: "",
     compliance: "",
-    logoUrl: ""
+    logoUrl: "",
+    isVisible: true
   });
 
   // Success Toasts / Status Alerts
@@ -168,7 +170,8 @@ export default function AdminPage() {
         roiMetrics_en: partner.roiMetrics?.en || "",
         roiMetrics_fr: partner.roiMetrics?.fr || "",
         compliance: partner.compliance || "",
-        logoUrl: partner.logoUrl || ""
+        logoUrl: partner.logoUrl || "",
+        isVisible: partner.isVisible ?? true
       });
     } else {
       // Clear form values for new creation
@@ -191,7 +194,8 @@ export default function AdminPage() {
         roiMetrics_en: "",
         roiMetrics_fr: "",
         compliance: "",
-        logoUrl: ""
+        logoUrl: "",
+        isVisible: true
       });
     }
     setIsFormOpen(true);
@@ -231,7 +235,8 @@ export default function AdminPage() {
         fr: formData.roiMetrics_fr
       } : undefined,
       compliance: formData.compliance || undefined,
-      logoUrl: formData.logoUrl || undefined
+      logoUrl: formData.logoUrl || undefined,
+      isVisible: formData.isVisible
     };
 
     let result;
@@ -550,10 +555,29 @@ export default function AdminPage() {
                                 onLoad={(e) => e.currentTarget.style.opacity = '1'}
                               />
                             </div>
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-1.5">
-                                <h3 className="text-[16px] font-bold text-white truncate leading-snug">{partner.name}</h3>
-                                <span className="text-[15px] flex-shrink-0">{partner.flag}</span>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between gap-1.5">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  <h3 className="text-[16px] font-bold text-white truncate leading-snug">{partner.name}</h3>
+                                  <span className="text-[15px] flex-shrink-0">{partner.flag}</span>
+                                </div>
+                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider flex-shrink-0 ${
+                                  partner.isVisible !== false 
+                                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" 
+                                    : "bg-white/5 text-white/30 border border-white/5"
+                                }`}>
+                                  {partner.isVisible !== false ? (
+                                    <>
+                                      <Eye className="w-3 h-3" />
+                                      Visible
+                                    </>
+                                  ) : (
+                                    <>
+                                      <EyeOff className="w-3 h-3" />
+                                      Hidden
+                                    </>
+                                  )}
+                                </span>
                               </div>
                               <p className="text-white/40 text-xs flex items-center gap-1 mt-1">
                                 <Globe className="w-3.5 h-3.5" />
@@ -703,7 +727,7 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Website Domain URL</label>
                       <input 
@@ -741,11 +765,26 @@ export default function AdminPage() {
                       <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Custom Logo URL (Optional)</label>
                       <input 
                         type="text"
-                        placeholder="Leave blank for automatic favicon fetch"
+                        placeholder="Leave blank for auto favicon"
                         value={formData.logoUrl}
                         onChange={(e) => setFormData({...formData, logoUrl: e.target.value})}
                         className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-xs focus:outline-none focus:border-moon-blue-light/40"
                       />
+                    </div>
+                    <div className="space-y-1 flex flex-col justify-center">
+                      <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Visibility Status</span>
+                      <label className="relative inline-flex items-center cursor-pointer mt-2 pl-1 select-none">
+                        <input 
+                          type="checkbox" 
+                          checked={formData.isVisible} 
+                          onChange={(e) => setFormData({...formData, isVisible: e.target.checked})}
+                          className="sr-only peer" 
+                        />
+                        <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        <span className="ml-3 text-[11px] font-bold text-white/50 peer-checked:text-emerald-400">
+                          {formData.isVisible ? "Visible" : "Hidden"}
+                        </span>
+                      </label>
                     </div>
                   </div>
                 </div>

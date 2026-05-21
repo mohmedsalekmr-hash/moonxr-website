@@ -8,6 +8,8 @@ import { OrbitalProviders } from "@/components/OrbitalProviders";
 import { ContactSection } from "@/components/ContactSection";
 import { Footer } from "@/components/Footer";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <main className="relative min-h-screen">

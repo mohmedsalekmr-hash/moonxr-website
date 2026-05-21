@@ -275,11 +275,12 @@ export function OrbitalProviders() {
 
   const close = useCallback(() => setSelected(null), []);
 
-  const sectorNames = useMemo(() => Array.from(new Set(partners.map(p => p.sector))), [partners]);
+  const activePartners = useMemo(() => partners.filter(p => p.isVisible !== false), [partners]);
+  const sectorNames = useMemo(() => Array.from(new Set(activePartners.map(p => p.sector))), [activePartners]);
 
   const visiblePartners = useMemo(() =>
-    active === "All" ? partners : partners.filter(p => p.sector === active),
-    [active, partners]
+    active === "All" ? activePartners : activePartners.filter(p => p.sector === active),
+    [active, activePartners]
   );
 
   const half = Math.ceil(visiblePartners.length / 2);

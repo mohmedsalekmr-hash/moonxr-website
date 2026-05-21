@@ -27,6 +27,7 @@ create table providers (
   roi_metrics_fr text,
   compliance text,
   logo_url text,
+  is_visible boolean default true,
   created_at timestamptz default now()
 );
 

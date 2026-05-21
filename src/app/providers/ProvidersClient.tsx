@@ -23,15 +23,20 @@ const SECTORS: Record<string, { label: string; labelFr: string; icon: React.Reac
 };
 const getSector = (name: string) => SECTORS[name] ?? { label: name, labelFr: name, icon: <Zap className="w-4 h-4" />, color: "#22d3ee" };
 
-function Logo({ domain, name }: { domain: string; name: string }) {
+function Logo({ domain, name, logoUrl }: { domain: string; name: string; logoUrl?: string }) {
   const [loaded, setLoaded] = useState(false);
   const [step, setStep] = useState(0);
   const [failed, setFailed] = useState(false);
   const initials = name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
-  const srcs = [
-    `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=128`,
-    `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
-  ];
+  
+  const srcs = useMemo(() => {
+    const list = [];
+    if (logoUrl) list.push(logoUrl);
+    list.push(`https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=128`);
+    list.push(`https://www.google.com/s2/favicons?domain=${domain}&sz=128`);
+    return list;
+  }, [logoUrl, domain]);
+
   if (failed) return <div className="w-full h-full rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl select-none">{initials}</div>;
   return (
     <div className="relative w-full h-full flex items-center justify-center">
@@ -77,7 +82,7 @@ function PartnerCard({ partner, onClick, lang }: { partner: Partner; onClick: ()
         <div className="absolute top-0 inset-x-0 h-[3px] opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           style={{ background: `linear-gradient(90deg, ${sector.color}, transparent)` }} />
         <div className="w-16 h-16 transition-transform duration-300 group-hover:scale-110">
-          <Logo domain={partner.domain} name={partner.name} />
+          <Logo domain={partner.domain} name={partner.name} logoUrl={partner.logoUrl} />
         </div>
       </div>
       <div className="flex flex-col flex-1 p-5 gap-3">
@@ -130,17 +135,18 @@ export function ProvidersClient({ partners: initialPartners = partnersData }: { 
     return () => window.removeEventListener("keydown", onKey);
   }, [selectedPartner, closeModal]);
 
-  const sectors = useMemo(() => ["All", ...Array.from(new Set(partners.map(p => p.sector)))], [partners]);
-  const filteredPartners = useMemo(() => activeSector === "All" ? partners : partners.filter(p => p.sector === activeSector), [activeSector, partners]);
+  const activePartners = useMemo(() => partners.filter(p => p.isVisible !== false), [partners]);
+  const sectors = useMemo(() => ["All", ...Array.from(new Set(activePartners.map(p => p.sector)))], [activePartners]);
+  const filteredPartners = useMemo(() => activeSector === "All" ? activePartners : activePartners.filter(p => p.sector === activeSector), [activeSector, activePartners]);
 
   return (
     <div className="space-y-12">
       {/* Stats */}
       <div className="flex flex-wrap justify-center gap-8 text-center">
         {[
-          { n: partners.length,                            label: t("Global Partners","Partenaires Mondiaux") },
+          { n: activePartners.length,                      label: t("Global Partners","Partenaires Mondiaux") },
           { n: Object.keys(SECTORS).length,                label: t("Industry Sectors","Secteurs Industriels") },
-          { n: new Set(partners.map(p => p.country)).size, label: t("Countries","Pays") },
+          { n: new Set(activePartners.map(p => p.country)).size, label: t("Countries","Pays") },
         ].map((stat, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
             <div className="text-3xl font-bold text-white">{stat.n}</div>
@@ -193,7 +199,7 @@ export function ProvidersClient({ partners: initialPartners = partnersData }: { 
                 >
                   <div className="flex items-center gap-5 p-6 pb-5 border-b border-white/[0.06]">
                     <div className="w-14 h-14 rounded-xl bg-white p-1.5 flex-shrink-0 shadow-md">
-                      <Logo domain={selectedPartner.domain} name={selectedPartner.name} />
+                      <Logo domain={selectedPartner.domain} name={selectedPartner.name} logoUrl={selectedPartner.logoUrl} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2.5">

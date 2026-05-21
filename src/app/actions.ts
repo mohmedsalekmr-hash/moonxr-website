@@ -47,6 +47,7 @@ function mapRowToPartner(row: any): Partner {
     } : undefined,
     compliance: row.compliance || undefined,
     logoUrl: row.logo_url || undefined,
+    isVisible: row.is_visible ?? true,
   };
 }
 
@@ -96,6 +97,7 @@ export async function createProviderAction(partner: Omit<Partner, "logoUrl"> & {
       roi_metrics_fr: partner.roiMetrics?.fr || null,
       compliance: partner.compliance || null,
       logo_url: partner.logoUrl || null,
+      is_visible: partner.isVisible ?? true,
     };
 
     const { data, error } = await supabase.from("providers").insert([row]).select();
@@ -133,6 +135,7 @@ export async function updateProviderAction(id: string, partner: Omit<Partner, "l
       roi_metrics_fr: partner.roiMetrics?.fr || null,
       compliance: partner.compliance || null,
       logo_url: partner.logoUrl || null,
+      is_visible: partner.isVisible ?? true,
     };
 
     const { data, error } = await supabase

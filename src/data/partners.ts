@@ -25,6 +25,7 @@ export interface Partner {
   };
   compliance?: string;
   logoUrl?: string;
+  isVisible?: boolean;
 }
 
 export const partnersData: Partner[] = [
