@@ -9,9 +9,13 @@ import {
   getProviderUsersAction,
   createProviderUserAction,
   deleteProviderUserAction,
-  ProviderUser
+  ProviderUser,
+  getCategoriesAction,
+  createCategoryAction,
+  updateCategoryAction,
+  deleteCategoryAction
 } from "@/app/actions";
-import { Partner } from "@/data/partners";
+import { Partner, Category, defaultCategories } from "@/data/partners";
 import { Header } from "@/components/Header";
 import { CanvasBackground } from "@/components/CanvasBackground";
 import { Footer } from "@/components/Footer";
@@ -20,15 +24,8 @@ import {
   Building2, Globe, MapPin, Calendar, ShieldCheck, TrendingUp, 
   Trash2, Edit3, Users, Plus, X, Search, RefreshCw, LogIn,
   Shield, Check, UserPlus, Download, AlertTriangle, Languages, Mail,
-  Eye, EyeOff
+  Eye, EyeOff, Tag
 } from "lucide-react";
-
-// Predefined industrial sectors match existing configurations
-const SECTORS = [
-  "Formation Professionnelle et Technique",
-  "Santé et VR Médicale",
-  "Éducation des Enfants (6-16 Ans)"
-];
 
 export default function AdminPage() {
   // Authentication State (Simulating admin protection)
@@ -41,6 +38,22 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeSectorFilter, setActiveSectorFilter] = useState("All");
+
+  // Dynamic Tabs & Categories State
+  const [activeTab, setActiveTab] = useState<"providers" | "categories">("providers");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
+  // Category Form State
+  const [categoryFormData, setCategoryFormData] = useState({
+    id: "",
+    nameEn: "",
+    nameFr: "",
+    icon: "🌐",
+    color: "#3b82f6"
+  });
 
   // Form Modal States
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -62,7 +75,7 @@ export default function AdminPage() {
   const [formData, setFormData] = useState({
     id: "",
     name: "",
-    sector: SECTORS[0],
+    sector: "",
     country: "",
     flag: "",
     domain: "",
@@ -103,9 +116,18 @@ export default function AdminPage() {
     setLoading(false);
   };
 
+  // Fetch Categories list from DB
+  const loadCategories = async () => {
+    setLoadingCategories(true);
+    const data = await getCategoriesAction();
+    setCategories(data);
+    setLoadingCategories(false);
+  };
+
   useEffect(() => {
     if (isAdmin) {
       loadProviders();
+      loadCategories();
     }
   }, [isAdmin]);
 
@@ -140,7 +162,7 @@ export default function AdminPage() {
   const filteredProviders = useMemo(() => {
     return providers.filter(p => {
       const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            p.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            (p.country?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
                             p.domain.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesSector = activeSectorFilter === "All" || p.sector === activeSectorFilter;
       return matchesSearch && matchesSector;
@@ -156,15 +178,15 @@ export default function AdminPage() {
         id: partner.id,
         name: partner.name,
         sector: partner.sector,
-        country: partner.country,
-        flag: partner.flag,
+        country: partner.country || "",
+        flag: partner.flag || "",
         domain: partner.domain,
-        description_en: partner.description.en,
-        description_fr: partner.description.fr,
-        pricing_en: partner.pricing.en,
-        pricing_fr: partner.pricing.fr,
-        opportunities_en: partner.opportunities.en,
-        opportunities_fr: partner.opportunities.fr,
+        description_en: partner.description?.en || "",
+        description_fr: partner.description?.fr || "",
+        pricing_en: partner.pricing?.en || "",
+        pricing_fr: partner.pricing?.fr || "",
+        opportunities_en: partner.opportunities?.en || "",
+        opportunities_fr: partner.opportunities?.fr || "",
         headquarters: partner.headquarters || "",
         foundedYear: partner.foundedYear || "",
         roiMetrics_en: partner.roiMetrics?.en || "",
@@ -179,7 +201,7 @@ export default function AdminPage() {
       setFormData({
         id: "",
         name: "",
-        sector: SECTORS[0],
+        sector: categories[0]?.nameFr || categories[0]?.nameEn || "Formation Professionnelle et Technique",
         country: "",
         flag: "🌐",
         domain: "",
@@ -204,29 +226,33 @@ export default function AdminPage() {
   // Submit Provider Creation or Update to database
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.id || !formData.name || !formData.domain) {
-      showToast("Please fill in all core fields (ID, Name, Domain).", "error");
+    if (!formData.name || !formData.domain) {
+      showToast("Please fill in all core fields (Name, Website URL).", "error");
       return;
     }
 
+    const generatedId = editingProvider 
+      ? editingProvider.id 
+      : formData.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
     const payload: Partner = {
-      id: formData.id.toLowerCase().replace(/\s+/g, "-"),
+      id: generatedId,
       name: formData.name,
-      sector: formData.sector,
-      country: formData.country,
-      flag: formData.flag,
+      sector: formData.sector || (categories[0]?.nameFr || "Formation Professionnelle et Technique"),
+      country: formData.country || "",
+      flag: formData.flag || "🌐",
       domain: formData.domain,
       description: {
-        en: formData.description_en,
-        fr: formData.description_fr
+        en: formData.description_en || "",
+        fr: formData.description_fr || ""
       },
       pricing: {
-        en: formData.pricing_en,
-        fr: formData.pricing_fr
+        en: formData.pricing_en || "",
+        fr: formData.pricing_fr || ""
       },
       opportunities: {
-        en: formData.opportunities_en,
-        fr: formData.opportunities_fr
+        en: formData.opportunities_en || "",
+        fr: formData.opportunities_fr || ""
       },
       headquarters: formData.headquarters || undefined,
       foundedYear: formData.foundedYear || undefined,
@@ -269,6 +295,86 @@ export default function AdminPage() {
         loadProviders();
       } else {
         showToast(`Error deleting provider: ${result.error}`, "error");
+      }
+    }
+  };
+
+  // =========================================================================
+  // CATEGORIES CRUD HANDLERS
+  // =========================================================================
+  const openCategoryFormModal = (category: Category | null = null) => {
+    if (category) {
+      setEditingCategory(category);
+      setCategoryFormData({
+        id: category.id,
+        nameEn: category.nameEn,
+        nameFr: category.nameFr,
+        icon: category.icon,
+        color: category.color
+      });
+    } else {
+      setEditingCategory(null);
+      setCategoryFormData({
+        id: "",
+        nameEn: "",
+        nameFr: "",
+        icon: "🌐",
+        color: "#3b82f6"
+      });
+    }
+    setIsCategoryModalOpen(true);
+  };
+
+  const handleCategorySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!categoryFormData.nameEn || !categoryFormData.nameFr) {
+      showToast("Please fill in both English and French category names.", "error");
+      return;
+    }
+
+    const generatedId = editingCategory 
+      ? editingCategory.id 
+      : categoryFormData.nameEn.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+    const payload: Category = {
+      id: generatedId,
+      nameEn: categoryFormData.nameEn,
+      nameFr: categoryFormData.nameFr,
+      icon: categoryFormData.icon || "🌐",
+      color: categoryFormData.color || "#3b82f6"
+    };
+
+    let result;
+    if (editingCategory) {
+      result = await updateCategoryAction(editingCategory.id, payload);
+    } else {
+      result = await createCategoryAction(payload);
+    }
+
+    if (result.success) {
+      showToast(
+        editingCategory 
+          ? `Successfully updated category "${payload.nameFr || payload.nameEn}"!` 
+          : `Successfully created category "${payload.nameFr || payload.nameEn}"!`, 
+        "success"
+      );
+      setIsCategoryModalOpen(false);
+      loadCategories();
+      loadProviders();
+    } else {
+      showToast(`Error: ${result.error}`, "error");
+    }
+  };
+
+  const handleDeleteCategory = async (id: string, name: string) => {
+    if (confirm(`Are you absolutely sure you want to delete the category "${name}"? Existing providers in this category will remain, but won't map dynamically.`)) {
+      const result = await deleteCategoryAction(id);
+      if (result.success) {
+        showToast(`Successfully deleted category "${name}".`, "success");
+        loadCategories();
+        loadProviders();
+      } else {
+        showToast(`Error deleting category: ${result.error}`, "error");
       }
     }
   };
@@ -455,183 +561,345 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Statistics Widgets */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {[
-                  { label: "Total VR Providers", count: providers.length, icon: <Building2 className="w-5 h-5" />, color: "text-moon-blue-light" },
-                  { label: "Active Countries", count: new Set(providers.map(p => p.country)).size, icon: <Globe className="w-5 h-5" />, color: "text-emerald-400" },
-                  { label: "Specialty Sectors", count: new Set(providers.map(p => p.sector)).size, icon: <ShieldCheck className="w-5 h-5" />, color: "text-moon-yellow" },
-                  { label: "Simulated Trainees", count: 48, icon: <Users className="w-5 h-5" />, color: "text-purple-400" }
-                ].map((stat, i) => (
-                  <div key={i} className="p-6 bg-white/[0.02] border border-white/[0.04] rounded-3xl shadow-lg flex justify-between items-center">
-                    <div>
-                      <span className="text-2xl font-black text-white">{stat.count}</span>
-                      <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1.5">{stat.label}</p>
-                    </div>
-                    <div className={`p-3 bg-white/5 rounded-2xl border border-white/10 ${stat.color}`}>
-                      {stat.icon}
-                    </div>
-                  </div>
-                ))}
+              {/* Tab Navigation */}
+              <div className="flex border-b border-white/10 gap-6 mt-4">
+                <button
+                  onClick={() => setActiveTab("providers")}
+                  className={`pb-4 px-2 text-sm font-bold uppercase tracking-wider transition-all relative ${
+                    activeTab === "providers" ? "text-white" : "text-white/40 hover:text-white/70"
+                  }`}
+                >
+                  Manage Providers
+                  {activeTab === "providers" && (
+                    <motion.div layoutId="activeTabUnderline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-moon-blue-light" />
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab("categories")}
+                  className={`pb-4 px-2 text-sm font-bold uppercase tracking-wider transition-all relative ${
+                    activeTab === "categories" ? "text-white" : "text-white/40 hover:text-white/70"
+                  }`}
+                >
+                  Manage Categories
+                  {activeTab === "categories" && (
+                    <motion.div layoutId="activeTabUnderline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-moon-blue-light" />
+                  )}
+                </button>
               </div>
 
-              {/* Filters & CRUD Actions bar */}
-              <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
-                
-                {/* Searching & Filter categories */}
-                <div className="flex flex-wrap items-center gap-2.5">
-                  {/* Category filters */}
-                  {["All", ...SECTORS].map(sec => {
-                    const isActive = activeSectorFilter === sec;
-                    return (
-                      <button 
-                        key={sec} 
-                        onClick={() => setActiveSectorFilter(sec)}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all border ${
-                          isActive 
-                            ? "bg-white/10 border-white/20 text-white shadow-md" 
-                            : "bg-transparent border-white/5 text-white/40 hover:text-white/80"
-                        }`}
-                      >
-                        {sec === "All" ? "All Categories" : sec.replace("Formation ", "").replace("Santé ", "")}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Adding button & Search */}
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                    <input 
-                      type="text"
-                      placeholder="Search providers..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-11 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder-white/30 focus:outline-none focus:border-moon-blue-light/50 w-full md:w-56 transition-all"
-                    />
-                  </div>
-                  
-                  <button 
-                    onClick={() => openFormModal(null)}
-                    className="px-5 py-2.5 bg-moon-blue-light hover:brightness-110 text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-2 transition-all flex-shrink-0"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add Provider
-                  </button>
-                </div>
-              </div>
-
-              {/* Providers Grid Table */}
-              {loading ? (
-                <div className="flex justify-center items-center py-20">
-                  <RefreshCw className="w-8 h-8 text-moon-blue-light animate-spin" />
-                </div>
-              ) : filteredProviders.length === 0 ? (
-                <div className="p-16 text-center bg-white/[0.01] border border-white/[0.03] rounded-3xl">
-                  <AlertTriangle className="w-10 h-10 text-white/20 mx-auto mb-4" />
-                  <h3 className="text-lg font-bold text-white/60">No Providers Found</h3>
-                  <p className="text-white/30 text-xs mt-1">Try broadening your search criteria or create a new provider!</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {filteredProviders.map(partner => {
-                    const initials = partner.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
-                    return (
-                      <div 
-                        key={partner.id}
-                        className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-6 flex flex-col justify-between hover:border-white/20 hover:shadow-xl transition-all duration-300 group"
-                      >
-                        <div className="space-y-4">
-                          {/* Top Row: Logo & Info */}
-                          <div className="flex items-start gap-4">
-                            <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden shadow-inner border border-white/20">
-                              <span className="absolute font-bold text-slate-400 text-[15px] select-none z-0">{initials}</span>
-                              <img
-                                src={partner.logoUrl || `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
-                                alt={partner.name}
-                                className="w-full h-full p-1.5 object-contain relative z-10 bg-white"
-                                onError={(e) => e.currentTarget.style.opacity = '0'}
-                                onLoad={(e) => e.currentTarget.style.opacity = '1'}
-                              />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center justify-between gap-1.5">
-                                <div className="flex items-center gap-1.5 min-w-0">
-                                  <h3 className="text-[16px] font-bold text-white truncate leading-snug">{partner.name}</h3>
-                                  <span className="text-[15px] flex-shrink-0">{partner.flag}</span>
-                                </div>
-                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider flex-shrink-0 ${
-                                  partner.isVisible !== false 
-                                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" 
-                                    : "bg-white/5 text-white/30 border border-white/5"
-                                }`}>
-                                  {partner.isVisible !== false ? (
-                                    <>
-                                      <Eye className="w-3 h-3" />
-                                      Visible
-                                    </>
-                                  ) : (
-                                    <>
-                                      <EyeOff className="w-3 h-3" />
-                                      Hidden
-                                    </>
-                                  )}
-                                </span>
-                              </div>
-                              <p className="text-white/40 text-xs flex items-center gap-1 mt-1">
-                                <Globe className="w-3.5 h-3.5" />
-                                {partner.domain}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="h-px bg-white/[0.04] w-full" />
-
-                          {/* Sector & HQ details */}
-                          <div className="space-y-2 text-xs">
-                            <div className="flex justify-between items-center text-white/50">
-                              <span className="font-semibold">Sector:</span>
-                              <span className="text-white/80 font-medium truncate max-w-[180px]">{partner.sector.replace("Formation ", "").replace("Santé ", "")}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-white/50">
-                              <span className="font-semibold">Country/HQ:</span>
-                              <span className="text-white/80 font-medium">{partner.headquarters || partner.country}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-white/50">
-                              <span className="font-semibold">Compliance:</span>
-                              <span className="text-white/80 font-medium">{partner.compliance || "—"}</span>
-                            </div>
-                          </div>
+              {activeTab === "providers" ? (
+                <>
+                  {/* Statistics Widgets */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {[
+                      { label: "Total VR Providers", count: providers.length, icon: <Building2 className="w-5 h-5" />, color: "text-moon-blue-light" },
+                      { label: "Active Countries", count: new Set(providers.map(p => p.country)).size, icon: <Globe className="w-5 h-5" />, color: "text-emerald-400" },
+                      { label: "Specialty Sectors", count: new Set(providers.map(p => p.sector)).size, icon: <ShieldCheck className="w-5 h-5" />, color: "text-moon-yellow" },
+                      { label: "Simulated Trainees", count: 48, icon: <Users className="w-5 h-5" />, color: "text-purple-400" }
+                    ].map((stat, i) => (
+                      <div key={i} className="p-6 bg-white/[0.02] border border-white/[0.04] rounded-3xl shadow-lg flex justify-between items-center">
+                        <div>
+                          <span className="text-2xl font-black text-white">{stat.count}</span>
+                          <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1.5">{stat.label}</p>
                         </div>
-
-                        {/* Actions Panel */}
-                        <div className="flex justify-between gap-2.5 mt-6 pt-4 border-t border-white/[0.04]">
-                          <button 
-                            onClick={() => openUsersModal(partner)}
-                            className="flex-1 py-2 px-3 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-bold uppercase tracking-wider text-white/70 hover:text-white flex items-center justify-center gap-1.5 transition-all"
-                          >
-                            <Users className="w-3.5 h-3.5" />
-                            Users
-                          </button>
-                          <button 
-                            onClick={() => openFormModal(partner)}
-                            className="p-2 py-2 bg-white/5 hover:bg-moon-blue/15 hover:border-moon-blue/30 text-white/70 hover:text-moon-blue-light border border-transparent rounded-xl transition-all"
-                            title="Edit provider details"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteProvider(partner.id, partner.name)}
-                            className="p-2 py-2 bg-white/5 hover:bg-red-950/20 hover:border-red-500/20 text-white/70 hover:text-red-400 border border-transparent rounded-xl transition-all"
-                            title="Delete provider"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                        <div className={`p-3 bg-white/5 rounded-2xl border border-white/10 ${stat.color}`}>
+                          {stat.icon}
                         </div>
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
+
+                  {/* Filters & CRUD Actions bar */}
+                  <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+                    
+                    {/* Searching & Filter categories */}
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      {/* Category filters */}
+                      {["All", ...categories.map(c => c.nameFr || c.nameEn)].map(sec => {
+                        const isActive = activeSectorFilter === sec;
+                        return (
+                          <button 
+                            key={sec} 
+                            onClick={() => setActiveSectorFilter(sec)}
+                            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all border ${
+                              isActive 
+                                ? "bg-white/10 border-white/20 text-white shadow-md" 
+                                : "bg-transparent border-white/5 text-white/40 hover:text-white/80"
+                            }`}
+                          >
+                            {sec === "All" ? "All Categories" : sec.replace("Formation ", "").replace("Santé ", "")}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Adding button & Search */}
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                        <input 
+                          type="text"
+                          placeholder="Search providers..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-11 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder-white/30 focus:outline-none focus:border-moon-blue-light/50 w-full md:w-56 transition-all"
+                        />
+                      </div>
+                      
+                      <button 
+                        onClick={() => openFormModal(null)}
+                        className="px-5 py-2.5 bg-moon-blue-light hover:brightness-110 text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-2 transition-all flex-shrink-0"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add Provider
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Providers Grid Table */}
+                  {loading ? (
+                    <div className="flex justify-center items-center py-20">
+                      <RefreshCw className="w-8 h-8 text-moon-blue-light animate-spin" />
+                    </div>
+                  ) : filteredProviders.length === 0 ? (
+                    <div className="p-16 text-center bg-white/[0.01] border border-white/[0.03] rounded-3xl">
+                      <AlertTriangle className="w-10 h-10 text-white/20 mx-auto mb-4" />
+                      <h3 className="text-lg font-bold text-white/60">No Providers Found</h3>
+                      <p className="text-white/30 text-xs mt-1">Try broadening your search criteria or create a new provider!</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {filteredProviders.map(partner => {
+                        const initials = partner.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+                        return (
+                          <div 
+                            key={partner.id}
+                            className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-6 flex flex-col justify-between hover:border-white/20 hover:shadow-xl transition-all duration-300 group"
+                          >
+                            <div className="space-y-4">
+                              {/* Top Row: Logo & Info */}
+                              <div className="flex items-start gap-4">
+                                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden shadow-inner border border-white/20">
+                                  <span className="absolute font-bold text-slate-400 text-[15px] select-none z-0">{initials}</span>
+                                  <img
+                                    src={partner.logoUrl || `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
+                                    alt={partner.name}
+                                    className="w-full h-full p-1.5 object-contain relative z-10 bg-white"
+                                    onError={(e) => e.currentTarget.style.opacity = '0'}
+                                    onLoad={(e) => e.currentTarget.style.opacity = '1'}
+                                  />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center justify-between gap-1.5">
+                                    <div className="flex items-center gap-1.5 min-w-0">
+                                      <h3 className="text-[16px] font-bold text-white truncate leading-snug">{partner.name}</h3>
+                                      <span className="text-[15px] flex-shrink-0">{partner.flag}</span>
+                                    </div>
+                                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider flex-shrink-0 ${
+                                      partner.isVisible !== false 
+                                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" 
+                                        : "bg-white/5 text-white/30 border border-white/5"
+                                    }`}>
+                                      {partner.isVisible !== false ? (
+                                        <>
+                                          <Eye className="w-3 h-3" />
+                                          Visible
+                                        </>
+                                      ) : (
+                                        <>
+                                          <EyeOff className="w-3 h-3" />
+                                          Hidden
+                                        </>
+                                      )}
+                                    </span>
+                                  </div>
+                                  <p className="text-white/40 text-xs flex items-center gap-1 mt-1">
+                                    <Globe className="w-3.5 h-3.5" />
+                                    {partner.domain}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="h-px bg-white/[0.04] w-full" />
+
+                              {/* Sector & HQ details */}
+                              <div className="space-y-2 text-xs">
+                                <div className="flex justify-between items-center text-white/50">
+                                  <span className="font-semibold">Sector:</span>
+                                  <span className="text-white/80 font-medium truncate max-w-[180px]">{partner.sector.replace("Formation ", "").replace("Santé ", "")}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-white/50">
+                                  <span className="font-semibold">Country/HQ:</span>
+                                  <span className="text-white/80 font-medium">{partner.headquarters || partner.country}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-white/50">
+                                  <span className="font-semibold">Compliance:</span>
+                                  <span className="text-white/80 font-medium">{partner.compliance || "—"}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Actions Panel */}
+                            <div className="flex justify-between gap-2.5 mt-6 pt-4 border-t border-white/[0.04]">
+                              <button 
+                                onClick={() => openUsersModal(partner)}
+                                className="flex-1 py-2 px-3 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-bold uppercase tracking-wider text-white/70 hover:text-white flex items-center justify-center gap-1.5 transition-all"
+                              >
+                                <Users className="w-3.5 h-3.5" />
+                                Users
+                              </button>
+                              <button 
+                                onClick={() => openFormModal(partner)}
+                                className="p-2 py-2 bg-white/5 hover:bg-moon-blue/15 hover:border-moon-blue/30 text-white/70 hover:text-moon-blue-light border border-transparent rounded-xl transition-all"
+                                title="Edit provider details"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteProvider(partner.id, partner.name)}
+                                className="p-2 py-2 bg-white/5 hover:bg-red-950/20 hover:border-red-500/20 text-white/70 hover:text-red-400 border border-transparent rounded-xl transition-all"
+                                title="Delete provider"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="space-y-6">
+                  {/* Header & Add Category Button */}
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                      <h2 className="text-2xl font-bold tracking-tight">Active sectors & <span className="text-gradient">Categories</span></h2>
+                      <p className="text-white/40 text-xs mt-1">Manage sectors dynamically. If the DB categories table is missing, the system uses safe offline fallbacks.</p>
+                    </div>
+                    <button 
+                      onClick={() => openCategoryFormModal(null)}
+                      className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-2 transition-all flex-shrink-0"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Category
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left Column: Categories List (spans 2 cols) */}
+                    <div className="lg:col-span-2 space-y-4">
+                      {loadingCategories ? (
+                        <div className="flex justify-center items-center py-20 bg-white/[0.01] border border-white/5 rounded-3xl">
+                          <RefreshCw className="w-8 h-8 text-moon-blue-light animate-spin" />
+                        </div>
+                      ) : categories.length === 0 ? (
+                        <div className="p-16 text-center bg-white/[0.01] border border-white/[0.03] rounded-3xl">
+                          <AlertTriangle className="w-10 h-10 text-white/20 mx-auto mb-4" />
+                          <h3 className="text-lg font-bold text-white/60">No Categories Found</h3>
+                          <p className="text-white/30 text-xs mt-1">Add your first dynamic category to get started.</p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {categories.map(cat => {
+                            return (
+                              <div 
+                                key={cat.id}
+                                className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5 flex flex-col justify-between hover:border-white/20 hover:shadow-xl transition-all duration-300 group"
+                              >
+                                <div className="flex items-start gap-4">
+                                  <div 
+                                    className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 border"
+                                    style={{ 
+                                      backgroundColor: `${cat.color}15`, 
+                                      borderColor: `${cat.color}30`, 
+                                      color: cat.color 
+                                    }}
+                                  >
+                                    <span className="text-2xl">{cat.icon.length === 1 || !/^[A-Za-z]+$/.test(cat.icon) ? cat.icon : "🌐"}</span>
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex items-center gap-1.5">
+                                      <h4 className="text-sm font-bold text-white truncate leading-snug">{cat.nameFr || cat.nameEn}</h4>
+                                    </div>
+                                    <p className="text-white/40 text-[11px] mt-0.5 font-medium truncate">EN: {cat.nameEn}</p>
+                                    <div className="mt-2 flex flex-wrap gap-1.5">
+                                      <span className="inline-block px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] font-mono text-white/50">{cat.id}</span>
+                                      <span className="inline-block px-2 py-0.5 rounded text-[9px] font-bold" style={{ backgroundColor: `${cat.color}20`, color: cat.color }}>{cat.color}</span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="flex justify-end gap-2.5 mt-4 pt-3 border-t border-white/[0.04]">
+                                  <button 
+                                    onClick={() => openCategoryFormModal(cat)}
+                                    className="p-1.5 bg-white/5 hover:bg-moon-blue/15 hover:border-moon-blue/30 text-white/70 hover:text-moon-blue-light border border-transparent rounded-lg transition-all text-xs font-bold flex items-center gap-1 px-2.5"
+                                    title="Edit category details"
+                                  >
+                                    <Edit3 className="w-3.5 h-3.5" />
+                                    Edit
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDeleteCategory(cat.id, cat.nameFr || cat.nameEn)}
+                                    className="p-1.5 bg-white/5 hover:bg-red-950/20 hover:border-red-500/20 text-white/70 hover:text-red-400 border border-transparent rounded-lg transition-all text-xs font-bold flex items-center gap-1 px-2.5"
+                                    title="Delete category"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right Column: SQL Migration Code Helper */}
+                    <div className="bg-[#090d16]/60 border border-white/5 rounded-3xl p-6 backdrop-blur-md shadow-2xl h-fit space-y-4">
+                      <div className="flex items-center gap-2 text-moon-blue-light">
+                        <Tag className="w-5 h-5" />
+                        <h3 className="text-sm font-bold uppercase tracking-wider">Supabase Setup Guide</h3>
+                      </div>
+                      <p className="text-xs text-white/50 leading-relaxed">
+                        To enable fully dynamic categories backed by the database instead of falling back to default categories, run this SQL migration code inside your **Supabase SQL Editor** dashboard.
+                      </p>
+                      
+                      <div className="bg-black/45 border border-white/10 rounded-xl p-4 font-mono text-[10px] text-emerald-400/90 overflow-x-auto max-h-[300px] custom-scrollbar select-all">
+{`-- 1. Create categories table
+create table if not exists categories (
+  id text primary key,
+  name_en text not null,
+  name_fr text not null,
+  icon text not null default '🌐',
+  color text not null default '#3b82f6',
+  created_at timestamptz default now()
+);
+
+-- 2. Enable Row Level Security (RLS)
+alter table categories enable row level security;
+
+-- 3. Define policies (Public read, full Admin CRUD)
+create policy "Allow public read access on categories" 
+  on categories for select using (true);
+
+create policy "Allow all operations on categories" 
+  on categories for all using (true) with check (true);
+
+-- 4. Seed with initial default strategic categories
+insert into categories (id, name_en, name_fr, icon, color) values
+('tvet', 'Technical and Vocational Education (TVET)', 'Formation Professionnelle et Technique', 'GraduationCap', '#a3e635'),
+('healthcare', 'Medicine and Healthcare', 'Santé et VR Médicale', 'HeartPulse', '#fb7185'),
+('education', 'K-12 Education (6-16 Years)', 'Éducation des Enfants (6-16 Ans)', 'GraduationCap', '#a78bfa')
+on conflict (id) do nothing;`}
+                      </div>
+
+                      <div className="p-3.5 bg-white/[0.02] border border-white/5 rounded-xl text-[11px] text-white/40 flex items-start gap-2.5">
+                        <Shield className="w-4 h-4 text-moon-blue-light flex-shrink-0 mt-0.5" />
+                        <span>Running this SQL query creates the database structure and immediately upgrades your workspace to full backend dynamics. No app rebuild required!</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -682,31 +950,18 @@ export default function AdminPage() {
               {/* Form Container */}
               <form onSubmit={handleFormSubmit} className="p-6 md:p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
                 
-                {/* Sector 1: Core credentials */}
                 <div className="space-y-4">
                   <h3 className="text-xs font-bold text-moon-blue-light uppercase tracking-widest flex items-center gap-2">
                     <Building2 className="w-4 h-4" />
-                    1. Core Information
+                    Core Provider Information
                   </h3>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Unique Slug ID (Lowercase, no spaces)</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. mimbus"
-                        disabled={!!editingProvider}
-                        value={formData.id}
-                        onChange={(e) => setFormData({...formData, id: e.target.value})}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/5 disabled:opacity-40 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40"
-                        required
-                      />
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Supplier Brand Name</label>
                       <input 
                         type="text"
-                        placeholder="e.g. Mimbus"
+                        placeholder="e.g. Uptale VR"
                         value={formData.name}
                         onChange={(e) => setFormData({...formData, name: e.target.value})}
                         className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40"
@@ -714,219 +969,60 @@ export default function AdminPage() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Industry Sector Specialty</label>
-                      <select 
-                        value={formData.sector}
-                        onChange={(e) => setFormData({...formData, sector: e.target.value})}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40 text-white [&>option]:bg-[#090d16]"
-                      >
-                        {SECTORS.map(s => (
-                          <option key={s} value={s}>{s}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Website Domain URL</label>
+                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Website URL / Domain</label>
                       <input 
                         type="text"
-                        placeholder="e.g. mimbus.com"
+                        placeholder="e.g. https://uptale.io or uptale.io"
                         value={formData.domain}
                         onChange={(e) => setFormData({...formData, domain: e.target.value})}
                         className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40"
                         required
                       />
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Country Location</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. France"
-                        value={formData.country}
-                        onChange={(e) => setFormData({...formData, country: e.target.value})}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Country Flag Emoji</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. 🇫🇷"
-                        value={formData.flag}
-                        onChange={(e) => setFormData({...formData, flag: e.target.value})}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40 text-center"
-                        required
-                      />
+                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Industry Sector Specialty</label>
+                      <select 
+                        value={formData.sector}
+                        onChange={(e) => setFormData({...formData, sector: e.target.value})}
+                        className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40 text-white [&>option]:bg-[#090d16]"
+                      >
+                        {categories.map(cat => (
+                          <option key={cat.id} value={cat.nameFr || cat.nameEn}>{cat.nameFr || cat.nameEn}</option>
+                        ))}
+                      </select>
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Custom Logo URL (Optional)</label>
                       <input 
                         type="text"
-                        placeholder="Leave blank for auto favicon"
+                        placeholder="e.g. https://domain.com/logo.png (or leave blank for auto favicon)"
                         value={formData.logoUrl}
                         onChange={(e) => setFormData({...formData, logoUrl: e.target.value})}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-xs focus:outline-none focus:border-moon-blue-light/40"
-                      />
-                    </div>
-                    <div className="space-y-1 flex flex-col justify-center">
-                      <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Visibility Status</span>
-                      <label className="relative inline-flex items-center cursor-pointer mt-2 pl-1 select-none">
-                        <input 
-                          type="checkbox" 
-                          checked={formData.isVisible} 
-                          onChange={(e) => setFormData({...formData, isVisible: e.target.checked})}
-                          className="sr-only peer" 
-                        />
-                        <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-                        <span className="ml-3 text-[11px] font-bold text-white/50 peer-checked:text-emerald-400">
-                          {formData.isVisible ? "Visible" : "Hidden"}
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="h-px bg-white/[0.04] w-full" />
-
-                {/* Section 2: Administrative details */}
-                <div className="space-y-4">
-                  <h3 className="text-xs font-bold text-moon-yellow uppercase tracking-widest flex items-center gap-2">
-                    <Globe className="w-4 h-4" />
-                    2. Corporate & Administrative Specifications
-                  </h3>
-
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Headquarters City</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. Paris, France"
-                        value={formData.headquarters}
-                        onChange={(e) => setFormData({...formData, headquarters: e.target.value})}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Founded Year</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. 2011"
-                        value={formData.foundedYear}
-                        onChange={(e) => setFormData({...formData, foundedYear: e.target.value})}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Compliance Standard</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. Native/Offline, CE Class I"
-                        value={formData.compliance}
-                        onChange={(e) => setFormData({...formData, compliance: e.target.value})}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Core ROI Highlight (EN)</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. High Reseller Margins"
-                        value={formData.roiMetrics_en}
-                        onChange={(e) => setFormData({...formData, roiMetrics_en: e.target.value})}
                         className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40"
                       />
                     </div>
                   </div>
-                </div>
 
-                <div className="h-px bg-white/[0.04] w-full" />
-
-                {/* Section 3: Dual-Language descriptions */}
-                <div className="space-y-4">
-                  <h3 className="text-xs font-bold text-purple-400 uppercase tracking-widest flex items-center gap-2">
-                    <Languages className="w-4 h-4" />
-                    3. Localization Content (Dual Language)
-                  </h3>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* EN DESCRIPTION */}
-                    <div className="space-y-1.5 p-4 bg-white/[0.01] border border-white/5 rounded-2xl">
-                      <span className="text-[10px] font-bold text-white/70 uppercase tracking-wide flex items-center gap-1.5">🇬🇧 English Localization</span>
-                      
-                      <div className="space-y-3 mt-3">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-semibold text-white/35 uppercase">Overview Description</label>
-                          <textarea 
-                            rows={2}
-                            value={formData.description_en}
-                            onChange={(e) => setFormData({...formData, description_en: e.target.value})}
-                            className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-xs focus:outline-none"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-semibold text-white/35 uppercase">Pricing Details</label>
-                          <textarea 
-                            rows={1.5}
-                            value={formData.pricing_en}
-                            onChange={(e) => setFormData({...formData, pricing_en: e.target.value})}
-                            className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-xs focus:outline-none"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-semibold text-white/35 uppercase">Strategic Opportunities</label>
-                          <textarea 
-                            rows={1.5}
-                            value={formData.opportunities_en}
-                            onChange={(e) => setFormData({...formData, opportunities_en: e.target.value})}
-                            className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-xs focus:outline-none"
-                            required
-                          />
-                        </div>
-                      </div>
+                  <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-bold text-white block">Visibility Status</span>
+                      <span className="text-[10px] text-white/40">Toggle whether this provider is active on the homepage carousel and search grid.</span>
                     </div>
-
-                    {/* FR DESCRIPTION */}
-                    <div className="space-y-1.5 p-4 bg-white/[0.01] border border-white/5 rounded-2xl">
-                      <span className="text-[10px] font-bold text-white/70 uppercase tracking-wide flex items-center gap-1.5">🇫🇷 French Localization</span>
-                      
-                      <div className="space-y-3 mt-3">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-semibold text-white/35 uppercase">Overview Description</label>
-                          <textarea 
-                            rows={2}
-                            value={formData.description_fr}
-                            onChange={(e) => setFormData({...formData, description_fr: e.target.value})}
-                            className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-xs focus:outline-none"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-semibold text-white/35 uppercase">Pricing Details</label>
-                          <textarea 
-                            rows={1.5}
-                            value={formData.pricing_fr}
-                            onChange={(e) => setFormData({...formData, pricing_fr: e.target.value})}
-                            className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-xs focus:outline-none"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-semibold text-white/35 uppercase">Strategic Opportunities</label>
-                          <textarea 
-                            rows={1.5}
-                            value={formData.opportunities_fr}
-                            onChange={(e) => setFormData({...formData, opportunities_fr: e.target.value})}
-                            className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-xs focus:outline-none"
-                            required
-                          />
-                        </div>
-                      </div>
-                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer select-none">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.isVisible} 
+                        onChange={(e) => setFormData({...formData, isVisible: e.target.checked})}
+                        className="sr-only peer" 
+                      />
+                      <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                      <span className="ml-3 text-[11px] font-bold text-white/50 peer-checked:text-emerald-400">
+                        {formData.isVisible ? "Visible" : "Hidden"}
+                      </span>
+                    </label>
                   </div>
                 </div>
 

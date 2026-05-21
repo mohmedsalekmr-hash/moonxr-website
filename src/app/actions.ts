@@ -1,6 +1,6 @@
 "use server";
 
-import { Partner } from "@/data/partners";
+import { Partner, Category, defaultCategories } from "@/data/partners";
 import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
 
@@ -82,15 +82,15 @@ export async function createProviderAction(partner: Omit<Partner, "logoUrl"> & {
       id: partner.id,
       name: partner.name,
       sector: partner.sector,
-      country: partner.country,
-      flag: partner.flag,
+      country: partner.country || "",
+      flag: partner.flag || "🌐",
       domain: partner.domain,
-      description_en: partner.description.en,
-      description_fr: partner.description.fr,
-      pricing_en: partner.pricing.en,
-      pricing_fr: partner.pricing.fr,
-      opportunities_en: partner.opportunities.en,
-      opportunities_fr: partner.opportunities.fr,
+      description_en: partner.description?.en || "",
+      description_fr: partner.description?.fr || "",
+      pricing_en: partner.pricing?.en || "",
+      pricing_fr: partner.pricing?.fr || "",
+      opportunities_en: partner.opportunities?.en || "",
+      opportunities_fr: partner.opportunities?.fr || "",
       headquarters: partner.headquarters || null,
       founded_year: partner.foundedYear || null,
       roi_metrics_en: partner.roiMetrics?.en || null,
@@ -120,15 +120,15 @@ export async function updateProviderAction(id: string, partner: Omit<Partner, "l
     const row = {
       name: partner.name,
       sector: partner.sector,
-      country: partner.country,
-      flag: partner.flag,
+      country: partner.country || "",
+      flag: partner.flag || "🌐",
       domain: partner.domain,
-      description_en: partner.description.en,
-      description_fr: partner.description.fr,
-      pricing_en: partner.pricing.en,
-      pricing_fr: partner.pricing.fr,
-      opportunities_en: partner.opportunities.en,
-      opportunities_fr: partner.opportunities.fr,
+      description_en: partner.description?.en || "",
+      description_fr: partner.description?.fr || "",
+      pricing_en: partner.pricing?.en || "",
+      pricing_fr: partner.pricing?.fr || "",
+      opportunities_en: partner.opportunities?.en || "",
+      opportunities_fr: partner.opportunities?.fr || "",
       headquarters: partner.headquarters || null,
       founded_year: partner.foundedYear || null,
       roi_metrics_en: partner.roiMetrics?.en || null,
@@ -238,6 +238,99 @@ export async function deleteProviderUserAction(id: string) {
     return { success: true };
   } catch (err: any) {
     console.error("Error in deleteProviderUserAction:", err);
+    return { success: false, error: err.message };
+  }
+}
+
+// =========================================================================
+// CATEGORY CRUD ACTIONS
+// =========================================================================
+
+export async function getCategoriesAction(): Promise<Category[]> {
+  try {
+    const { data, error } = await supabase
+      .from("categories")
+      .select("*")
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.warn("Categories table could not be queried, falling back:", error.message);
+      return defaultCategories;
+    }
+
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      nameEn: row.name_en,
+      nameFr: row.name_fr,
+      icon: row.icon || "🌐",
+      color: row.color || "#3b82f6"
+    }));
+  } catch (err: any) {
+    console.warn("Unexpected error fetching categories, returning offline fallback:", err.message || err);
+    return defaultCategories;
+  }
+}
+
+export async function createCategoryAction(category: Category) {
+  try {
+    const row = {
+      id: category.id,
+      name_en: category.nameEn,
+      name_fr: category.nameFr,
+      icon: category.icon,
+      color: category.color
+    };
+
+    const { data, error } = await supabase.from("categories").insert([row]).select();
+    if (error) throw error;
+
+    revalidatePath("/");
+    revalidatePath("/providers");
+    revalidatePath("/admin");
+    return { success: true, data };
+  } catch (err: any) {
+    console.error("Error creating category:", err);
+    return { success: false, error: err.message };
+  }
+}
+
+export async function updateCategoryAction(id: string, category: Partial<Category>) {
+  try {
+    const row: any = {};
+    if (category.nameEn !== undefined) row.name_en = category.nameEn;
+    if (category.nameFr !== undefined) row.name_fr = category.nameFr;
+    if (category.icon !== undefined) row.icon = category.icon;
+    if (category.color !== undefined) row.color = category.color;
+
+    const { data, error } = await supabase
+      .from("categories")
+      .update(row)
+      .eq("id", id)
+      .select();
+
+    if (error) throw error;
+
+    revalidatePath("/");
+    revalidatePath("/providers");
+    revalidatePath("/admin");
+    return { success: true, data };
+  } catch (err: any) {
+    console.error("Error updating category:", err);
+    return { success: false, error: err.message };
+  }
+}
+
+export async function deleteCategoryAction(id: string) {
+  try {
+    const { error } = await supabase.from("categories").delete().eq("id", id);
+    if (error) throw error;
+
+    revalidatePath("/");
+    revalidatePath("/providers");
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (err: any) {
+    console.error("Error deleting category:", err);
     return { success: false, error: err.message };
   }
 }

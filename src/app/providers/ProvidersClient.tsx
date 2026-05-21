@@ -2,26 +2,38 @@
 "use client";
 
 import { useLanguage } from "@/context/LanguageContext";
-import { partnersData, Partner } from "@/data/partners";
-import { getProvidersAction } from "@/app/actions";
+import { partnersData, Partner, Category } from "@/data/partners";
+import { getProvidersAction, getCategoriesAction } from "@/app/actions";
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from "framer-motion";
-import { useState, useMemo, useEffect, useCallback } from "react";
-import { createPortal } from "react-dom";
-import {
-  X, Globe, MapPin, Calendar, ShieldCheck, TrendingUp,
-  Building2, ExternalLink, Zap, Shield, Anchor,
-  GraduationCap, HeartPulse, ArrowRight
-} from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import * as Icons from "lucide-react";
 
-const SECTORS: Record<string, { label: string; labelFr: string; icon: React.ReactNode; color: string }> = {
-  "Oil, Gas, and Energy Industry":            { label: "Energy",       labelFr: "Énergie",       icon: <Zap className="w-4 h-4" />,           color: "#f59e0b" },
-  "Mining and Resource Extraction":           { label: "Mining",       labelFr: "Mines",          icon: <Shield className="w-4 h-4" />,        color: "#fb923c" },
-  "Fisheries and Maritime Navigation":        { label: "Maritime",     labelFr: "Maritime",       icon: <Anchor className="w-4 h-4" />,        color: "#38bdf8" },
-  "Construction and Engineering":             { label: "Construction", labelFr: "Construction",   icon: <Building2 className="w-4 h-4" />,     color: "#a3e635" },
-  "Technical and Vocational Education (TVET)":{ label: "Education",    labelFr: "Éducation",      icon: <GraduationCap className="w-4 h-4" />, color: "#a78bfa" },
-  "Medicine and Healthcare":                  { label: "Healthcare",   labelFr: "Santé",          icon: <HeartPulse className="w-4 h-4" />,    color: "#fb7185" },
+const resolveSector = (sectorName: string, categories: Category[], lang: string) => {
+  const matched = categories.find(c => c.nameFr === sectorName || c.nameEn === sectorName || c.id === sectorName);
+  
+  const sColor = matched?.color || "#3b82f6";
+  const sLabel = lang === 'en' ? (matched?.nameEn || sectorName) : (matched?.nameFr || sectorName);
+  const sIconStr = matched?.icon || "🌐";
+
+  return {
+    color: sColor,
+    label: sLabel,
+    iconStr: sIconStr
+  };
 };
-const getSector = (name: string) => SECTORS[name] ?? { label: name, labelFr: name, icon: <Zap className="w-4 h-4" />, color: "#22d3ee" };
+
+const renderSectorIcon = (iconStr: string, className = "w-4 h-4") => {
+  if (!iconStr) return <Icons.Zap className={className} />;
+  // Emojis
+  if (iconStr.length <= 2 || !/^[A-Za-z]+$/.test(iconStr)) {
+    return <span className="text-sm leading-none flex items-center justify-center">{iconStr}</span>;
+  }
+  const IconComponent = (Icons as any)[iconStr];
+  if (IconComponent) {
+    return <IconComponent className={className} />;
+  }
+  return <Icons.Zap className={className} />;
+};
 
 function Logo({ domain, name, logoUrl }: { domain: string; name: string; logoUrl?: string }) {
   const [loaded, setLoaded] = useState(false);
@@ -50,8 +62,8 @@ function Logo({ domain, name, logoUrl }: { domain: string; name: string; logoUrl
   );
 }
 
-function PartnerCard({ partner, onClick, lang }: { partner: Partner; onClick: () => void; lang: string }) {
-  const sector = getSector(partner.sector);
+function PartnerCard({ partner, lang, categories }: { partner: Partner; lang: string; categories: Category[] }) {
+  const sector = useMemo(() => resolveSector(partner.sector, categories, lang), [partner.sector, categories, lang]);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const mouseXSpring = useSpring(x, { stiffness: 300, damping: 20 });
@@ -59,24 +71,31 @@ function PartnerCard({ partner, onClick, lang }: { partner: Partner; onClick: ()
   const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["7deg", "-7deg"]);
   const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-7deg", "7deg"]);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     x.set((e.clientX - rect.left) / rect.width - 0.5);
     y.set((e.clientY - rect.top) / rect.height - 0.5);
   };
 
+  const rawUrl = partner.domain || "";
+  const targetUrl = rawUrl.startsWith("http://") || rawUrl.startsWith("https://") 
+    ? rawUrl 
+    : `https://${rawUrl}`;
+
   return (
-    <motion.article
+    <motion.a
+      href={targetUrl}
+      target="_blank"
+      rel="noopener noreferrer"
       layout
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => { x.set(0); y.set(0); }}
       style={{ rotateX, rotateY, transformPerspective: 800 }}
-      className="group relative flex flex-col rounded-2xl overflow-hidden cursor-pointer border border-white/[0.08] bg-white/[0.03] hover:border-white/20 transition-all duration-300 hover:shadow-[0_12px_40px_rgba(0,0,0,0.4)]"
+      className="group relative flex flex-col rounded-2xl overflow-hidden cursor-pointer border border-white/[0.08] bg-white/[0.03] hover:border-white/20 transition-all duration-300 hover:shadow-[0_12px_40px_rgba(0,0,0,0.4)] text-left"
     >
       <div className="relative h-36 bg-white flex items-center justify-center p-6">
         <div className="absolute top-0 inset-x-0 h-[3px] opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -91,49 +110,48 @@ function PartnerCard({ partner, onClick, lang }: { partner: Partner; onClick: ()
           <span className="text-base flex-shrink-0 mt-0.5">{partner.flag}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider"
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider"
             style={{ background: `${sector.color}15`, color: sector.color, border: `1px solid ${sector.color}25` }}>
-            {sector.icon}
-            {lang === "en" ? sector.label : sector.labelFr}
+            {renderSectorIcon(sector.iconStr)}
+            {sector.label}
           </span>
         </div>
-        <p className="text-[13px] text-white/45 leading-relaxed line-clamp-2 flex-1">
-          {lang === "en" ? partner.description.en : partner.description.fr}
-        </p>
+        {partner.description && (partner.description.en || partner.description.fr) ? (
+          <p className="text-[13px] text-white/45 leading-relaxed line-clamp-2 flex-1">
+            {lang === "en" ? partner.description.en : partner.description.fr}
+          </p>
+        ) : (
+          <div className="flex-1" />
+        )}
         <div className="flex items-center gap-1 text-[13px] font-medium text-white/30 group-hover:text-white/70 transition-colors pt-2 border-t border-white/[0.06]">
-          <span>{lang === "en" ? "Learn more" : "En savoir plus"}</span>
-          <ArrowRight className="w-3.5 h-3.5 translate-x-0 group-hover:translate-x-1 transition-transform duration-200" />
+          <span>{lang === "en" ? "Visit Website" : "Visiter le site"}</span>
+          <Icons.ArrowRight className="w-3.5 h-3.5 translate-x-0 group-hover:translate-x-1 transition-transform duration-200" />
         </div>
       </div>
-    </motion.article>
+    </motion.a>
   );
 }
 
 export function ProvidersClient({ partners: initialPartners = partnersData }: { partners?: Partner[] }) {
   const { t, language } = useLanguage();
   const [partners, setPartners] = useState<Partner[]>(initialPartners);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [activeSector, setActiveSector] = useState("All");
-  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
     async function load() {
       const data = await getProvidersAction();
       if (data && data.length > 0) {
         setPartners(data);
       }
     }
+    async function loadCats() {
+      const data = await getCategoriesAction();
+      setCategories(data);
+    }
     load();
+    loadCats();
   }, []);
-
-  const closeModal = useCallback(() => setSelectedPartner(null), []);
-  useEffect(() => {
-    if (!selectedPartner) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") closeModal(); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [selectedPartner, closeModal]);
 
   const activePartners = useMemo(() => partners.filter(p => p.isVisible !== false), [partners]);
   const sectors = useMemo(() => ["All", ...Array.from(new Set(activePartners.map(p => p.sector)))], [activePartners]);
@@ -145,7 +163,7 @@ export function ProvidersClient({ partners: initialPartners = partnersData }: { 
       <div className="flex flex-wrap justify-center gap-8 text-center">
         {[
           { n: activePartners.length,                      label: t("Global Partners","Partenaires Mondiaux") },
-          { n: Object.keys(SECTORS).length,                label: t("Industry Sectors","Secteurs Industriels") },
+          { n: categories.length || sectors.length - 1,   label: t("Industry Sectors","Secteurs Industriels") },
           { n: new Set(activePartners.map(p => p.country)).size, label: t("Countries","Pays") },
         ].map((stat, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
@@ -161,12 +179,12 @@ export function ProvidersClient({ partners: initialPartners = partnersData }: { 
       <div className="flex flex-wrap justify-center gap-2">
         {sectors.map(sector => {
           const isActive = activeSector === sector;
-          const s = sector !== "All" ? getSector(sector) : null;
+          const s = sector !== "All" ? resolveSector(sector, categories, language) : null;
           return (
             <button key={sector} onClick={() => setActiveSector(sector)}
               className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 border ${isActive ? "bg-white/10 text-white border-white/20 shadow-lg" : "bg-transparent text-white/40 border-white/[0.06] hover:text-white/70 hover:bg-white/5 hover:border-white/10"}`}>
-              {s && <span style={{ color: isActive ? s.color : undefined }}>{s.icon}</span>}
-              {sector === "All" ? t("All Sectors","Tous les Secteurs") : (language === "en" ? (s?.label ?? sector) : (s?.labelFr ?? sector))}
+              {s && <span style={{ color: isActive ? s.color : undefined }}>{renderSectorIcon(s.iconStr)}</span>}
+              {sector === "All" ? t("All Sectors","Tous les Secteurs") : (s?.label ?? sector)}
             </button>
           );
         })}
@@ -176,94 +194,10 @@ export function ProvidersClient({ partners: initialPartners = partnersData }: { 
       <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         <AnimatePresence mode="popLayout">
           {filteredPartners.map(partner => (
-            <PartnerCard key={partner.id} partner={partner} lang={language} onClick={() => setSelectedPartner(partner)} />
+            <PartnerCard key={partner.id} partner={partner} lang={language} categories={categories} />
           ))}
         </AnimatePresence>
       </motion.div>
-
-      {/* Modal */}
-      {isMounted && createPortal(
-        <AnimatePresence>
-          {selectedPartner && (() => {
-            const sector = getSector(selectedPartner.sector);
-            return (
-              <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  onClick={closeModal} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-                <motion.div
-                  initial={{ opacity: 0, y: 20, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 20, scale: 0.96 }}
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
-                  className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 shadow-2xl z-10 [&::-webkit-scrollbar]:hidden"
-                  style={{ background: "#0a0c14" }}
-                >
-                  <div className="flex items-center gap-5 p-6 pb-5 border-b border-white/[0.06]">
-                    <div className="w-14 h-14 rounded-xl bg-white p-1.5 flex-shrink-0 shadow-md">
-                      <Logo domain={selectedPartner.domain} name={selectedPartner.name} logoUrl={selectedPartner.logoUrl} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2.5">
-                        <h2 className="text-xl font-bold text-white truncate">{selectedPartner.name}</h2>
-                        <span className="text-lg">{selectedPartner.flag}</span>
-                      </div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider"
-                          style={{ background: `${sector.color}15`, color: sector.color }}>
-                          {sector.icon} {language === "en" ? sector.label : sector.labelFr}
-                        </span>
-                        <span className="text-[11px] text-white/30">{selectedPartner.country}</span>
-                      </div>
-                    </div>
-                    <button onClick={closeModal} aria-label="Close modal"
-                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors flex-shrink-0">
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <div className="p-6 space-y-5">
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                      {[
-                        { icon: <MapPin className="w-3.5 h-3.5" />,      l: t("HQ","Siège"),        v: selectedPartner.headquarters || selectedPartner.country },
-                        { icon: <Calendar className="w-3.5 h-3.5" />,    l: t("Founded","Fondé"),   v: selectedPartner.foundedYear || "—" },
-                        { icon: <ShieldCheck className="w-3.5 h-3.5" />, l: t("Compliance","Conf."),v: selectedPartner.compliance || "—" },
-                        { icon: <TrendingUp className="w-3.5 h-3.5" />,  l: "ROI",                  v: selectedPartner.roiMetrics ? (language==="en" ? selectedPartner.roiMetrics.en.split("|")[0].trim() : selectedPartner.roiMetrics.fr.split("|")[0].trim()) : "—" },
-                      ].map((m, i) => (
-                        <div key={i} className="rounded-lg bg-white/[0.03] border border-white/[0.05] p-3">
-                          <div className="flex items-center gap-1.5 mb-1" style={{ color: sector.color }}>
-                            {m.icon}<span className="text-[9px] font-bold uppercase tracking-widest">{m.l}</span>
-                          </div>
-                          <p className="text-white/80 text-xs font-medium leading-snug line-clamp-2">{m.v}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2.5">{t("Overview","Aperçu")}</p>
-                      <p className="text-white/70 text-sm leading-relaxed">{language === "en" ? selectedPartner.description.en : selectedPartner.description.fr}</p>
-                    </div>
-                    <div className="grid sm:grid-cols-2 gap-3">
-                      <div className="rounded-lg bg-white/[0.03] border border-white/[0.05] p-4">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">{t("Pricing","Tarification")}</p>
-                        <p className="text-white/70 text-[13px] leading-relaxed">{language === "en" ? selectedPartner.pricing.en : selectedPartner.pricing.fr}</p>
-                      </div>
-                      <div className="rounded-lg p-4" style={{ background: `${sector.color}08`, border: `1px solid ${sector.color}18` }}>
-                        <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: sector.color }}>{t("Opportunities","Opportunités")}</p>
-                        <p className="text-white/70 text-[13px] leading-relaxed">{language === "en" ? selectedPartner.opportunities.en : selectedPartner.opportunities.fr}</p>
-                      </div>
-                    </div>
-                    <a href={`https://${selectedPartner.domain}`} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-white text-sm font-semibold hover:brightness-110 transition-all"
-                      style={{ background: sector.color }}>
-                      <Globe className="w-4 h-4" />
-                      {t("Visit Website","Visiter le site")}
-                      <ExternalLink className="w-3.5 h-3.5 opacity-60" />
-                    </a>
-                  </div>
-                </motion.div>
-              </div>
-            );
-          })()}
-        </AnimatePresence>,
-        document.body
-      )}
     </div>
   );
 }

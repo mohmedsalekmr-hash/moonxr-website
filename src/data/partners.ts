@@ -1,19 +1,51 @@
+export interface Category {
+  id: string;
+  nameEn: string;
+  nameFr: string;
+  icon: string; // Emoji or Lucide icon key
+  color: string; // Hex color
+}
+
+export const defaultCategories: Category[] = [
+  {
+    id: "tvet",
+    nameEn: "Technical and Vocational Education (TVET)",
+    nameFr: "Formation Professionnelle et Technique",
+    icon: "GraduationCap",
+    color: "#a3e635"
+  },
+  {
+    id: "healthcare",
+    nameEn: "Medicine and Healthcare",
+    nameFr: "Santé et VR Médicale",
+    icon: "HeartPulse",
+    color: "#fb7185"
+  },
+  {
+    id: "education",
+    nameEn: "K-12 Education (6-16 Years)",
+    nameFr: "Éducation des Enfants (6-16 Ans)",
+    icon: "Zap",
+    color: "#a78bfa"
+  }
+];
+
 export interface Partner {
   id: string;
   name: string;
   sector: string;
-  country: string;
-  flag: string;
+  country?: string;
+  flag?: string;
   domain: string;
-  description: {
+  description?: {
     en: string;
     fr: string;
   };
-  pricing: {
+  pricing?: {
     en: string;
     fr: string;
   };
-  opportunities: {
+  opportunities?: {
     en: string;
     fr: string;
   };
@@ -27,6 +59,31 @@ export interface Partner {
   logoUrl?: string;
   isVisible?: boolean;
 }
+
+export function normalizeSector(sector: string): string {
+  if (!sector) return "Technical and Vocational Education (TVET)";
+  const s = sector.trim().toLowerCase();
+  if (s.includes("professionnelle") || s.includes("tvet") || s.includes("enfants") || s.includes("education")) {
+    return "Technical and Vocational Education (TVET)";
+  }
+  if (s.includes("santé") || s.includes("medical") || s.includes("medicine") || s.includes("healthcare")) {
+    return "Medicine and Healthcare";
+  }
+  if (s.includes("oil") || s.includes("gas") || s.includes("énergie") || s.includes("energy")) {
+    return "Oil, Gas, and Energy Industry";
+  }
+  if (s.includes("mining") || s.includes("mines")) {
+    return "Mining and Resource Extraction";
+  }
+  if (s.includes("fisheries") || s.includes("pêche") || s.includes("maritime")) {
+    return "Fisheries and Maritime Navigation";
+  }
+  if (s.includes("construction") || s.includes("bâtiment") || s.includes("engineering")) {
+    return "Construction and Engineering";
+  }
+  return sector;
+}
+
 
 export const partnersData: Partner[] = [
   {

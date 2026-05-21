@@ -1,35 +1,35 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
-import Image from "next/image";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { partnersData, Partner } from "@/data/partners";
-import { getProvidersAction } from "@/app/actions";
+import { partnersData, Partner, Category } from "@/data/partners";
+import { getProvidersAction, getCategoriesAction } from "@/app/actions";
 import { useLanguage } from "@/context/LanguageContext";
-import {
-  Zap, Shield, Anchor, Building2, GraduationCap, HeartPulse,
-  X, Globe, ExternalLink, MapPin, Calendar, ShieldCheck, TrendingUp,
-} from "lucide-react";
-import { createPortal } from "react-dom";
-
-/* ── Sector config ─────────────────────────────────────────────────────── */
-const SECTORS: Record<string, { label: string; labelFr: string; icon: React.ReactNode; color: string }> = {
-  "Formation Professionnelle et Technique": { label: "Vocational",   labelFr: "Formation Pro",  icon: <Building2 className="w-3.5 h-3.5" />,     color: "#a3e635" },
-  "Santé et VR Médicale":                   { label: "Healthcare",   labelFr: "Santé",          icon: <HeartPulse className="w-3.5 h-3.5" />,    color: "#fb7185" },
-  "Éducation des Enfants (6-16 Ans)":       { label: "Education",    labelFr: "Éducation",      icon: <GraduationCap className="w-3.5 h-3.5" />, color: "#a78bfa" },
-};
-const getS = (n: string) => SECTORS[n] ?? { label: n, labelFr: n, icon: <Zap className="w-3.5 h-3.5" />, color: "#22d3ee" };
+import { Zap, Building2, HeartPulse, GraduationCap } from "lucide-react";
 
 /* ── Clean Elegant Card ────────────────────────────────────────────────── */
-function ElegantCard({ partner, lang, onClick }: { partner: Partner; lang: string; onClick: () => void }) {
-  const s = getS(partner.sector);
+function ElegantCard({ partner, lang, categories }: { partner: Partner; lang: string; categories: Category[] }) {
   const initials = partner.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
+  // Dynamically resolve sector config from database/fallback sectors
+  const matched = categories.find(c => c.nameFr === partner.sector || c.nameEn === partner.sector || c.id === partner.sector);
+  const sColor = matched?.color || "#3b82f6";
+  const sLabel = lang === 'en' ? (matched?.nameEn || partner.sector) : (matched?.nameFr || partner.sector);
+  const sIconStr = matched?.icon || "🌐";
+
+  // Sanitize and ensure direct external link has absolute prefix
+  const rawUrl = partner.domain || "";
+  const targetUrl = rawUrl.startsWith("http://") || rawUrl.startsWith("https://") 
+    ? rawUrl 
+    : `https://${rawUrl}`;
+
   return (
-    <div
-      onClick={onClick}
-      className="flex items-center gap-5 p-4 rounded-3xl cursor-pointer group flex-shrink-0 w-[340px] transition-all duration-300"
+    <a
+      href={targetUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-5 p-4 rounded-3xl cursor-pointer group flex-shrink-0 w-[340px] transition-all duration-300 block text-left"
       style={{
         background: "rgba(255,255,255,0.03)",
         border: "1px solid rgba(255,255,255,0.08)",
@@ -39,8 +39,8 @@ function ElegantCard({ partner, lang, onClick }: { partner: Partner; lang: strin
         const el = e.currentTarget as HTMLElement;
         el.style.transform = "translateY(-4px)";
         el.style.background = "rgba(255,255,255,0.06)";
-        el.style.borderColor = `${s.color}50`;
-        el.style.boxShadow = `0 12px 30px rgba(0,0,0,0.3), 0 0 20px ${s.color}20`;
+        el.style.borderColor = `${sColor}50`;
+        el.style.boxShadow = `0 12px 30px rgba(0,0,0,0.3), 0 0 20px ${sColor}20`;
       }}
       onMouseLeave={e => {
         const el = e.currentTarget as HTMLElement;
@@ -74,23 +74,23 @@ function ElegantCard({ partner, lang, onClick }: { partner: Partner; lang: strin
           {partner.name}
         </h3>
         <p className="text-white/40 text-[12px] mt-1 flex items-center gap-1.5">
-          <span className="text-[14px]">{partner.flag}</span> {partner.country}
+          <span className="text-[14px]">{partner.flag}</span> {partner.country || "GLOBAL"}
         </p>
         <div 
           className="mt-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider" 
-          style={{ color: s.color, background: `${s.color}15`, border: `1px solid ${s.color}25` }}
+          style={{ color: sColor, background: `${sColor}15`, border: `1px solid ${sColor}25` }}
         >
-          {s.icon} {lang === 'en' ? s.label : s.labelFr}
+          <span className="text-xs">{sIconStr}</span> {sLabel}
         </div>
       </div>
-    </div>
+    </a>
   );
 }
 
 /* ── Scrolling Row ─────────────────────────────────────────────────────── */
 function ScrollRow({
-  partners, reverse, lang, onSelect,
-}: { partners: Partner[]; reverse: boolean; lang: string; onSelect: (p: Partner) => void }) {
+  partners, reverse, lang, categories,
+}: { partners: Partner[]; reverse: boolean; lang: string; categories: Category[] }) {
   const [paused, setPaused] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -130,137 +130,20 @@ function ScrollRow({
         }}
       >
         {track.map((p, i) => (
-          <ElegantCard key={`${p.id}-${i}`} partner={p} lang={lang} onClick={() => onSelect(p)} />
+          <ElegantCard key={`${p.id}-${i}`} partner={p} lang={lang} categories={categories} />
         ))}
       </div>
     </div>
   );
 }
 
-/* ── Detail modal ──────────────────────────────────────────────────────── */
-function Modal({ partner, onClose }: { partner: Partner; onClose: () => void }) {
-  const { t, language } = useLanguage();
-  const s = getS(partner.sector);
-
-  useEffect(() => {
-    // Lock scroll
-    const originalStyle = window.getComputedStyle(document.body).overflow;
-    document.body.style.overflow = "hidden";
-    
-    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", h);
-    
-    return () => {
-      document.body.style.overflow = originalStyle;
-      window.removeEventListener("keydown", h);
-    };
-  }, [onClose]);
-
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
-      <motion.div 
-        initial={{ opacity: 0 }} 
-        animate={{ opacity: 1 }} 
-        exit={{ opacity: 0 }}
-        onClick={onClose} 
-        className="absolute inset-0 bg-black/80 backdrop-blur-md" 
-      />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        transition={{ type: "spring", stiffness: 350, damping: 25 }}
-        className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-[32px] z-10 custom-scrollbar shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)]"
-        style={{ 
-          background: "#080b11", 
-          border: "1px solid rgba(255,255,255,0.1)",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="sticky top-0 z-20" style={{ background: "#080b11", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-          <div className="h-1.5 w-full" style={{ background: `linear-gradient(90deg, ${s.color}, transparent)` }} />
-          <div className="flex items-center gap-5 p-6 backdrop-blur-md bg-[#080b11]/80">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white flex items-center justify-center flex-shrink-0 shadow-lg p-3">
-              <Image
-                src={partner.logoUrl || `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
-                alt={partner.name}
-                width={128}
-                height={128}
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 mb-1.5">
-                <h3 className="text-xl sm:text-2xl font-bold text-white truncate">{partner.name}</h3>
-                <span className="text-xl">{partner.flag}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-bold uppercase tracking-wider"
-                  style={{ background: `${s.color}15`, color: s.color, border: `1px solid ${s.color}25` }}>
-                  {s.icon} {language === "en" ? s.label : s.labelFr}
-                </span>
-                <span className="text-[12px] sm:text-[13px] text-white/40 font-medium hidden sm:inline">{partner.country}</span>
-              </div>
-            </div>
-            <button onClick={onClose} aria-label="Close"
-              className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-colors">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        <div className="p-6 space-y-6">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { icon: <MapPin className="w-4 h-4" />,      l: t("HQ","Siège"),        v: partner.headquarters || partner.country },
-              { icon: <Calendar className="w-4 h-4" />,    l: t("Founded","Fondé"),   v: partner.foundedYear || "—" },
-              { icon: <ShieldCheck className="w-4 h-4" />, l: t("Compliance","Conf."),v: partner.compliance || "—" },
-              { icon: <TrendingUp className="w-4 h-4" />,  l: "ROI",                  v: partner.roiMetrics ? (language === "en" ? partner.roiMetrics.en.split("|")[0].trim() : partner.roiMetrics.fr.split("|")[0].trim()) : "—" },
-            ].map((m, i) => (
-              <div key={i} className="rounded-2xl bg-white/[0.02] border border-white/[0.04] p-3.5">
-                <div className="flex items-center gap-2 mb-2" style={{ color: s.color }}>
-                  {m.icon}<span className="text-[10px] font-bold uppercase tracking-widest">{m.l}</span>
-                </div>
-                <p className="text-white/80 text-[13px] font-medium leading-snug">{m.v}</p>
-              </div>
-            ))}
-          </div>
-          
-          <p className="text-[15px] text-white/60 leading-relaxed">
-            {language === "en" ? partner.description.en : partner.description.fr}
-          </p>
-
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="rounded-2xl bg-white/[0.02] border border-white/[0.04] p-5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-3">{t("Pricing","Tarification")}</p>
-              <p className="text-white/70 text-[14px] leading-relaxed">{language === "en" ? partner.pricing.en : partner.pricing.fr}</p>
-            </div>
-            <div className="rounded-2xl p-5" style={{ background: `${s.color}05`, border: `1px solid ${s.color}15` }}>
-              <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: s.color }}>{t("Opportunities","Opportunités")}</p>
-              <p className="text-white/70 text-[14px] leading-relaxed">{language === "en" ? partner.opportunities.en : partner.opportunities.fr}</p>
-            </div>
-          </div>
-
-          <a href={`https://${partner.domain}`} target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2.5 w-full py-4 rounded-xl text-white font-bold hover:brightness-110 transition-all text-[15px]"
-            style={{ background: s.color, boxShadow: `0 8px 20px ${s.color}30` }}>
-            <Globe className="w-4 h-4" />
-            {t("Visit Website","Visiter le site")}
-            <ExternalLink className="w-4 h-4 opacity-70" />
-          </a>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-/* ── Main ──────────────────────────────────────────────────────────────── */
+/* ── Main Component ─────────────────────────────────────────────────────── */
 export function OrbitalProviders() {
   const { t, language } = useLanguage();
   const [active, setActive] = useState("All");
-  const [selected, setSelected] = useState<Partner | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [partners, setPartners] = useState<Partner[]>(partnersData);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -270,13 +153,20 @@ export function OrbitalProviders() {
         setPartners(data);
       }
     }
+    async function loadCats() {
+      const data = await getCategoriesAction();
+      setCategories(data);
+    }
     load();
+    loadCats();
   }, []);
 
-  const close = useCallback(() => setSelected(null), []);
-
   const activePartners = useMemo(() => partners.filter(p => p.isVisible !== false), [partners]);
-  const sectorNames = useMemo(() => Array.from(new Set(activePartners.map(p => p.sector))), [activePartners]);
+  
+  // Resolve unique sector names dynamically matching active partners
+  const sectorNames = useMemo(() => {
+    return Array.from(new Set(activePartners.map(p => p.sector)));
+  }, [activePartners]);
 
   const visiblePartners = useMemo(() =>
     active === "All" ? activePartners : activePartners.filter(p => p.sector === active),
@@ -312,7 +202,10 @@ export function OrbitalProviders() {
       <div className="flex flex-wrap justify-center gap-3 px-6 mb-14 max-w-4xl mx-auto">
         {["All", ...sectorNames].map(sec => {
           const isActive = active === sec;
-          const s = sec !== "All" ? getS(sec) : null;
+          const matched = categories.find(c => c.nameFr === sec || c.nameEn === sec || c.id === sec);
+          const sColor = matched?.color || "#3b82f6";
+          const sIconStr = matched?.icon || "🌐";
+          const sLabel = language === 'en' ? (matched?.nameEn || sec) : (matched?.nameFr || sec);
           
           return (
             <button
@@ -320,20 +213,20 @@ export function OrbitalProviders() {
               onClick={() => setActive(sec)}
               className="px-5 py-2.5 rounded-full text-[13px] font-semibold transition-all duration-300 flex items-center gap-2"
               style={isActive ? {
-                background: s ? `${s.color}15` : "rgba(255,255,255,0.1)",
-                color: s ? s.color : "white",
-                border: `1px solid ${s ? s.color : "rgba(255,255,255,0.3)"}`,
-                boxShadow: `0 0 20px ${s ? `${s.color}20` : "rgba(255,255,255,0.1)"}`
+                background: `${sColor}15`,
+                color: sColor,
+                border: `1px solid ${sColor}`,
+                boxShadow: `0 0 20px ${sColor}20`
               } : {
                 background: "rgba(255,255,255,0.03)",
                 color: "rgba(255,255,255,0.4)",
                 border: "1px solid rgba(255,255,255,0.05)",
               }}
             >
-              {s && <span className={isActive ? "opacity-100" : "opacity-60"}>{s.icon}</span>}
+              <span className={isActive ? "opacity-100" : "opacity-60"}>{sIconStr}</span>
               {sec === "All" 
                 ? t("All Categories", "Toutes les Catégories") 
-                : (language === "en" ? (s?.label ?? sec) : (s?.labelFr ?? sec))}
+                : sLabel}
             </button>
           );
         })}
@@ -350,8 +243,8 @@ export function OrbitalProviders() {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <ScrollRow partners={row1} reverse={false} lang={language} onSelect={setSelected} />
-            <ScrollRow partners={row2} reverse={true} lang={language} onSelect={setSelected} />
+            <ScrollRow partners={row1} reverse={false} lang={language} categories={categories} />
+            <ScrollRow partners={row2} reverse={true} lang={language} categories={categories} />
           </motion.div>
         ) : (
           <motion.div
@@ -369,7 +262,7 @@ export function OrbitalProviders() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05, duration: 0.4, ease: "easeOut" }}
                 >
-                  <ElegantCard partner={p} lang={language} onClick={() => setSelected(p)} />
+                  <ElegantCard partner={p} lang={language} categories={categories} />
                 </motion.div>
               ))}
             </div>
@@ -381,7 +274,7 @@ export function OrbitalProviders() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: (row1.length + i) * 0.05, duration: 0.4, ease: "easeOut" }}
                   >
-                    <ElegantCard partner={p} lang={language} onClick={() => setSelected(p)} />
+                    <ElegantCard partner={p} lang={language} categories={categories} />
                   </motion.div>
                 ))}
               </div>
@@ -389,14 +282,6 @@ export function OrbitalProviders() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Modal */}
-      {isMounted && createPortal(
-        <AnimatePresence>
-          {selected && <Modal partner={selected} onClose={close} />}
-        </AnimatePresence>,
-        document.body
-      )}
     </section>
   );
 }

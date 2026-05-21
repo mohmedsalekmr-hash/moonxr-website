@@ -237,7 +237,7 @@ export function Partners() {
                           </h4>
 
                           <p className="text-sm text-white/60 mb-4 line-clamp-3 leading-relaxed flex-1">
-                            {language === "en" ? partner.description.en : partner.description.fr}
+                            {language === "en" ? partner.description?.en || "" : partner.description?.fr || ""}
                           </p>
 
                           <div className="pt-3 border-t border-white/10 flex justify-between items-center"
@@ -350,7 +350,7 @@ export function Partners() {
                       {t("Strategic Overview", "Aperçu Stratégique")}
                     </h4>
                     <p className="text-white/85 text-base leading-relaxed bg-white/3 p-5 rounded-2xl border border-white/5">
-                      {language === "en" ? selectedPartner.description.en : selectedPartner.description.fr}
+                      {language === "en" ? selectedPartner.description?.en || "" : selectedPartner.description?.fr || ""}
                     </p>
                   </div>
 
@@ -360,7 +360,7 @@ export function Partners() {
                         {t("Financial Architecture", "Architecture Financière")}
                       </h4>
                       <p className="text-white/75 text-sm leading-relaxed">
-                        {language === "en" ? selectedPartner.pricing.en : selectedPartner.pricing.fr}
+                        {language === "en" ? selectedPartner.pricing?.en || "" : selectedPartner.pricing?.fr || ""}
                       </p>
                     </div>
                     <div className="bg-gradient-to-br from-purple-500/10 to-transparent border border-purple-500/20 rounded-2xl p-5">
@@ -368,7 +368,7 @@ export function Partners() {
                         {t("Distribution Opportunity", "Opportunité de Distribution")}
                       </h4>
                       <p className="text-white/75 text-sm leading-relaxed">
-                        {language === "en" ? selectedPartner.opportunities.en : selectedPartner.opportunities.fr}
+                        {language === "en" ? selectedPartner.opportunities?.en || "" : selectedPartner.opportunities?.fr || ""}
                       </p>
                     </div>
                   </div>
