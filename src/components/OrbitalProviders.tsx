@@ -5,6 +5,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { partnersData, Partner } from "@/data/partners";
+import { getProvidersAction } from "@/app/actions";
 import { useLanguage } from "@/context/LanguageContext";
 import {
   Zap, Shield, Anchor, Building2, GraduationCap, HeartPulse,
@@ -259,15 +260,26 @@ export function OrbitalProviders() {
   const [active, setActive] = useState("All");
   const [selected, setSelected] = useState<Partner | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [partners, setPartners] = useState<Partner[]>(partnersData);
 
-  useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => {
+    setIsMounted(true);
+    async function load() {
+      const data = await getProvidersAction();
+      if (data && data.length > 0) {
+        setPartners(data);
+      }
+    }
+    load();
+  }, []);
+
   const close = useCallback(() => setSelected(null), []);
 
-  const sectorNames = useMemo(() => Array.from(new Set(partnersData.map(p => p.sector))), []);
+  const sectorNames = useMemo(() => Array.from(new Set(partners.map(p => p.sector))), [partners]);
 
   const visiblePartners = useMemo(() =>
-    active === "All" ? partnersData : partnersData.filter(p => p.sector === active),
-    [active]
+    active === "All" ? partners : partners.filter(p => p.sector === active),
+    [active, partners]
   );
 
   const half = Math.ceil(visiblePartners.length / 2);

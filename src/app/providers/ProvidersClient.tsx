@@ -2,7 +2,8 @@
 "use client";
 
 import { useLanguage } from "@/context/LanguageContext";
-import { Partner } from "@/data/partners";
+import { partnersData, Partner } from "@/data/partners";
+import { getProvidersAction } from "@/app/actions";
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from "framer-motion";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
@@ -103,13 +104,23 @@ function PartnerCard({ partner, onClick, lang }: { partner: Partner; onClick: ()
   );
 }
 
-export function ProvidersClient({ partners }: { partners: Partner[] }) {
+export function ProvidersClient({ partners: initialPartners = partnersData }: { partners?: Partner[] }) {
   const { t, language } = useLanguage();
+  const [partners, setPartners] = useState<Partner[]>(initialPartners);
   const [activeSector, setActiveSector] = useState("All");
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => {
+    setIsMounted(true);
+    async function load() {
+      const data = await getProvidersAction();
+      if (data && data.length > 0) {
+        setPartners(data);
+      }
+    }
+    load();
+  }, []);
 
   const closeModal = useCallback(() => setSelectedPartner(null), []);
   useEffect(() => {
