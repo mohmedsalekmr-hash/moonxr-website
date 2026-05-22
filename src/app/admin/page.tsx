@@ -5,27 +5,22 @@ import {
   getProvidersAction, 
   createProviderAction, 
   updateProviderAction, 
-  deleteProviderAction,
-  getProviderUsersAction,
-  createProviderUserAction,
-  deleteProviderUserAction,
-  ProviderUser,
-  getCategoriesAction,
-  createCategoryAction,
-  updateCategoryAction,
-  deleteCategoryAction
+  deleteProviderAction
 } from "@/app/actions";
-import { Partner, Category, defaultCategories } from "@/data/partners";
+import { Partner } from "@/data/partners";
 import { Header } from "@/components/Header";
 import { CanvasBackground } from "@/components/CanvasBackground";
 import { Footer } from "@/components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Building2, Globe, MapPin, Calendar, ShieldCheck, TrendingUp, 
-  Trash2, Edit3, Users, Plus, X, Search, RefreshCw, LogIn,
-  Shield, Check, UserPlus, Download, AlertTriangle, Languages, Mail,
-  Eye, EyeOff, Tag
+  Building2, Globe, Trash2, Edit3, Plus, X, Search, RefreshCw, LogIn,
+  Shield, Check, AlertTriangle, Eye, EyeOff
 } from "lucide-react";
+
+const sanitizeUrl = (url: string) => {
+  if (!url) return "#";
+  return url.startsWith("http") ? url : "https://" + url;
+};
 
 export default function AdminPage() {
   // Authentication State (Simulating admin protection)
@@ -37,59 +32,16 @@ export default function AdminPage() {
   const [providers, setProviders] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeSectorFilter, setActiveSectorFilter] = useState("All");
-
-  // Dynamic Tabs & Categories State
-  const [activeTab, setActiveTab] = useState<"providers" | "categories">("providers");
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-
-  // Category Form State
-  const [categoryFormData, setCategoryFormData] = useState({
-    id: "",
-    nameEn: "",
-    nameFr: "",
-    icon: "🌐",
-    color: "#3b82f6"
-  });
 
   // Form Modal States
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProvider, setEditingProvider] = useState<Partner | null>(null);
-  
-  // User Manager Modal States
-  const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
-  const [selectedProviderForUsers, setSelectedProviderForUsers] = useState<Partner | null>(null);
-  const [providerUsers, setProviderUsers] = useState<ProviderUser[]>([]);
-  const [loadingUsers, setLoadingUsers] = useState(false);
-
-  // New User Form State
-  const [newUserName, setNewUserName] = useState("");
-  const [newUserEmail, setNewUserEmail] = useState("");
-  const [newUserRole, setNewUserRole] = useState("Learner");
-  const [newUserStatus, setNewUserStatus] = useState("Active");
 
   // Provider Form State
   const [formData, setFormData] = useState({
     id: "",
     name: "",
-    sector: "",
-    country: "",
-    flag: "",
     domain: "",
-    description_en: "",
-    description_fr: "",
-    pricing_en: "",
-    pricing_fr: "",
-    opportunities_en: "",
-    opportunities_fr: "",
-    headquarters: "",
-    foundedYear: "",
-    roiMetrics_en: "",
-    roiMetrics_fr: "",
-    compliance: "",
     logoUrl: "",
     isVisible: true
   });
@@ -116,25 +68,15 @@ export default function AdminPage() {
     setLoading(false);
   };
 
-  // Fetch Categories list from DB
-  const loadCategories = async () => {
-    setLoadingCategories(true);
-    const data = await getCategoriesAction();
-    setCategories(data);
-    setLoadingCategories(false);
-  };
-
   useEffect(() => {
     if (isAdmin) {
       loadProviders();
-      loadCategories();
     }
   }, [isAdmin]);
 
   // Handle Admin Authentication
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Default premium credentials for Mohamed
     if (password === "moonadmin2026" || password === "admin") {
       setIsAdmin(true);
       setAuthError("");
@@ -158,69 +100,54 @@ export default function AdminPage() {
     setTimeout(() => setToastMessage(""), 4000);
   };
 
-  // Filtered providers list for dynamic searching & category tabs
+  // Filtered providers list for dynamic searching
   const filteredProviders = useMemo(() => {
     return providers.filter(p => {
       const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            (p.country?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
                             p.domain.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesSector = activeSectorFilter === "All" || p.sector === activeSectorFilter;
-      return matchesSearch && matchesSector;
+      return matchesSearch;
     });
-  }, [providers, searchQuery, activeSectorFilter]);
+  }, [providers, searchQuery]);
 
   // Handle Open Form Modal for Creating/Editing
   const openFormModal = (partner: Partner | null = null) => {
     if (partner) {
-      // Pre-fill form values for editing
       setEditingProvider(partner);
       setFormData({
         id: partner.id,
         name: partner.name,
-        sector: partner.sector,
-        country: partner.country || "",
-        flag: partner.flag || "",
         domain: partner.domain,
-        description_en: partner.description?.en || "",
-        description_fr: partner.description?.fr || "",
-        pricing_en: partner.pricing?.en || "",
-        pricing_fr: partner.pricing?.fr || "",
-        opportunities_en: partner.opportunities?.en || "",
-        opportunities_fr: partner.opportunities?.fr || "",
-        headquarters: partner.headquarters || "",
-        foundedYear: partner.foundedYear || "",
-        roiMetrics_en: partner.roiMetrics?.en || "",
-        roiMetrics_fr: partner.roiMetrics?.fr || "",
-        compliance: partner.compliance || "",
         logoUrl: partner.logoUrl || "",
         isVisible: partner.isVisible ?? true
       });
     } else {
-      // Clear form values for new creation
       setEditingProvider(null);
       setFormData({
         id: "",
         name: "",
-        sector: categories[0]?.nameFr || categories[0]?.nameEn || "Formation Professionnelle et Technique",
-        country: "",
-        flag: "🌐",
         domain: "",
-        description_en: "",
-        description_fr: "",
-        pricing_en: "",
-        pricing_fr: "",
-        opportunities_en: "",
-        opportunities_fr: "",
-        headquarters: "",
-        foundedYear: "",
-        roiMetrics_en: "",
-        roiMetrics_fr: "",
-        compliance: "",
         logoUrl: "",
         isVisible: true
       });
     }
     setIsFormOpen(true);
+  };
+
+  // Handle PNG/JPG logo file uploading & converting to base64
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        showToast("Logo size must be smaller than 2MB to keep performance fast.", "error");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, logoUrl: reader.result as string }));
+        showToast("Logo image loaded successfully!", "success");
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // Submit Provider Creation or Update to database
@@ -238,31 +165,9 @@ export default function AdminPage() {
     const payload: Partner = {
       id: generatedId,
       name: formData.name,
-      sector: formData.sector || (categories[0]?.nameFr || "Formation Professionnelle et Technique"),
-      country: formData.country || "",
-      flag: formData.flag || "🌐",
       domain: formData.domain,
-      description: {
-        en: formData.description_en || "",
-        fr: formData.description_fr || ""
-      },
-      pricing: {
-        en: formData.pricing_en || "",
-        fr: formData.pricing_fr || ""
-      },
-      opportunities: {
-        en: formData.opportunities_en || "",
-        fr: formData.opportunities_fr || ""
-      },
-      headquarters: formData.headquarters || undefined,
-      foundedYear: formData.foundedYear || undefined,
-      roiMetrics: (formData.roiMetrics_en || formData.roiMetrics_fr) ? {
-        en: formData.roiMetrics_en,
-        fr: formData.roiMetrics_fr
-      } : undefined,
-      compliance: formData.compliance || undefined,
       logoUrl: formData.logoUrl || undefined,
-      isVisible: formData.isVisible
+      isVisible: formData.isVisible,
     };
 
     let result;
@@ -275,8 +180,8 @@ export default function AdminPage() {
     if (result.success) {
       showToast(
         editingProvider 
-          ? `Successfully updated provider ${payload.name}!` 
-          : `Successfully created provider ${payload.name}!`, 
+          ? `Successfully updated ${payload.name}!` 
+          : `Successfully added ${payload.name}!`, 
         "success"
       );
       setIsFormOpen(false);
@@ -288,7 +193,7 @@ export default function AdminPage() {
 
   // Delete Provider
   const handleDeleteProvider = async (id: string, name: string) => {
-    if (confirm(`Are you absolutely sure you want to delete ${name}? This will permanently wipe all associated users.`)) {
+    if (confirm(`Are you absolutely sure you want to delete ${name}?`)) {
       const result = await deleteProviderAction(id);
       if (result.success) {
         showToast(`Successfully deleted ${name}.`, "success");
@@ -297,160 +202,6 @@ export default function AdminPage() {
         showToast(`Error deleting provider: ${result.error}`, "error");
       }
     }
-  };
-
-  // =========================================================================
-  // CATEGORIES CRUD HANDLERS
-  // =========================================================================
-  const openCategoryFormModal = (category: Category | null = null) => {
-    if (category) {
-      setEditingCategory(category);
-      setCategoryFormData({
-        id: category.id,
-        nameEn: category.nameEn,
-        nameFr: category.nameFr,
-        icon: category.icon,
-        color: category.color
-      });
-    } else {
-      setEditingCategory(null);
-      setCategoryFormData({
-        id: "",
-        nameEn: "",
-        nameFr: "",
-        icon: "🌐",
-        color: "#3b82f6"
-      });
-    }
-    setIsCategoryModalOpen(true);
-  };
-
-  const handleCategorySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!categoryFormData.nameEn || !categoryFormData.nameFr) {
-      showToast("Please fill in both English and French category names.", "error");
-      return;
-    }
-
-    const generatedId = editingCategory 
-      ? editingCategory.id 
-      : categoryFormData.nameEn.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-
-    const payload: Category = {
-      id: generatedId,
-      nameEn: categoryFormData.nameEn,
-      nameFr: categoryFormData.nameFr,
-      icon: categoryFormData.icon || "🌐",
-      color: categoryFormData.color || "#3b82f6"
-    };
-
-    let result;
-    if (editingCategory) {
-      result = await updateCategoryAction(editingCategory.id, payload);
-    } else {
-      result = await createCategoryAction(payload);
-    }
-
-    if (result.success) {
-      showToast(
-        editingCategory 
-          ? `Successfully updated category "${payload.nameFr || payload.nameEn}"!` 
-          : `Successfully created category "${payload.nameFr || payload.nameEn}"!`, 
-        "success"
-      );
-      setIsCategoryModalOpen(false);
-      loadCategories();
-      loadProviders();
-    } else {
-      showToast(`Error: ${result.error}`, "error");
-    }
-  };
-
-  const handleDeleteCategory = async (id: string, name: string) => {
-    if (confirm(`Are you absolutely sure you want to delete the category "${name}"? Existing providers in this category will remain, but won't map dynamically.`)) {
-      const result = await deleteCategoryAction(id);
-      if (result.success) {
-        showToast(`Successfully deleted category "${name}".`, "success");
-        loadCategories();
-        loadProviders();
-      } else {
-        showToast(`Error deleting category: ${result.error}`, "error");
-      }
-    }
-  };
-
-  // =========================================================================
-  // PROVIDER USERS OPERATION HANDLERS
-  // =========================================================================
-  const openUsersModal = async (partner: Partner) => {
-    setSelectedProviderForUsers(partner);
-    setIsUsersModalOpen(true);
-    setLoadingUsers(true);
-    const users = await getProviderUsersAction(partner.id);
-    setProviderUsers(users);
-    setLoadingUsers(false);
-    
-    // Clear forms
-    setNewUserName("");
-    setNewUserEmail("");
-  };
-
-  const handleAddUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedProviderForUsers) return;
-    if (!newUserName || !newUserEmail) {
-      showToast("Name and Email are required.", "error");
-      return;
-    }
-
-    const newUser = {
-      provider_id: selectedProviderForUsers.id,
-      name: newUserName,
-      email: newUserEmail,
-      role: newUserRole,
-      status: newUserStatus
-    };
-
-    const res = await createProviderUserAction(newUser);
-    if (res.success) {
-      showToast(`Added user ${newUserName} successfully!`, "success");
-      setNewUserName("");
-      setNewUserEmail("");
-      
-      // Reload lists
-      const users = await getProviderUsersAction(selectedProviderForUsers.id);
-      setProviderUsers(users);
-    } else {
-      showToast(`Error adding user: ${res.error}`, "error");
-    }
-  };
-
-  const handleDeleteUser = async (userId: string, name: string) => {
-    if (!selectedProviderForUsers) return;
-    if (confirm(`Are you sure you want to remove user "${name}"?`)) {
-      const res = await deleteProviderUserAction(userId);
-      if (res.success) {
-        showToast(`Successfully deleted user ${name}.`, "success");
-        const users = await getProviderUsersAction(selectedProviderForUsers.id);
-        setProviderUsers(users);
-      } else {
-        showToast(`Error: ${res.error}`, "error");
-      }
-    }
-  };
-
-  // Download Current JSON configuration backup helper
-  const handleExportData = () => {
-    const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
-      JSON.stringify(providers, null, 2)
-    )}`;
-    const downloadAnchor = document.createElement("a");
-    downloadAnchor.setAttribute("href", jsonString);
-    downloadAnchor.setAttribute("download", "moonxr-providers-backup.json");
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-    showToast("Exported backup file successfully!", "success");
   };
 
   return (
@@ -477,7 +228,7 @@ export default function AdminPage() {
         )}
       </AnimatePresence>
 
-      <div className="flex-grow pt-32 pb-24 px-6 relative z-10 max-w-7xl mx-auto w-full">
+      <div className="flex-grow pt-32 pb-24 px-6 relative z-10 max-w-7xl mx-auto w-full font-sans">
         <AnimatePresence mode="wait">
           
           {/* PASSWORD LOCK SCREEN */}
@@ -491,10 +242,10 @@ export default function AdminPage() {
             >
               <div className="w-full max-w-md p-10 bg-white/[0.02] border border-white/10 rounded-[32px] backdrop-blur-xl shadow-2xl">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-moon-blue-dark/50 flex items-center justify-center border border-moon-blue-light/30 shadow-[0_0_30px_rgba(0,122,255,0.2)] mb-6">
-                    <Shield className="w-8 h-8 text-moon-blue-light" />
+                  <div className="w-16 h-16 rounded-2xl bg-brand-dark flex items-center justify-center border border-white/10 shadow-[0_0_30px_rgba(0,122,255,0.1)] mb-6">
+                    <Shield className="w-8 h-8 text-cyan-400" />
                   </div>
-                  <h1 className="text-3xl font-bold tracking-tight mb-2">Admin <span className="text-gradient">Portal</span></h1>
+                  <h1 className="text-3xl font-bold tracking-tight mb-2 font-display">Admin <span className="text-gradient">Portal</span></h1>
                   <p className="text-white/40 text-sm mb-8">Access is restricted to Mohamed Salek. Please log in with your administrative password.</p>
                   
                   <form onSubmit={handleLogin} className="w-full space-y-4">
@@ -505,7 +256,7 @@ export default function AdminPage() {
                         placeholder="••••••••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:border-moon-blue-light/50 focus:ring-1 focus:ring-moon-blue-light/30 transition-all duration-300"
+                        className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30 transition-all duration-300"
                       />
                     </div>
 
@@ -518,7 +269,7 @@ export default function AdminPage() {
 
                     <button 
                       type="submit" 
-                      className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-bold text-[15px] bg-moon-blue-light hover:brightness-110 shadow-[0_8px_20px_rgba(0,122,255,0.25)] transition-all duration-300"
+                      className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-bold text-[15px] bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 shadow-[0_8px_20px_rgba(6,182,212,0.25)] transition-all duration-300"
                     >
                       <LogIn className="w-4 h-4" />
                       Authenticate Portal
@@ -540,18 +291,10 @@ export default function AdminPage() {
               {/* Header Panel */}
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/[0.02] border border-white/5 p-6 rounded-3xl backdrop-blur-xl">
                 <div>
-                  <h1 className="text-4xl font-extrabold tracking-tight">Admin <span className="text-gradient">Control</span> Panel</h1>
-                  <p className="text-white/40 text-sm mt-1">Directly manage MoonXR VR providers, authorized users, and deployment packages.</p>
+                  <h1 className="text-4xl font-extrabold tracking-tight font-display">Admin <span className="text-gradient">Control</span> Panel</h1>
+                  <p className="text-white/40 text-sm mt-1">Directly manage MoonXR VR providers and live partner links.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button 
-                    onClick={handleExportData}
-                    className="px-5 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all"
-                    title="Export backup file"
-                  >
-                    <Download className="w-4 h-4" />
-                    Backup
-                  </button>
                   <button 
                     onClick={handleLogout}
                     className="px-5 py-3 bg-red-950/20 hover:bg-red-950/40 border border-red-500/20 text-red-400 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
@@ -561,348 +304,114 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Tab Navigation */}
-              <div className="flex border-b border-white/10 gap-6 mt-4">
-                <button
-                  onClick={() => setActiveTab("providers")}
-                  className={`pb-4 px-2 text-sm font-bold uppercase tracking-wider transition-all relative ${
-                    activeTab === "providers" ? "text-white" : "text-white/40 hover:text-white/70"
-                  }`}
+              {/* Search & Actions bar */}
+              <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+                <div className="relative flex-grow max-w-md">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                  <input 
+                    type="text"
+                    placeholder="Search providers..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-11 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder-white/30 focus:outline-none focus:border-cyan-400/50 w-full transition-all"
+                  />
+                </div>
+                
+                <button 
+                  onClick={() => openFormModal(null)}
+                  className="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-2 transition-all flex-shrink-0"
                 >
-                  Manage Providers
-                  {activeTab === "providers" && (
-                    <motion.div layoutId="activeTabUnderline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-moon-blue-light" />
-                  )}
-                </button>
-                <button
-                  onClick={() => setActiveTab("categories")}
-                  className={`pb-4 px-2 text-sm font-bold uppercase tracking-wider transition-all relative ${
-                    activeTab === "categories" ? "text-white" : "text-white/40 hover:text-white/70"
-                  }`}
-                >
-                  Manage Categories
-                  {activeTab === "categories" && (
-                    <motion.div layoutId="activeTabUnderline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-moon-blue-light" />
-                  )}
+                  <Plus className="w-4 h-4" />
+                  Add Provider
                 </button>
               </div>
 
-              {activeTab === "providers" ? (
-                <>
-                  {/* Statistics Widgets */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {[
-                      { label: "Total VR Providers", count: providers.length, icon: <Building2 className="w-5 h-5" />, color: "text-moon-blue-light" },
-                      { label: "Active Countries", count: new Set(providers.map(p => p.country)).size, icon: <Globe className="w-5 h-5" />, color: "text-emerald-400" },
-                      { label: "Specialty Sectors", count: new Set(providers.map(p => p.sector)).size, icon: <ShieldCheck className="w-5 h-5" />, color: "text-moon-yellow" },
-                      { label: "Simulated Trainees", count: 48, icon: <Users className="w-5 h-5" />, color: "text-purple-400" }
-                    ].map((stat, i) => (
-                      <div key={i} className="p-6 bg-white/[0.02] border border-white/[0.04] rounded-3xl shadow-lg flex justify-between items-center">
-                        <div>
-                          <span className="text-2xl font-black text-white">{stat.count}</span>
-                          <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1.5">{stat.label}</p>
-                        </div>
-                        <div className={`p-3 bg-white/5 rounded-2xl border border-white/10 ${stat.color}`}>
-                          {stat.icon}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Filters & CRUD Actions bar */}
-                  <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
-                    
-                    {/* Searching & Filter categories */}
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      {/* Category filters */}
-                      {["All", ...categories.map(c => c.nameFr || c.nameEn)].map(sec => {
-                        const isActive = activeSectorFilter === sec;
-                        return (
-                          <button 
-                            key={sec} 
-                            onClick={() => setActiveSectorFilter(sec)}
-                            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all border ${
-                              isActive 
-                                ? "bg-white/10 border-white/20 text-white shadow-md" 
-                                : "bg-transparent border-white/5 text-white/40 hover:text-white/80"
-                            }`}
-                          >
-                            {sec === "All" ? "All Categories" : sec.replace("Formation ", "").replace("Santé ", "")}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Adding button & Search */}
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                        <input 
-                          type="text"
-                          placeholder="Search providers..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-11 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder-white/30 focus:outline-none focus:border-moon-blue-light/50 w-full md:w-56 transition-all"
-                        />
-                      </div>
-                      
-                      <button 
-                        onClick={() => openFormModal(null)}
-                        className="px-5 py-2.5 bg-moon-blue-light hover:brightness-110 text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-2 transition-all flex-shrink-0"
-                      >
-                        <Plus className="w-4 h-4" />
-                        Add Provider
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Providers Grid Table */}
-                  {loading ? (
-                    <div className="flex justify-center items-center py-20">
-                      <RefreshCw className="w-8 h-8 text-moon-blue-light animate-spin" />
-                    </div>
-                  ) : filteredProviders.length === 0 ? (
-                    <div className="p-16 text-center bg-white/[0.01] border border-white/[0.03] rounded-3xl">
-                      <AlertTriangle className="w-10 h-10 text-white/20 mx-auto mb-4" />
-                      <h3 className="text-lg font-bold text-white/60">No Providers Found</h3>
-                      <p className="text-white/30 text-xs mt-1">Try broadening your search criteria or create a new provider!</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                      {filteredProviders.map(partner => {
-                        const initials = partner.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
-                        return (
-                          <div 
-                            key={partner.id}
-                            className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-6 flex flex-col justify-between hover:border-white/20 hover:shadow-xl transition-all duration-300 group"
-                          >
-                            <div className="space-y-4">
-                              {/* Top Row: Logo & Info */}
-                              <div className="flex items-start gap-4">
-                                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden shadow-inner border border-white/20">
-                                  <span className="absolute font-bold text-slate-400 text-[15px] select-none z-0">{initials}</span>
-                                  <img
-                                    src={partner.logoUrl || `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
-                                    alt={partner.name}
-                                    className="w-full h-full p-1.5 object-contain relative z-10 bg-white"
-                                    onError={(e) => e.currentTarget.style.opacity = '0'}
-                                    onLoad={(e) => e.currentTarget.style.opacity = '1'}
-                                  />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <div className="flex items-center justify-between gap-1.5">
-                                    <div className="flex items-center gap-1.5 min-w-0">
-                                      <h3 className="text-[16px] font-bold text-white truncate leading-snug">{partner.name}</h3>
-                                      <span className="text-[15px] flex-shrink-0">{partner.flag}</span>
-                                    </div>
-                                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider flex-shrink-0 ${
-                                      partner.isVisible !== false 
-                                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" 
-                                        : "bg-white/5 text-white/30 border border-white/5"
-                                    }`}>
-                                      {partner.isVisible !== false ? (
-                                        <>
-                                          <Eye className="w-3 h-3" />
-                                          Visible
-                                        </>
-                                      ) : (
-                                        <>
-                                          <EyeOff className="w-3 h-3" />
-                                          Hidden
-                                        </>
-                                      )}
-                                    </span>
-                                  </div>
-                                  <p className="text-white/40 text-xs flex items-center gap-1 mt-1">
-                                    <Globe className="w-3.5 h-3.5" />
-                                    {partner.domain}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="h-px bg-white/[0.04] w-full" />
-
-                              {/* Sector & HQ details */}
-                              <div className="space-y-2 text-xs">
-                                <div className="flex justify-between items-center text-white/50">
-                                  <span className="font-semibold">Sector:</span>
-                                  <span className="text-white/80 font-medium truncate max-w-[180px]">{partner.sector.replace("Formation ", "").replace("Santé ", "")}</span>
-                                </div>
-                                <div className="flex justify-between items-center text-white/50">
-                                  <span className="font-semibold">Country/HQ:</span>
-                                  <span className="text-white/80 font-medium">{partner.headquarters || partner.country}</span>
-                                </div>
-                                <div className="flex justify-between items-center text-white/50">
-                                  <span className="font-semibold">Compliance:</span>
-                                  <span className="text-white/80 font-medium">{partner.compliance || "—"}</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Actions Panel */}
-                            <div className="flex justify-between gap-2.5 mt-6 pt-4 border-t border-white/[0.04]">
-                              <button 
-                                onClick={() => openUsersModal(partner)}
-                                className="flex-1 py-2 px-3 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-bold uppercase tracking-wider text-white/70 hover:text-white flex items-center justify-center gap-1.5 transition-all"
-                              >
-                                <Users className="w-3.5 h-3.5" />
-                                Users
-                              </button>
-                              <button 
-                                onClick={() => openFormModal(partner)}
-                                className="p-2 py-2 bg-white/5 hover:bg-moon-blue/15 hover:border-moon-blue/30 text-white/70 hover:text-moon-blue-light border border-transparent rounded-xl transition-all"
-                                title="Edit provider details"
-                              >
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <button 
-                                onClick={() => handleDeleteProvider(partner.id, partner.name)}
-                                className="p-2 py-2 bg-white/5 hover:bg-red-950/20 hover:border-red-500/20 text-white/70 hover:text-red-400 border border-transparent rounded-xl transition-all"
-                                title="Delete provider"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </>
+              {/* Providers Grid Table */}
+              {loading ? (
+                <div className="flex justify-center items-center py-20">
+                  <RefreshCw className="w-8 h-8 text-cyan-400 animate-spin" />
+                </div>
+              ) : filteredProviders.length === 0 ? (
+                <div className="p-16 text-center bg-white/[0.01] border border-white/[0.03] rounded-3xl">
+                  <AlertTriangle className="w-10 h-10 text-white/20 mx-auto mb-4" />
+                  <h3 className="text-lg font-bold text-white/60">No Providers Found</h3>
+                  <p className="text-white/30 text-xs mt-1">Try adding your first provider using the button above!</p>
+                </div>
               ) : (
-                <div className="space-y-6">
-                  {/* Header & Add Category Button */}
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                      <h2 className="text-2xl font-bold tracking-tight">Active sectors & <span className="text-gradient">Categories</span></h2>
-                      <p className="text-white/40 text-xs mt-1">Manage sectors dynamically. If the DB categories table is missing, the system uses safe offline fallbacks.</p>
-                    </div>
-                    <button 
-                      onClick={() => openCategoryFormModal(null)}
-                      className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-2 transition-all flex-shrink-0"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Add Category
-                    </button>
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {filteredProviders.map(partner => {
+                    const initials = partner.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+                    return (
+                      <div 
+                        key={partner.id}
+                        className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-5 flex flex-col justify-between hover:border-white/20 hover:shadow-xl transition-all duration-300 group"
+                      >
+                        {/* Card Link pointing directly to partner website */}
+                        <a 
+                          href={sanitizeUrl(partner.domain)} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="space-y-4 block cursor-pointer flex-grow group/card"
+                          title={`Go directly to ${partner.name} website`}
+                        >
+                          {/* Centered logo inside a white canvas */}
+                          <div className="w-full h-[120px] bg-white rounded-2xl flex items-center justify-center p-3 relative overflow-hidden transition-transform duration-300 group-hover/card:scale-[1.02] shadow-inner border border-white/10">
+                            <span className="absolute font-bold text-slate-400 text-lg select-none z-0">{initials}</span>
+                            <img
+                              src={partner.logoUrl || `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
+                              alt={partner.name}
+                              className="w-full h-full object-contain relative z-10 bg-white"
+                              onError={(e) => e.currentTarget.style.opacity = '0'}
+                              onLoad={(e) => e.currentTarget.style.opacity = '1'}
+                            />
+                          </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Left Column: Categories List (spans 2 cols) */}
-                    <div className="lg:col-span-2 space-y-4">
-                      {loadingCategories ? (
-                        <div className="flex justify-center items-center py-20 bg-white/[0.01] border border-white/5 rounded-3xl">
-                          <RefreshCw className="w-8 h-8 text-moon-blue-light animate-spin" />
+                          {/* Company Name & Visibility Badge */}
+                          <div className="flex items-center justify-between gap-2 mt-2 px-1">
+                            <h3 className="text-[16px] font-bold text-white group-hover/card:text-cyan-400 transition-colors truncate leading-snug">{partner.name}</h3>
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider flex-shrink-0 ${
+                              partner.isVisible !== false 
+                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" 
+                                : "bg-white/5 text-white/30 border border-white/5"
+                            }`}>
+                              {partner.isVisible !== false ? (
+                                <>
+                                  <Eye className="w-3 h-3" />
+                                  Visible
+                                </>
+                              ) : (
+                                <>
+                                  <EyeOff className="w-3 h-3" />
+                                  Hidden
+                                </>
+                              )}
+                            </span>
+                          </div>
+                        </a>
+
+                        {/* Actions Panel */}
+                        <div className="flex gap-2 mt-4 pt-3 border-t border-white/[0.04] items-center">
+                          <button 
+                            onClick={() => openFormModal(partner)}
+                            className="flex-grow py-2 bg-white/5 hover:bg-cyan-500/10 hover:border-cyan-500/30 text-white/70 hover:text-cyan-400 border border-white/10 rounded-xl transition-all text-xs font-bold flex items-center justify-center gap-1.5"
+                            title="Edit provider details"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                            Edit Brand
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteProvider(partner.id, partner.name)}
+                            className="p-2 bg-white/5 hover:bg-red-950/20 hover:border-red-500/20 text-white/70 hover:text-red-400 border border-white/10 rounded-xl transition-all"
+                            title="Delete provider"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
-                      ) : categories.length === 0 ? (
-                        <div className="p-16 text-center bg-white/[0.01] border border-white/[0.03] rounded-3xl">
-                          <AlertTriangle className="w-10 h-10 text-white/20 mx-auto mb-4" />
-                          <h3 className="text-lg font-bold text-white/60">No Categories Found</h3>
-                          <p className="text-white/30 text-xs mt-1">Add your first dynamic category to get started.</p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {categories.map(cat => {
-                            return (
-                              <div 
-                                key={cat.id}
-                                className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5 flex flex-col justify-between hover:border-white/20 hover:shadow-xl transition-all duration-300 group"
-                              >
-                                <div className="flex items-start gap-4">
-                                  <div 
-                                    className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 border"
-                                    style={{ 
-                                      backgroundColor: `${cat.color}15`, 
-                                      borderColor: `${cat.color}30`, 
-                                      color: cat.color 
-                                    }}
-                                  >
-                                    <span className="text-2xl">{cat.icon.length === 1 || !/^[A-Za-z]+$/.test(cat.icon) ? cat.icon : "🌐"}</span>
-                                  </div>
-                                  <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-1.5">
-                                      <h4 className="text-sm font-bold text-white truncate leading-snug">{cat.nameFr || cat.nameEn}</h4>
-                                    </div>
-                                    <p className="text-white/40 text-[11px] mt-0.5 font-medium truncate">EN: {cat.nameEn}</p>
-                                    <div className="mt-2 flex flex-wrap gap-1.5">
-                                      <span className="inline-block px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] font-mono text-white/50">{cat.id}</span>
-                                      <span className="inline-block px-2 py-0.5 rounded text-[9px] font-bold" style={{ backgroundColor: `${cat.color}20`, color: cat.color }}>{cat.color}</span>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="flex justify-end gap-2.5 mt-4 pt-3 border-t border-white/[0.04]">
-                                  <button 
-                                    onClick={() => openCategoryFormModal(cat)}
-                                    className="p-1.5 bg-white/5 hover:bg-moon-blue/15 hover:border-moon-blue/30 text-white/70 hover:text-moon-blue-light border border-transparent rounded-lg transition-all text-xs font-bold flex items-center gap-1 px-2.5"
-                                    title="Edit category details"
-                                  >
-                                    <Edit3 className="w-3.5 h-3.5" />
-                                    Edit
-                                  </button>
-                                  <button 
-                                    onClick={() => handleDeleteCategory(cat.id, cat.nameFr || cat.nameEn)}
-                                    className="p-1.5 bg-white/5 hover:bg-red-950/20 hover:border-red-500/20 text-white/70 hover:text-red-400 border border-transparent rounded-lg transition-all text-xs font-bold flex items-center gap-1 px-2.5"
-                                    title="Delete category"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                    Delete
-                                  </button>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Right Column: SQL Migration Code Helper */}
-                    <div className="bg-[#090d16]/60 border border-white/5 rounded-3xl p-6 backdrop-blur-md shadow-2xl h-fit space-y-4">
-                      <div className="flex items-center gap-2 text-moon-blue-light">
-                        <Tag className="w-5 h-5" />
-                        <h3 className="text-sm font-bold uppercase tracking-wider">Supabase Setup Guide</h3>
                       </div>
-                      <p className="text-xs text-white/50 leading-relaxed">
-                        To enable fully dynamic categories backed by the database instead of falling back to default categories, run this SQL migration code inside your **Supabase SQL Editor** dashboard.
-                      </p>
-                      
-                      <div className="bg-black/45 border border-white/10 rounded-xl p-4 font-mono text-[10px] text-emerald-400/90 overflow-x-auto max-h-[300px] custom-scrollbar select-all">
-{`-- 1. Create categories table
-create table if not exists categories (
-  id text primary key,
-  name_en text not null,
-  name_fr text not null,
-  icon text not null default '🌐',
-  color text not null default '#3b82f6',
-  created_at timestamptz default now()
-);
-
--- 2. Enable Row Level Security (RLS)
-alter table categories enable row level security;
-
--- 3. Define policies (Public read, full Admin CRUD)
-create policy "Allow public read access on categories" 
-  on categories for select using (true);
-
-create policy "Allow all operations on categories" 
-  on categories for all using (true) with check (true);
-
--- 4. Seed with initial default strategic categories
-insert into categories (id, name_en, name_fr, icon, color) values
-('tvet', 'Technical and Vocational Education (TVET)', 'Formation Professionnelle et Technique', 'GraduationCap', '#a3e635'),
-('healthcare', 'Medicine and Healthcare', 'Santé et VR Médicale', 'HeartPulse', '#fb7185'),
-('education', 'K-12 Education (6-16 Years)', 'Éducation des Enfants (6-16 Ans)', 'GraduationCap', '#a78bfa')
-on conflict (id) do nothing;`}
-                      </div>
-
-                      <div className="p-3.5 bg-white/[0.02] border border-white/5 rounded-xl text-[11px] text-white/40 flex items-start gap-2.5">
-                        <Shield className="w-4 h-4 text-moon-blue-light flex-shrink-0 mt-0.5" />
-                        <span>Running this SQL query creates the database structure and immediately upgrades your workspace to full backend dynamics. No app rebuild required!</span>
-                      </div>
-                    </div>
-                  </div>
+                    );
+                  })}
                 </div>
               )}
-
             </motion.div>
           )}
         </AnimatePresence>
@@ -928,15 +437,15 @@ on conflict (id) do nothing;`}
               initial={{ opacity: 0, scale: 0.95, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative w-full max-w-4xl bg-[#090d16] border border-white/10 rounded-[32px] shadow-2xl z-10 overflow-hidden my-8"
+              className="relative w-full max-w-2xl bg-[#090d16] border border-white/10 rounded-[32px] shadow-2xl z-10 overflow-hidden my-8"
             >
               {/* Top Accent Strip */}
-              <div className="h-1.5 w-full bg-gradient-to-r from-moon-blue-light via-purple-500 to-moon-yellow" />
+              <div className="h-1.5 w-full bg-gradient-to-r from-cyan-400 via-purple-500 to-emerald-400" />
 
               {/* Form Title bar */}
               <div className="flex justify-between items-center p-6 border-b border-white/5 bg-[#090d16]/80 backdrop-blur-md">
                 <div>
-                  <h2 className="text-2xl font-bold">{editingProvider ? "Edit" : "Add New"} <span className="text-gradient">Provider</span></h2>
+                  <h2 className="text-2xl font-bold font-display">{editingProvider ? "Edit" : "Add New"} <span className="text-gradient">Provider</span></h2>
                   <p className="text-xs text-white/40 mt-1">Submit database updates for the global VR supplier directory.</p>
                 </div>
                 <button 
@@ -951,78 +460,112 @@ on conflict (id) do nothing;`}
               <form onSubmit={handleFormSubmit} className="p-6 md:p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
                 
                 <div className="space-y-4">
-                  <h3 className="text-xs font-bold text-moon-blue-light uppercase tracking-widest flex items-center gap-2">
+                  <h3 className="text-xs font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-2">
                     <Building2 className="w-4 h-4" />
                     Core Provider Information
                   </h3>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Supplier Brand Name</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. Uptale VR"
-                        value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Website URL / Domain</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. https://uptale.io or uptale.io"
-                        value={formData.domain}
-                        onChange={(e) => setFormData({...formData, domain: e.target.value})}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40"
-                        required
-                      />
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Supplier Brand Name</label>
+                    <input 
+                      type="text"
+                      placeholder="e.g. Uptale VR"
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-cyan-400/40"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Website URL / Domain</label>
+                    <input 
+                      type="text"
+                      placeholder="e.g. uptale.io"
+                      value={formData.domain}
+                      onChange={(e) => setFormData({...formData, domain: e.target.value})}
+                      className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-cyan-400/40"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Visibility Status</label>
+                    <div className="p-4 bg-white/5 border border-white/5 rounded-xl flex items-center justify-between">
+                      <span className="text-xs text-white/50 font-medium">Show on public pages?</span>
+                      <label className="relative inline-flex items-center cursor-pointer select-none">
+                        <input 
+                          type="checkbox" 
+                          checked={formData.isVisible} 
+                          onChange={(e) => setFormData({...formData, isVisible: e.target.checked})}
+                          className="sr-only peer" 
+                        />
+                        <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        <span className="ml-3 text-[11px] font-bold text-white/50 peer-checked:text-emerald-400">
+                          {formData.isVisible ? "Visible" : "Hidden"}
+                        </span>
+                      </label>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Industry Sector Specialty</label>
-                      <select 
-                        value={formData.sector}
-                        onChange={(e) => setFormData({...formData, sector: e.target.value})}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40 text-white [&>option]:bg-[#090d16]"
-                      >
-                        {categories.map(cat => (
-                          <option key={cat.id} value={cat.nameFr || cat.nameEn}>{cat.nameFr || cat.nameEn}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Custom Logo URL (Optional)</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. https://domain.com/logo.png (or leave blank for auto favicon)"
-                        value={formData.logoUrl}
-                        onChange={(e) => setFormData({...formData, logoUrl: e.target.value})}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:outline-none focus:border-moon-blue-light/40"
-                      />
-                    </div>
-                  </div>
+                  {/* Logo Upload Section */}
+                  <div className="p-5 bg-white/[0.01] border border-white/5 rounded-2xl space-y-4">
+                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block pl-1">Company Logo (PNG / JPG / WEBP)</label>
+                    
+                    <div className="flex flex-col sm:flex-row items-center gap-6">
+                      {/* Logo Preview */}
+                      <div className="w-24 h-24 rounded-2xl bg-white flex items-center justify-center border border-white/10 overflow-hidden relative shadow-inner flex-shrink-0 group">
+                        {formData.logoUrl ? (
+                          <>
+                            <img 
+                              src={formData.logoUrl} 
+                              alt="Logo Preview" 
+                              className="w-full h-full object-contain p-2"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setFormData({...formData, logoUrl: ""})}
+                              className="absolute inset-0 bg-red-600/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs font-bold"
+                            >
+                              Remove
+                            </button>
+                          </>
+                        ) : (
+                          <div className="text-center text-slate-455 flex flex-col items-center p-2">
+                            <Globe className="w-6 h-6 mb-1 text-slate-400 animate-pulse" />
+                            <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400">Auto Favicon</span>
+                          </div>
+                        )}
+                      </div>
 
-                  <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-between">
-                    <div>
-                      <span className="text-xs font-bold text-white block">Visibility Status</span>
-                      <span className="text-[10px] text-white/40">Toggle whether this provider is active on the homepage carousel and search grid.</span>
+                      {/* Upload Options */}
+                      <div className="flex-1 w-full space-y-3">
+                        <div className="relative border border-dashed border-white/20 hover:border-cyan-400/50 rounded-2xl p-4 transition-colors flex flex-col items-center justify-center bg-white/[0.005] group">
+                          <input 
+                            type="file"
+                            accept="image/png, image/jpeg, image/jpg, image/webp"
+                            onChange={handleLogoUpload}
+                            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                          />
+                          <Plus className="w-5 h-5 text-white/40 group-hover:text-cyan-400 transition-colors mb-1" />
+                          <span className="text-xs font-bold text-white/60 group-hover:text-white transition-colors">Choose PNG or JPG file</span>
+                          <span className="text-[9px] text-white/35 mt-0.5">Drag & drop or click to browse (Max 2MB)</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <div className="h-px bg-white/10 flex-1" />
+                          <span className="text-[9px] uppercase text-white/30 font-bold">Or enter direct URL</span>
+                          <div className="h-px bg-white/10 flex-1" />
+                        </div>
+
+                        <input 
+                          type="text"
+                          placeholder="Paste direct link e.g. https://website.com/logo.png"
+                          value={formData.logoUrl}
+                          onChange={(e) => setFormData({...formData, logoUrl: e.target.value})}
+                          className="w-full px-4 py-2.5 bg-white/5 border border-white/5 rounded-xl text-xs focus:outline-none focus:border-cyan-400/40 text-white placeholder-white/20"
+                        />
+                      </div>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer select-none">
-                      <input 
-                        type="checkbox" 
-                        checked={formData.isVisible} 
-                        onChange={(e) => setFormData({...formData, isVisible: e.target.checked})}
-                        className="sr-only peer" 
-                      />
-                      <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-                      <span className="ml-3 text-[11px] font-bold text-white/50 peer-checked:text-emerald-400">
-                        {formData.isVisible ? "Visible" : "Hidden"}
-                      </span>
-                    </label>
                   </div>
                 </div>
 
@@ -1037,191 +580,13 @@ on conflict (id) do nothing;`}
                   </button>
                   <button 
                     type="submit"
-                    className="px-8 py-3.5 bg-moon-blue-light hover:brightness-110 text-xs font-bold uppercase tracking-wider rounded-2xl shadow-lg transition-all"
+                    className="px-8 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-xs font-bold uppercase tracking-wider rounded-2xl shadow-lg transition-all"
                   >
                     {editingProvider ? "Save Database Changes" : "Create Brand New Supplier"}
                   </button>
                 </div>
 
               </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* =========================================================================
-          PROVIDER CLIENT/USER MANAGEMENT MODAL
-          ========================================================================= */}
-      <AnimatePresence>
-        {isUsersModalOpen && selectedProviderForUsers && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto">
-            {/* Backdrop */}
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }}
-              onClick={() => setIsUsersModalOpen(false)}
-              className="fixed inset-0 bg-black/85 backdrop-blur-md" 
-            />
-
-            {/* Modal Body */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative w-full max-w-3xl bg-[#090d16] border border-white/10 rounded-[32px] shadow-2xl z-10 overflow-hidden"
-            >
-              {/* Form Title bar */}
-              <div className="flex justify-between items-center p-6 border-b border-white/5 bg-[#090d16]/80">
-                <div>
-                  <h2 className="text-xl font-bold flex items-center gap-2">
-                    <Users className="w-5 h-5 text-moon-blue-light" />
-                    Manage Users for <span className="text-gradient">{selectedProviderForUsers.name}</span>
-                  </h2>
-                  <p className="text-xs text-white/40 mt-1">Control active licenses and organizational administrators for this VR developer.</p>
-                </div>
-                <button 
-                  onClick={() => setIsUsersModalOpen(false)}
-                  className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="p-6 md:p-8 space-y-6">
-                
-                {/* 1. Add User Form */}
-                <form onSubmit={handleAddUser} className="p-5 bg-white/[0.01] border border-white/5 rounded-2xl space-y-4">
-                  <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest flex items-center gap-1.5">
-                    <UserPlus className="w-4 h-4 text-emerald-400" />
-                    Authorize New Trainee / User
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-white/40 uppercase">Full Name</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. Ahmed Salem"
-                        value={newUserName}
-                        onChange={(e) => setNewUserName(e.target.value)}
-                        className="w-full px-3 py-2.5 bg-white/5 border border-white/5 rounded-xl text-xs focus:outline-none focus:border-moon-blue-light/40"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-1 col-span-1 sm:col-span-2">
-                      <label className="text-[9px] font-bold text-white/40 uppercase">Email Address</label>
-                      <input 
-                        type="email"
-                        placeholder="e.g. salem@company.mr"
-                        value={newUserEmail}
-                        onChange={(e) => setNewUserEmail(e.target.value)}
-                        className="w-full px-3 py-2.5 bg-white/5 border border-white/5 rounded-xl text-xs focus:outline-none focus:border-moon-blue-light/40"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-white/40 uppercase">User Role</label>
-                      <select 
-                        value={newUserRole}
-                        onChange={(e) => setNewUserRole(e.target.value)}
-                        className="w-full px-3 py-2.5 bg-white/5 border border-white/5 rounded-xl text-xs focus:outline-none focus:border-moon-blue-light/40 [&>option]:bg-[#090d16]"
-                      >
-                        <option value="Admin">Admin</option>
-                        <option value="Trainer">Trainer</option>
-                        <option value="Learner">Learner</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end pt-2">
-                    <button 
-                      type="submit"
-                      className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold uppercase tracking-wider rounded-lg flex items-center gap-1.5 transition-all shadow-md"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      Add User License
-                    </button>
-                  </div>
-                </form>
-
-                {/* 2. Users Table List */}
-                <div className="space-y-3">
-                  <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest">Active User Directory</h3>
-                  
-                  {loadingUsers ? (
-                    <div className="flex justify-center items-center py-10">
-                      <RefreshCw className="w-6 h-6 text-moon-blue-light animate-spin" />
-                    </div>
-                  ) : providerUsers.length === 0 ? (
-                    <div className="p-8 text-center bg-white/[0.005] border border-white/5 rounded-2xl text-xs text-white/30">
-                      No registered users associated with this provider. Try adding one above!
-                    </div>
-                  ) : (
-                    <div className="max-h-[250px] overflow-y-auto custom-scrollbar border border-white/5 rounded-2xl">
-                      <table className="w-full text-left text-xs border-collapse">
-                        <thead>
-                          <tr className="bg-white/5 text-white/50 border-b border-white/10 uppercase text-[9px] font-bold tracking-wider">
-                            <th className="p-4">Name / Contact</th>
-                            <th className="p-4">Role</th>
-                            <th className="p-4">Status</th>
-                            <th className="p-4 text-right">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/[0.04]">
-                          {providerUsers.map(u => (
-                            <tr key={u.id} className="hover:bg-white/[0.01] transition-colors">
-                              <td className="p-4">
-                                <div className="font-semibold text-white">{u.name}</div>
-                                <div className="text-[10px] text-white/30 flex items-center gap-1 mt-0.5">
-                                  <Mail className="w-3 h-3" />
-                                  {u.email}
-                                </div>
-                              </td>
-                              <td className="p-4">
-                                <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
-                                  u.role === "Admin" ? "bg-red-500/10 text-red-400" :
-                                  u.role === "Trainer" ? "bg-moon-blue/20 text-moon-blue-light" :
-                                  "bg-purple-500/10 text-purple-400"
-                                }`}>
-                                  {u.role}
-                                </span>
-                              </td>
-                              <td className="p-4">
-                                <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${
-                                  u.status === "Active" ? "text-emerald-400" : "text-white/40"
-                                }`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full ${u.status === "Active" ? "bg-emerald-400 animate-pulse" : "bg-white/25"}`} />
-                                  {u.status}
-                                </span>
-                              </td>
-                              <td className="p-4 text-right">
-                                <button 
-                                  onClick={() => handleDeleteUser(u.id, u.name)}
-                                  className="p-2 text-white/40 hover:text-red-400 bg-white/5 hover:bg-red-500/10 rounded-lg transition-all"
-                                  title="Revoke user authorization"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex justify-end pt-4 border-t border-white/5">
-                  <button 
-                    onClick={() => setIsUsersModalOpen(false)}
-                    className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wide transition-all"
-                  >
-                    Close Manager
-                  </button>
-                </div>
-
-              </div>
             </motion.div>
           </div>
         )}
