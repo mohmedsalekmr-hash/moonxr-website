@@ -3,17 +3,16 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { partnersData, Partner, Category } from "@/data/partners";
-import { getProvidersAction, getCategoriesAction } from "@/app/actions";
+import { partnersData, Partner } from "@/data/partners";
+import { getProvidersAction } from "@/app/actions";
 import { useLanguage } from "@/context/LanguageContext";
-import { Zap, Building2, HeartPulse, GraduationCap } from "lucide-react";
 
 /* ── Clean Elegant Card ────────────────────────────────────────────────── */
 function ElegantCard({ partner }: { partner: Partner }) {
   const initials = partner.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
   // Sanitize and ensure direct external link has absolute prefix
-  const rawUrl = partner.domain || "";
+  const rawUrl = partner.url || "";
   const targetUrl = rawUrl.startsWith("http://") || rawUrl.startsWith("https://") 
     ? rawUrl 
     : `https://${rawUrl}`;
@@ -49,7 +48,7 @@ function ElegantCard({ partner }: { partner: Partner }) {
       <div className="w-full flex-1 bg-white rounded-2xl flex items-center justify-center relative overflow-hidden transition-transform duration-300 group-hover:scale-[1.03] shadow-inner mb-2">
         <span className="absolute font-bold text-slate-400 text-xl select-none z-0">{initials}</span>
         <img
-          src={partner.logoUrl || `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${partner.domain}&size=128`}
+          src={partner.logo_url || `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${targetUrl}&size=128`}
           alt={partner.name}
           loading="lazy"
           className="w-full h-full p-3 object-contain relative z-10 bg-white"
@@ -141,7 +140,7 @@ export function OrbitalProviders() {
     load();
   }, []);
 
-  const activePartners = useMemo(() => partners.filter(p => p.isVisible !== false), [partners]);
+  const activePartners = useMemo(() => partners.filter(p => p.is_visible !== false), [partners]);
 
   const half = Math.ceil(activePartners.length / 2);
   const row1 = activePartners.slice(0, half);

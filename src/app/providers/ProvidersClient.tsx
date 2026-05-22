@@ -1,39 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useLanguage } from "@/context/LanguageContext";
-import { partnersData, Partner, Category } from "@/data/partners";
-import { getProvidersAction, getCategoriesAction } from "@/app/actions";
+import { partnersData, Partner } from "@/data/partners";
+import { getProvidersAction } from "@/app/actions";
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from "framer-motion";
 import { useState, useMemo, useEffect } from "react";
-import * as Icons from "lucide-react";
 
-const resolveSector = (sectorName: string, categories: Category[], lang: string) => {
-  const matched = categories.find(c => c.nameFr === sectorName || c.nameEn === sectorName || c.id === sectorName);
-  
-  const sColor = matched?.color || "#3b82f6";
-  const sLabel = lang === 'en' ? (matched?.nameEn || sectorName) : (matched?.nameFr || sectorName);
-  const sIconStr = matched?.icon || "🌐";
 
-  return {
-    color: sColor,
-    label: sLabel,
-    iconStr: sIconStr
-  };
-};
 
-const renderSectorIcon = (iconStr: string, className = "w-4 h-4") => {
-  if (!iconStr) return <Icons.Zap className={className} />;
-  // Emojis
-  if (iconStr.length <= 2 || !/^[A-Za-z]+$/.test(iconStr)) {
-    return <span className="text-sm leading-none flex items-center justify-center">{iconStr}</span>;
-  }
-  const IconComponent = (Icons as any)[iconStr];
-  if (IconComponent) {
-    return <IconComponent className={className} />;
-  }
-  return <Icons.Zap className={className} />;
-};
+
 
 function Logo({ domain, name, logoUrl }: { domain: string; name: string; logoUrl?: string }) {
   const [loaded, setLoaded] = useState(false);
@@ -44,7 +19,7 @@ function Logo({ domain, name, logoUrl }: { domain: string; name: string; logoUrl
   const srcs = useMemo(() => {
     const list = [];
     if (logoUrl) list.push(logoUrl);
-    list.push(`https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=128`);
+    list.push(`https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${domain.startsWith('http') ? domain : 'https://' + domain}&size=128`);
     list.push(`https://www.google.com/s2/favicons?domain=${domain}&sz=128`);
     return list;
   }, [logoUrl, domain]);
@@ -76,7 +51,7 @@ function PartnerCard({ partner }: { partner: Partner }) {
     y.set((e.clientY - rect.top) / rect.height - 0.5);
   };
 
-  const rawUrl = partner.domain || "";
+  const rawUrl = partner.url || "";
   const targetUrl = rawUrl.startsWith("http://") || rawUrl.startsWith("https://") 
     ? rawUrl 
     : `https://${rawUrl}`;
@@ -101,7 +76,7 @@ function PartnerCard({ partner }: { partner: Partner }) {
       
       {/* Centered logo inside a white canvas */}
       <div className="w-full flex-1 bg-white rounded-2xl flex items-center justify-center p-4 transition-transform duration-300 group-hover:scale-[1.03] shadow-inner">
-        <Logo domain={partner.domain} name={partner.name} logoUrl={partner.logoUrl} />
+        <Logo domain={partner.url} name={partner.name} logoUrl={partner.logo_url} />
       </div>
 
       {/* Company Name */}
@@ -128,7 +103,7 @@ export function ProvidersClient({ partners: initialPartners = partnersData }: { 
     load();
   }, []);
 
-  const activePartners = useMemo(() => partners.filter(p => p.isVisible !== false), [partners]);
+  const activePartners = useMemo(() => partners.filter(p => p.is_visible !== false), [partners]);
 
   return (
     <div className="space-y-12">
