@@ -107,7 +107,10 @@ function ScrollRow({
         style={{
           width: "max-content",
           ...(mounted ? {
-            animation: `${reverse ? "marquee-reverse" : "marquee"} ${durationSec}s linear infinite`,
+            animationName: reverse ? "marquee-reverse" : "marquee",
+            animationDuration: `${durationSec}s`,
+            animationTimingFunction: "linear",
+            animationIterationCount: "infinite",
             animationPlayState: paused ? "paused" : "running",
             willChange: "transform",
           } : {
