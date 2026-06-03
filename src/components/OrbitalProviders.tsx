@@ -133,7 +133,7 @@ export function OrbitalProviders() {
     setIsMounted(true);
     async function load() {
       const data = await getProvidersAction();
-      if (data && data.length > 0) {
+      if (data) {
         setPartners(data);
       }
     }

@@ -1,32 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-// ─── Upstash Redis REST API ───────────────────────────────────────────────────
-const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL!;
-const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN!;
-const KEY = "moonxr:providers";
-
-async function redisCmd(command: any[]) {
-  const res = await fetch(UPSTASH_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${UPSTASH_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(command),
-    cache: "no-store",
-  });
-  const data = await res.json();
-  return data.result;
-}
-
-async function readProviders(): Promise<any[]> {
-  const raw = await redisCmd(["GET", KEY]);
-  return raw ? JSON.parse(raw) : [];
-}
-
-async function writeProviders(data: any[]): Promise<void> {
-  await redisCmd(["SET", KEY, JSON.stringify(data)]);
-}
+import { readProviders, writeProviders } from "@/lib/db";
 
 function makeId(name: string): string {
   return name

@@ -2,17 +2,7 @@
 
 import { Partner } from "@/data/partners";
 import { revalidatePath } from "next/cache";
-
-// ─── Base URL helper ──────────────────────────────────────────────────────────
-// Works in both local dev and production (Vercel etc.)
-function apiBase(): string {
-  // Server-side: use the app URL env var, or fall back to localhost
-  const base =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-    "http://localhost:3000";
-  return base.replace(/\/$/, "");
-}
+import { readProviders, writeProviders } from "@/lib/db";
 
 // ─── Row → Partner mapper ─────────────────────────────────────────────────────
 function mapRow(row: any): Partner {
@@ -25,19 +15,18 @@ function mapRow(row: any): Partner {
   };
 }
 
+function makeId(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 // ─── READ: Get all providers ──────────────────────────────────────────────────
 export async function getProvidersAction(): Promise<Partner[]> {
   try {
-    const res = await fetch(`${apiBase()}/api/providers`, {
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      console.error("getProvidersAction: API responded with", res.status);
-      return [];
-    }
-
-    const data = await res.json();
+    const data = await readProviders();
     return (Array.isArray(data) ? data : []).map(mapRow);
   } catch (err: any) {
     console.error("getProvidersAction unexpected error:", err);
@@ -50,18 +39,32 @@ export async function createProviderAction(
   provider: Omit<Partner, "id"> & { name: string }
 ) {
   try {
-    const res = await fetch(`${apiBase()}/api/providers`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(provider),
-    });
+    const { name, url, logo_url, is_visible } = provider;
+    if (!name?.trim() || !url?.trim()) {
+      throw new Error("Name and URL are required.");
+    }
 
-    const result = await res.json();
-    if (!res.ok || !result.success) throw new Error(result.error ?? "Unknown error");
+    const providers = await readProviders();
+
+    let id = makeId(name);
+    if (providers.some((p) => p.id === id)) {
+      id = `${id}-${Math.random().toString(36).slice(2, 6)}`;
+    }
+
+    const newProvider = {
+      id,
+      name: name.trim(),
+      url: url.trim(),
+      logo_url: logo_url ?? null,
+      is_visible: is_visible ?? true,
+    };
+
+    providers.push(newProvider);
+    await writeProviders(providers);
 
     revalidatePath("/");
     revalidatePath("/providers");
-    return { success: true, data: [mapRow(result.data)] };
+    return { success: true, data: [mapRow(newProvider)] };
   } catch (err: any) {
     console.error("createProviderAction error:", err.message);
     return { success: false, error: err.message };
@@ -74,18 +77,29 @@ export async function updateProviderAction(
   provider: Partial<Partner>
 ) {
   try {
-    const res = await fetch(`${apiBase()}/api/providers`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, ...provider }),
-    });
+    if (!id) throw new Error("Provider ID is required.");
 
-    const result = await res.json();
-    if (!res.ok || !result.success) throw new Error(result.error ?? "Unknown error");
+    const { name, url, logo_url, is_visible } = provider;
+    const providers = await readProviders();
+    const idx = providers.findIndex((p) => p.id === id);
+
+    if (idx === -1) {
+      throw new Error("Provider not found.");
+    }
+
+    providers[idx] = {
+      ...providers[idx],
+      ...(name !== undefined && { name: name.trim() }),
+      ...(url !== undefined && { url: url.trim() }),
+      ...(logo_url !== undefined && { logo_url: logo_url ?? null }),
+      ...(is_visible !== undefined && { is_visible }),
+    };
+
+    await writeProviders(providers);
 
     revalidatePath("/");
     revalidatePath("/providers");
-    return { success: true, data: [mapRow(result.data)] };
+    return { success: true, data: [mapRow(providers[idx])] };
   } catch (err: any) {
     console.error("updateProviderAction error:", err.message);
     return { success: false, error: err.message };
@@ -95,14 +109,16 @@ export async function updateProviderAction(
 // ─── DELETE: Remove a provider ────────────────────────────────────────────────
 export async function deleteProviderAction(id: string) {
   try {
-    const res = await fetch(`${apiBase()}/api/providers`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
+    if (!id) throw new Error("Provider ID is required.");
 
-    const result = await res.json();
-    if (!res.ok || !result.success) throw new Error(result.error ?? "Unknown error");
+    const providers = await readProviders();
+    const filtered = providers.filter((p) => p.id !== id);
+
+    if (filtered.length === providers.length) {
+      throw new Error("Provider not found.");
+    }
+
+    await writeProviders(filtered);
 
     revalidatePath("/");
     revalidatePath("/providers");
