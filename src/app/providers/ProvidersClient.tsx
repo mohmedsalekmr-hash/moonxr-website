@@ -96,7 +96,8 @@ export function ProvidersClient({ partners: initialPartners = partnersData }: { 
   useEffect(() => {
     async function load() {
       const data = await getProvidersAction();
-      if (data && data.length > 0) {
+      console.log("ProvidersClient loaded partners from server action:", data);
+      if (data) {
         setPartners(data);
       }
     }

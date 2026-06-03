@@ -27,6 +27,7 @@ function makeId(name: string): string {
 export async function getProvidersAction(): Promise<Partner[]> {
   try {
     const data = await readProviders();
+    console.log("getProvidersAction retrieved from DB:", data.length, "providers");
     return (Array.isArray(data) ? data : []).map(mapRow);
   } catch (err: any) {
     console.error("getProvidersAction unexpected error:", err);
