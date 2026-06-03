@@ -1,22 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
 
-// ─── Path to the JSON "database" ─────────────────────────────────────────────
-const DB_PATH = path.join(process.cwd(), "src", "data", "providers.json");
+// ─── Upstash Redis REST API ───────────────────────────────────────────────────
+const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL!;
+const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN!;
+const KEY = "moonxr:providers";
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-function readProviders() {
-  try {
-    const raw = fs.readFileSync(DB_PATH, "utf-8");
-    return JSON.parse(raw) as any[];
-  } catch {
-    return [];
-  }
+async function redisCmd(command: any[]) {
+  const res = await fetch(UPSTASH_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${UPSTASH_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(command),
+    cache: "no-store",
+  });
+  const data = await res.json();
+  return data.result;
 }
 
-function writeProviders(data: any[]) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf-8");
+async function readProviders(): Promise<any[]> {
+  const raw = await redisCmd(["GET", KEY]);
+  return raw ? JSON.parse(raw) : [];
+}
+
+async function writeProviders(data: any[]): Promise<void> {
+  await redisCmd(["SET", KEY, JSON.stringify(data)]);
 }
 
 function makeId(name: string): string {
@@ -29,8 +38,13 @@ function makeId(name: string): string {
 
 // ─── GET — fetch all providers ───────────────────────────────────────────────
 export async function GET() {
-  const providers = readProviders();
-  return NextResponse.json(providers);
+  try {
+    const providers = await readProviders();
+    return NextResponse.json(providers);
+  } catch (err: any) {
+    console.error("GET /api/providers error:", err);
+    return NextResponse.json([], { status: 200 });
+  }
 }
 
 // ─── POST — create a new provider ────────────────────────────────────────────
@@ -46,11 +60,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const providers = readProviders();
+    const providers = await readProviders();
 
-    // Generate a unique slug ID
     let id = makeId(name);
-    // If ID already exists, append a short random suffix
     if (providers.some((p) => p.id === id)) {
       id = `${id}-${Math.random().toString(36).slice(2, 6)}`;
     }
@@ -64,14 +76,12 @@ export async function POST(req: NextRequest) {
     };
 
     providers.push(newProvider);
-    writeProviders(providers);
+    await writeProviders(providers);
 
     return NextResponse.json({ success: true, data: newProvider });
   } catch (err: any) {
-    return NextResponse.json(
-      { success: false, error: err.message },
-      { status: 500 }
-    );
+    console.error("POST /api/providers error:", err);
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
 
@@ -88,7 +98,7 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const providers = readProviders();
+    const providers = await readProviders();
     const idx = providers.findIndex((p) => p.id === id);
 
     if (idx === -1) {
@@ -106,14 +116,12 @@ export async function PUT(req: NextRequest) {
       ...(is_visible !== undefined && { is_visible }),
     };
 
-    writeProviders(providers);
+    await writeProviders(providers);
 
     return NextResponse.json({ success: true, data: providers[idx] });
   } catch (err: any) {
-    return NextResponse.json(
-      { success: false, error: err.message },
-      { status: 500 }
-    );
+    console.error("PUT /api/providers error:", err);
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
 
@@ -130,7 +138,7 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    const providers = readProviders();
+    const providers = await readProviders();
     const filtered = providers.filter((p) => p.id !== id);
 
     if (filtered.length === providers.length) {
@@ -140,13 +148,11 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    writeProviders(filtered);
+    await writeProviders(filtered);
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    return NextResponse.json(
-      { success: false, error: err.message },
-      { status: 500 }
-    );
+    console.error("DELETE /api/providers error:", err);
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
