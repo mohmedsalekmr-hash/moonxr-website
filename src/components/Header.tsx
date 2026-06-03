@@ -51,11 +51,14 @@ export function Header() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 
           {/* Logo */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          <Link
+            href="/"
+            onClick={(e) => {
+              if (typeof window !== "undefined" && window.location.pathname === "/") {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
             className="flex items-center space-x-3 group cursor-pointer"
           >
             <div className="relative flex items-center justify-center w-14 h-14">
@@ -100,7 +103,7 @@ export function Header() {
               </span>
               <span className="text-[9px] uppercase tracking-[0.3em] text-white/40 mt-1 pl-1">Virtual Reality</span>
             </div>
-          </motion.div>
+          </Link>
 
           {/* Navigation */}
           <motion.nav
