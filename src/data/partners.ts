@@ -1,6 +1,5 @@
 // ─── Provider Interface ───────────────────────────────────────────────────────
-// Mirrors the Supabase `providers` table exactly.
-// Only 4 real fields + auto fields (id, created_at managed by DB).
+// Stored locally in src/data/providers.json — no external database needed.
 export interface Partner {
   id: string;       // Auto-generated from name (slug)
   name: string;     // Company name shown on card
@@ -9,7 +8,7 @@ export interface Partner {
   is_visible?: boolean; // Controls public visibility
 }
 
-// Static fallback — all live data comes from Supabase
+// Static fallback — live data comes from /api/providers (providers.json)
 export const partnersData: Partner[] = [];
 
 // Legacy stubs — keep so any old import compiles without error

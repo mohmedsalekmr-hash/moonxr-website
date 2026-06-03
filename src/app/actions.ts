@@ -1,8 +1,18 @@
 "use server";
 
 import { Partner } from "@/data/partners";
-import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
+
+// ─── Base URL helper ──────────────────────────────────────────────────────────
+// Works in both local dev and production (Vercel etc.)
+function apiBase(): string {
+  // Server-side: use the app URL env var, or fall back to localhost
+  const base =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+    "http://localhost:3000";
+  return base.replace(/\/$/, "");
+}
 
 // ─── Row → Partner mapper ─────────────────────────────────────────────────────
 function mapRow(row: any): Partner {
@@ -18,17 +28,17 @@ function mapRow(row: any): Partner {
 // ─── READ: Get all providers ──────────────────────────────────────────────────
 export async function getProvidersAction(): Promise<Partner[]> {
   try {
-    const { data, error } = await supabase
-      .from("providers")
-      .select("id, name, url, logo_url, is_visible")
-      .order("name", { ascending: true });
+    const res = await fetch(`${apiBase()}/api/providers`, {
+      cache: "no-store",
+    });
 
-    if (error) {
-      console.error("getProvidersAction error:", error.message);
+    if (!res.ok) {
+      console.error("getProvidersAction: API responded with", res.status);
       return [];
     }
 
-    return (data ?? []).map(mapRow);
+    const data = await res.json();
+    return (Array.isArray(data) ? data : []).map(mapRow);
   } catch (err: any) {
     console.error("getProvidersAction unexpected error:", err);
     return [];
@@ -40,57 +50,42 @@ export async function createProviderAction(
   provider: Omit<Partner, "id"> & { name: string }
 ) {
   try {
-    // Generate a clean slug ID from the name
-    const id = provider.name
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
+    const res = await fetch(`${apiBase()}/api/providers`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(provider),
+    });
 
-    const { data, error } = await supabase
-      .from("providers")
-      .insert([{
-        id,
-        name: provider.name,
-        url: provider.url,
-        logo_url: provider.logo_url ?? null,
-        is_visible: provider.is_visible ?? true,
-      }])
-      .select("id, name, url, logo_url, is_visible");
-
-    if (error) throw error;
+    const result = await res.json();
+    if (!res.ok || !result.success) throw new Error(result.error ?? "Unknown error");
 
     revalidatePath("/");
     revalidatePath("/providers");
-    return { success: true, data: (data ?? []).map(mapRow) };
+    return { success: true, data: [mapRow(result.data)] };
   } catch (err: any) {
     console.error("createProviderAction error:", err.message);
     return { success: false, error: err.message };
   }
 }
 
-// ─── UPDATE: Edit an existing provider ───────────────────────────────────────
+// ─── UPDATE: Edit an existing provider ────────────────────────────────────────
 export async function updateProviderAction(
   id: string,
   provider: Partial<Partner>
 ) {
   try {
-    const { data, error } = await supabase
-      .from("providers")
-      .update({
-        name: provider.name,
-        url: provider.url,
-        logo_url: provider.logo_url ?? null,
-        is_visible: provider.is_visible ?? true,
-      })
-      .eq("id", id)
-      .select("id, name, url, logo_url, is_visible");
+    const res = await fetch(`${apiBase()}/api/providers`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, ...provider }),
+    });
 
-    if (error) throw error;
+    const result = await res.json();
+    if (!res.ok || !result.success) throw new Error(result.error ?? "Unknown error");
 
     revalidatePath("/");
     revalidatePath("/providers");
-    return { success: true, data: (data ?? []).map(mapRow) };
+    return { success: true, data: [mapRow(result.data)] };
   } catch (err: any) {
     console.error("updateProviderAction error:", err.message);
     return { success: false, error: err.message };
@@ -100,8 +95,14 @@ export async function updateProviderAction(
 // ─── DELETE: Remove a provider ────────────────────────────────────────────────
 export async function deleteProviderAction(id: string) {
   try {
-    const { error } = await supabase.from("providers").delete().eq("id", id);
-    if (error) throw error;
+    const res = await fetch(`${apiBase()}/api/providers`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+
+    const result = await res.json();
+    if (!res.ok || !result.success) throw new Error(result.error ?? "Unknown error");
 
     revalidatePath("/");
     revalidatePath("/providers");
