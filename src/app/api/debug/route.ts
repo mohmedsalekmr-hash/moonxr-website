@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readProviders } from "@/lib/db";
 
+// Trigger automatic Vercel redeployment with updated environment variables
 export const dynamic = "force-dynamic";
 
 export async function GET() {
