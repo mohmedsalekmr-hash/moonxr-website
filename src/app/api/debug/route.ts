@@ -8,7 +8,7 @@ export async function GET() {
   const token = process.env['UPSTASH_REDIS_REST_TOKEN'];
 
   const debugInfo = {
-    version: "v5 (bracket notation)",
+    version: "v6 (env variables connection test)",
     envKeys: Object.keys(process.env),
     env: {
       UPSTASH_REDIS_REST_URL_exists: !!url,
