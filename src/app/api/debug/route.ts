@@ -4,11 +4,11 @@ import { readProviders } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const url = process.env['UPSTASH_REDIS_REST_URL'];
+  const token = process.env['UPSTASH_REDIS_REST_TOKEN'];
 
   const debugInfo = {
-    version: "v4 (keys check)",
+    version: "v5 (bracket notation)",
     envKeys: Object.keys(process.env),
     env: {
       UPSTASH_REDIS_REST_URL_exists: !!url,

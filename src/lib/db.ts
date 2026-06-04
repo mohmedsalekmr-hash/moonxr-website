@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
 
-const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
-const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+const UPSTASH_URL = process.env['UPSTASH_REDIS_REST_URL'];
+const UPSTASH_TOKEN = process.env['UPSTASH_REDIS_REST_TOKEN'];
 const KEY = "moonxr:providers";
 
 async function redisCmd(command: any[]) {
