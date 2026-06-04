@@ -171,19 +171,34 @@ export function OrbitalProviders() {
         </motion.div>
       </div>
 
-      {/* ── Two rows of cards ── */}
+      {/* ── Cards Layout: Static if 3 or less, Infinite scrolling line if 4 or more ── */}
       <AnimatePresence mode="wait">
-        <motion.div
-          key="marquee-layout"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="space-y-6"
-        >
-          <ScrollRow partners={row1} reverse={false} />
-          <ScrollRow partners={row2} reverse={true} />
-        </motion.div>
+        {activePartners.length <= 3 ? (
+          <motion.div
+            key="static-layout"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto px-6 py-4"
+          >
+            {activePartners.map((p) => (
+              <ElegantCard key={p.id} partner={p} />
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="marquee-layout"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-6"
+          >
+            <ScrollRow partners={row1} reverse={false} />
+            <ScrollRow partners={row2} reverse={true} />
+          </motion.div>
+        )}
       </AnimatePresence>
     </section>
   );
