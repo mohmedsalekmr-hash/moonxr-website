@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { readProviders } from "@/lib/db";
 
-// Trigger automatic Vercel redeployment with updated environment variables
 export const dynamic = "force-dynamic";
 
 export async function GET() {
@@ -9,7 +8,8 @@ export async function GET() {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
   const debugInfo = {
-    version: "v3 (triggered at 09:27)",
+    version: "v4 (keys check)",
+    envKeys: Object.keys(process.env),
     env: {
       UPSTASH_REDIS_REST_URL_exists: !!url,
       UPSTASH_REDIS_REST_URL_length: url ? url.length : 0,
