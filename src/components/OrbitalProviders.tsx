@@ -150,6 +150,16 @@ export function OrbitalProviders() {
   const row1 = activePartners.slice(0, half);
   const row2 = activePartners.slice(half);
 
+  // Determine layout mode:
+  // - <= 3 partners: Static centered row
+  // - 4 to 6 partners: Single horizontal scrolling marquee
+  // - >= 7 partners: Two scrolling marquee rows moving in opposite directions
+  const layoutMode = activePartners.length <= 3
+    ? "static"
+    : activePartners.length <= 6
+      ? "single-scroll"
+      : "double-scroll";
+
   return (
     <section id="providers" className="py-24 relative z-10 overflow-hidden">
       {/* Header */}
@@ -171,9 +181,9 @@ export function OrbitalProviders() {
         </motion.div>
       </div>
 
-      {/* ── Cards Layout: Static if 3 or less, Infinite scrolling line if 4 or more ── */}
+      {/* ── Cards Layout: Static <= 3, Single Scroll 4-6, Double Scroll >= 7 ── */}
       <AnimatePresence mode="wait">
-        {activePartners.length <= 3 ? (
+        {layoutMode === "static" && (
           <motion.div
             key="static-layout"
             initial={{ opacity: 0 }}
@@ -186,9 +196,24 @@ export function OrbitalProviders() {
               <ElegantCard key={p.id} partner={p} />
             ))}
           </motion.div>
-        ) : (
+        )}
+
+        {layoutMode === "single-scroll" && (
           <motion.div
-            key="marquee-layout"
+            key="single-scroll-layout"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="py-4"
+          >
+            <ScrollRow partners={activePartners} reverse={false} />
+          </motion.div>
+        )}
+
+        {layoutMode === "double-scroll" && (
+          <motion.div
+            key="double-scroll-layout"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
