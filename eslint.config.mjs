@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "scratch_logo.js",
+    "scratch_logo.py",
+    "clean_bg.py",
   ]),
 ]);
 

@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 import { CanvasBackground } from "@/components/CanvasBackground";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";

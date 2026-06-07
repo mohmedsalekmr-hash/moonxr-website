@@ -4,7 +4,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { LanguageToggle } from "./LanguageToggle";
 import Link from "next/link";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { Boxes, Sparkles, FileText, X, Mail, Phone, MapPin } from "lucide-react";
+import { Boxes, FileText, X, Mail, Phone, MapPin } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export function Header() {

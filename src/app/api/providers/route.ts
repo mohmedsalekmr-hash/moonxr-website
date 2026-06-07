@@ -14,7 +14,7 @@ export async function GET() {
   try {
     const providers = await readProviders();
     return NextResponse.json(providers);
-  } catch (err: any) {
+  } catch (err) {
     console.error("GET /api/providers error:", err);
     return NextResponse.json([], { status: 200 });
   }
@@ -52,9 +52,10 @@ export async function POST(req: NextRequest) {
     await writeProviders(providers);
 
     return NextResponse.json({ success: true, data: newProvider });
-  } catch (err: any) {
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
     console.error("POST /api/providers error:", err);
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: errMsg }, { status: 500 });
   }
 }
 
@@ -92,9 +93,10 @@ export async function PUT(req: NextRequest) {
     await writeProviders(providers);
 
     return NextResponse.json({ success: true, data: providers[idx] });
-  } catch (err: any) {
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
     console.error("PUT /api/providers error:", err);
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: errMsg }, { status: 500 });
   }
 }
 
@@ -124,8 +126,9 @@ export async function DELETE(req: NextRequest) {
     await writeProviders(filtered);
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
     console.error("DELETE /api/providers error:", err);
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: errMsg }, { status: 500 });
   }
 }

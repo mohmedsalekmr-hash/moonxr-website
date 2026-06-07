@@ -129,11 +129,9 @@ function ScrollRow({
 /* ── Main Component ─────────────────────────────────────────────────────── */
 export function OrbitalProviders() {
   const { t, language } = useLanguage();
-  const [isMounted, setIsMounted] = useState(false);
   const [partners, setPartners] = useState<Partner[]>(partnersData);
 
   useEffect(() => {
-    setIsMounted(true);
     async function load() {
       const data = await getProvidersAction();
       console.log("OrbitalProviders loaded partners from server action:", data);
@@ -141,7 +139,9 @@ export function OrbitalProviders() {
         setPartners(data);
       }
     }
-    load();
+    setTimeout(() => {
+      load();
+    }, 0);
   }, []);
 
   const activePartners = useMemo(() => partners.filter(p => p.is_visible !== false), [partners]);

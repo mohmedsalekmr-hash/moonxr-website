@@ -166,6 +166,7 @@ export function Footer() {
     <footer className="relative z-10 border-t border-white/[0.06] overflow-hidden pt-16 pb-8"
       style={{ background: "linear-gradient(to bottom, rgba(2,6,23,0) 0%, rgba(2,6,23,0.7) 20%, rgba(2,6,23,0.88) 100%)" }}
     >
+      <FooterCanvas />
 
       {/* ── Ambient orbs ── */}
       <div aria-hidden="true" className="absolute inset-0 pointer-events-none overflow-hidden">

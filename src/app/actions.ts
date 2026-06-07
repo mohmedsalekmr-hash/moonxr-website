@@ -4,8 +4,16 @@ import { Partner } from "@/data/partners";
 import { revalidatePath } from "next/cache";
 import { readProviders, writeProviders } from "@/lib/db";
 
+interface PartnerDB {
+  id: string;
+  name: string;
+  url: string;
+  logo_url?: string | null;
+  is_visible?: boolean | null;
+}
+
 // ─── Row → Partner mapper ─────────────────────────────────────────────────────
-function mapRow(row: any): Partner {
+function mapRow(row: PartnerDB): Partner {
   return {
     id: row.id,
     name: row.name,
@@ -29,7 +37,7 @@ export async function getProvidersAction(): Promise<Partner[]> {
     const data = await readProviders();
     console.log("getProvidersAction retrieved from DB:", data.length, "providers");
     return (Array.isArray(data) ? data : []).map(mapRow);
-  } catch (err: any) {
+  } catch (err) {
     console.error("getProvidersAction unexpected error:", err);
     return [];
   }
@@ -66,9 +74,10 @@ export async function createProviderAction(
     revalidatePath("/");
     revalidatePath("/providers");
     return { success: true, data: [mapRow(newProvider)] };
-  } catch (err: any) {
-    console.error("createProviderAction error:", err.message);
-    return { success: false, error: err.message };
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error("createProviderAction error:", errMsg);
+    return { success: false, error: errMsg };
   }
 }
 
@@ -101,9 +110,10 @@ export async function updateProviderAction(
     revalidatePath("/");
     revalidatePath("/providers");
     return { success: true, data: [mapRow(providers[idx])] };
-  } catch (err: any) {
-    console.error("updateProviderAction error:", err.message);
-    return { success: false, error: err.message };
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error("updateProviderAction error:", errMsg);
+    return { success: false, error: errMsg };
   }
 }
 
@@ -124,9 +134,10 @@ export async function deleteProviderAction(id: string) {
     revalidatePath("/");
     revalidatePath("/providers");
     return { success: true };
-  } catch (err: any) {
-    console.error("deleteProviderAction error:", err.message);
-    return { success: false, error: err.message };
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error("deleteProviderAction error:", errMsg);
+    return { success: false, error: errMsg };
   }
 }
 

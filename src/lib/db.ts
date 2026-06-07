@@ -1,11 +1,12 @@
 import fs from "fs";
 import path from "path";
+import { Partner } from "@/data/partners";
 
 const UPSTASH_URL = process.env['UPSTASH_REDIS_REST_URL'];
 const UPSTASH_TOKEN = process.env['UPSTASH_REDIS_REST_TOKEN'];
 const KEY = "moonxr:providers";
 
-async function redisCmd(command: any[]) {
+async function redisCmd(command: (string | number | boolean)[]) {
   if (!UPSTASH_URL || !UPSTASH_TOKEN) {
     throw new Error("Missing Upstash Redis environment variables!");
   }
@@ -33,10 +34,10 @@ async function redisCmd(command: any[]) {
   return data.result;
 }
 
-export async function readProviders(): Promise<any[]> {
+export async function readProviders(): Promise<Partner[]> {
   try {
     const raw = await redisCmd(["GET", KEY]);
-    if (raw) {
+    if (raw && typeof raw === "string") {
       return JSON.parse(raw);
     }
     
@@ -49,23 +50,25 @@ export async function readProviders(): Promise<any[]> {
     }
     
     return [];
-  } catch (err: any) {
-    console.error("Error reading providers from Upstash Redis:", err.message);
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error("Error reading providers from Upstash Redis:", errMsg);
     // Fall back to local providers.json during error so application doesn't crash completely
     return getLocalProviders();
   }
 }
 
-export async function writeProviders(data: any[]): Promise<void> {
+export async function writeProviders(data: Partner[]): Promise<void> {
   try {
     await redisCmd(["SET", KEY, JSON.stringify(data)]);
-  } catch (err: any) {
-    console.error("Error writing providers to Upstash Redis:", err.message);
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error("Error writing providers to Upstash Redis:", errMsg);
     throw err;
   }
 }
 
-function getLocalProviders(): any[] {
+function getLocalProviders(): Partner[] {
   try {
     const filePath = path.join(process.cwd(), "src/data/providers.json");
     if (fs.existsSync(filePath)) {

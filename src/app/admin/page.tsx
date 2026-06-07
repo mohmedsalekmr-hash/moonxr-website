@@ -74,7 +74,7 @@ export default function AdminPage() {
   // ── Session restore ──
   useEffect(() => {
     if (typeof window !== "undefined" && sessionStorage.getItem("moonxr_admin") === "true") {
-      setIsAdmin(true);
+      setTimeout(() => setIsAdmin(true), 0);
     }
   }, []);
 
@@ -86,7 +86,13 @@ export default function AdminPage() {
     setLoading(false);
   };
 
-  useEffect(() => { if (isAdmin) load(); }, [isAdmin]);
+  useEffect(() => {
+    if (isAdmin) {
+      setTimeout(() => {
+        load();
+      }, 0);
+    }
+  }, [isAdmin]);
 
   // ── Auth ──
   const handleLogin = (e: React.FormEvent) => {
@@ -339,7 +345,6 @@ export default function AdminPage() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {filtered.map(partner => {
-                    const initials = partner.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
                     return (
                       <div
                         key={partner.id}

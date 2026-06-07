@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readProviders } from "@/lib/db";
+import { Partner } from "@/data/partners";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export async function GET() {
     connection: "unknown",
     error: null as string | null,
     providersCount: 0,
-    providersList: [] as any[],
+    providersList: [] as Partner[],
   };
 
   try {
@@ -29,9 +30,10 @@ export async function GET() {
     debugInfo.connection = "success";
     debugInfo.providersCount = list.length;
     debugInfo.providersList = list;
-  } catch (err: any) {
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
     debugInfo.connection = "failed";
-    debugInfo.error = err.message;
+    debugInfo.error = errMsg;
   }
 
   return NextResponse.json(debugInfo);

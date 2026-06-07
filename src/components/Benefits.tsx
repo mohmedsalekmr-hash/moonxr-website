@@ -6,7 +6,7 @@ import { Globe2, Tag, Zap, ArrowRight } from "lucide-react";
 import { useMemo } from "react";
 
 export function Benefits() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   const benefits = useMemo(() => [
     {
