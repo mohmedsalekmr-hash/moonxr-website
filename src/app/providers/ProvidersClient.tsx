@@ -10,7 +10,7 @@ import { useState, useMemo, useEffect } from "react";
 
 
 
-function Logo({ domain, name, logoUrl }: { domain: string; name: string; logoUrl?: string }) {
+function Logo({ domain, name, logoUrl }: { domain: string; name: string; logoUrl?: string | null }) {
   const [loaded, setLoaded] = useState(false);
   const [step, setStep] = useState(0);
   const [failed, setFailed] = useState(false);

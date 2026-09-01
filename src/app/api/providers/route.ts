@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readProviders, writeProviders } from "@/lib/db";
+import { readProviders, writeProviders, deleteProviderFromDb } from "@/lib/db";
 
 function makeId(name: string): string {
   return name
@@ -123,6 +123,7 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
+    await deleteProviderFromDb(id);
     await writeProviders(filtered);
 
     return NextResponse.json({ success: true });

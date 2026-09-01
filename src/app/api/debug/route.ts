@@ -1,23 +1,24 @@
 import { NextResponse } from "next/server";
 import { readProviders } from "@/lib/db";
+import { supabase } from "@/lib/supabase";
 import { Partner } from "@/data/partners";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const url = process.env['UPSTASH_REDIS_REST_URL'];
-  const token = process.env['UPSTASH_REDIS_REST_TOKEN'];
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_ANON_KEY;
 
   const debugInfo = {
-    version: "v6 (env variables connection test)",
-    envKeys: Object.keys(process.env),
-    env: {
-      UPSTASH_REDIS_REST_URL_exists: !!url,
-      UPSTASH_REDIS_REST_URL_length: url ? url.length : 0,
-      UPSTASH_REDIS_REST_TOKEN_exists: !!token,
-      UPSTASH_REDIS_REST_TOKEN_length: token ? token.length : 0,
-      UPSTASH_REDIS_REST_URL_has_quotes: url ? (url.startsWith('"') || url.endsWith('"') || url.startsWith("'") || url.endsWith("'")) : false,
-      UPSTASH_REDIS_REST_TOKEN_has_quotes: token ? (token.startsWith('"') || token.endsWith('"') || token.startsWith("'") || token.endsWith("'")) : false,
+    database: "Supabase",
+    supabase: {
+      url_configured: !!supabaseUrl,
+      key_configured: !!supabaseKey,
+      client_initialized: !!supabase,
     },
     connection: "unknown",
     error: null as string | null,

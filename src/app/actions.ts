@@ -2,7 +2,7 @@
 
 import { Partner } from "@/data/partners";
 import { revalidatePath } from "next/cache";
-import { readProviders, writeProviders } from "@/lib/db";
+import { readProviders, writeProviders, deleteProviderFromDb } from "@/lib/db";
 
 interface PartnerDB {
   id: string;
@@ -129,6 +129,7 @@ export async function deleteProviderAction(id: string) {
       throw new Error("Provider not found.");
     }
 
+    await deleteProviderFromDb(id);
     await writeProviders(filtered);
 
     revalidatePath("/");
