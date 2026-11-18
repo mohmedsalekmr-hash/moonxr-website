@@ -77,7 +77,7 @@ export const projects: Project[] = [
     title: { fr: "Lancement 5G — Moov Mauritel", ar: "إطلاق الجيل الخامس — موريتل" },
     short: { fr: "Activation VR · 4 casques, jeux et simulations", ar: "تجربة واقع افتراضي · 4 نظارات، ألعاب ومحاكاة" },
     meta: { fr: "Événement · Novembre 2026", ar: "فعالية · نوفمبر 2026" },
-    cover: { ...p("moov-wide", "L'espace Moon x Moov Mauritel, le jour du lancement", "فضاء Moon x موريتل يوم الإطلاق", 1080, 608), pos: "60% 40%" },
+    cover: { ...p("moov-pro-cover", "Un officiel découvre la réalité virtuelle sur l'espace Moon x Moov Mauritel", "مسؤول يكتشف الواقع الافتراضي في فضاء Moon x موريتل", 1144, 763), pos: "50% 40%" },
     intro: {
       fr: "Pour le lancement de la 5G de Moov Mauritel, nous avons conçu et animé un espace de réalité virtuelle : jeux, simulations et une équipe Moon à chaque poste.",
       ar: "لإطلاق الجيل الخامس لموريتل، صمّمنا وأدرنا فضاءً للواقع الافتراضي: ألعاب ومحاكاة، وفريق Moon عند كل نظارة.",
@@ -104,20 +104,14 @@ export const projects: Project[] = [
     },
     scenes: [
       { media: vid("moov-officiel-hl", 480, 848), title: { fr: "Faire vivre la 5G, casque sur la tête.", ar: "أن تعيش الجيل الخامس، والنظارة على رأسك." } },
-      {
-        media: img("moov-c", 1080, 810),
-        kicker: K.need,
-        title: { fr: "Faire vivre la 5G au public, le jour du lancement.", ar: "أن يعيش الجمهور الجيل الخامس يوم الإطلاق." },
-        text: { fr: "Une expérience concrète et mémorable pour les officiels comme pour les visiteurs.", ar: "تجربة ملموسة لا تُنسى، للمسؤولين وللزوار على حدّ سواء." },
-      },
-      {
-        media: img("moov-stand", 1080, 810),
+            {
+        media: img("moov-pro-stand", 1188, 792),
         kicker: K.approach,
         title: { fr: "Un espace VR de quatre casques et quatre écrans.", ar: "فضاء واقع افتراضي من أربع نظارات وأربع شاشات." },
         text: { fr: "Jeux, Pilgrim VR et Field Ready VR, avec un membre de l'équipe Moon à chaque poste.", ar: "ألعاب وPilgrim VR وField Ready VR، مع فرد من فريق Moon عند كل نظارة." },
       },
       {
-        media: img("moov-minister", 800, 1066),
+        media: img("moov-pro-official", 1188, 792),
         kicker: { fr: "Visite officielle", ar: "زيارة رسمية" },
         title: { fr: "Le ministre de la Transformation numérique sur le stand.", ar: "وزير التحول الرقمي في الجناح." },
         text: { fr: "Il a exploré la Grande Mosquée de La Mecque en réalité virtuelle.", ar: "استكشف المسجد الحرام بالواقع الافتراضي." },
@@ -129,7 +123,7 @@ export const projects: Project[] = [
         text: { fr: "Pilgrim VR, l'une des expériences proposées sur le stand.", ar: "Pilgrim VR، إحدى التجارب المقدَّمة في الجناح." },
       },
       {
-        media: img("moov-b", 1080, 810),
+        media: img("moov-pro-officials", 1188, 792),
         kicker: K.result,
         title: { fr: "Officiels et visiteurs, casque sur la tête.", ar: "مسؤولون وزوار، والنظارة على رؤوسهم." },
         text: { fr: "Chacun a découvert la 5G accompagné par notre équipe, du début à la fin.", ar: "اكتشف كلٌّ منهم الجيل الخامس بمرافقة فريقنا، من البداية إلى النهاية." },
