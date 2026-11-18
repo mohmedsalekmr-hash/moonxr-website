@@ -463,6 +463,7 @@ export const clients: Org[] = [
   { name: "Moov Mauritel", logo: "/media/logos/moov.png", r: 1.66 },
   { name: "Mattel", logo: "/media/logos/mattel-logo.png", r: 2.88 },
   { name: "MPG", logo: "/media/logos/mpg-logo.png", r: 0.6 },
+  { name: "SNIM", logo: "/media/logos/snim.png", r: 1.05 },
 ];
 
 export const partners: Org[] = [

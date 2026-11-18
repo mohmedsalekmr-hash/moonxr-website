@@ -86,8 +86,8 @@ export const partnersPage = {
   clientsTitle: { fr: "Ils nous font confiance.", ar: "وثقوا بنا." },
   partnersTitle: { fr: "Nos partenaires.", ar: "شركاؤنا." },
   techTitle: {
-    fr: "Nos technologies, par besoin.",
-    ar: "تقنياتنا، حسب الحاجة.",
+    fr: "Nos technologies.",
+    ar: "تقنياتنا.",
   },
   techSub: {
     fr: "Survolez un logo pour découvrir ce que chaque fournisseur apporte.",

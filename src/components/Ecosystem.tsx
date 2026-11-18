@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Org, Project } from "@/data/projects";
 import type { Locale, T } from "@/data/i18n";
 import { Fragment } from "react";
+import type React from "react";
 import { Logo, LogoMarquee } from "@/components/Logos";
 
 /**
@@ -219,6 +220,51 @@ export function TechGroups({ orgs, partners, lang }: { orgs: Org[]; partners: Or
           </ul>
         </section>
       ))}
+    </div>
+  );
+}
+
+/** Technology suppliers gliding in two rows (opposite directions), like the client logos on the home page. */
+export function TechMarquee({ orgs, partners, lang }: { orgs: Org[]; partners: Org[]; lang: Locale }) {
+  const label = (id?: string) => GROUPS.find((g) => g.id === (id ?? "platform"))?.title[lang];
+  const official = (name: string) => partners.find((p) => p.name === name)?.role?.[lang];
+  const half = Math.ceil(orgs.length / 2);
+  const rows = [orgs.slice(0, half), orgs.slice(half)].filter((r) => r.length);
+  const Card = ({ o, hidden }: { o: Org; hidden: boolean }) => {
+    const badge = official(o.name);
+    return (
+      <li aria-hidden={hidden} className="shrink-0 px-2 md:px-3">
+        <div className="relative flex h-52 w-60 flex-col rounded-[var(--radius-lg)] border border-line bg-white p-5 shadow-[0_18px_40px_-34px_rgba(20,36,84,0.5)] transition-all duration-300 hover:-translate-y-1 hover:border-brand/25 hover:shadow-[0_28px_60px_-34px_rgba(20,36,84,0.55)] md:w-72" dir={lang === "ar" ? "rtl" : "ltr"}>
+          <div className="flex items-center justify-between gap-2">
+            <span className="tag !text-[0.65rem]">{label(o.category)}</span>
+            {badge && <span className="tag !bg-sun/20 !text-[0.65rem] !text-sun-deep">★</span>}
+          </div>
+          <div className="grid flex-1 place-items-center">
+            <Logo org={o} area={6000} maxW={180} maxH={60} eager />
+          </div>
+          <div className="text-center">
+            <div className="text-sm font-semibold">{o.name}</div>
+            <div className="mt-0.5 truncate text-xs text-ink/60">{badge ?? o.role?.[lang]}</div>
+          </div>
+        </div>
+      </li>
+    );
+  };
+  return (
+    <div className="space-y-4 md:space-y-5">
+      {rows.map((row, r) => {
+        const base = Array.from({ length: Math.max(1, Math.ceil(6 / row.length)) }, () => row).flat();
+        const loop = [...base, ...base];
+        return (
+          <div key={r} className="marquee overflow-hidden py-3" dir="ltr">
+            <ul className={`marquee-track ${r % 2 ? "reverse" : ""}`} style={{ "--speed": `${38 + r * 6}s` } as React.CSSProperties}>
+              {loop.map((o, i) => (
+                <Card key={i} o={o} hidden={i >= row.length} />
+              ))}
+            </ul>
+          </div>
+        );
+      })}
     </div>
   );
 }
