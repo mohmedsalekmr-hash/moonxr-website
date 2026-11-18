@@ -639,7 +639,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
             <div className="wrap flex items-start justify-between gap-4">
               <div dir={rtl ? "rtl" : "ltr"}>
                 <div className="kicker !text-sun">{explorer.kicker[lang]}</div>
-                <div className="mt-1 hidden text-sm text-white/55 md:block">{t(explorer.help)}</div>
+                <div className="mt-1 hidden text-sm text-white/60 md:block">{t(explorer.help)}</div>
               </div>
               <button type="button" onClick={exit} className="pointer-events-auto btn border border-white/25 !py-2 text-sm text-white hover:border-white/60">
                 ✕ {lang === "fr" ? "Fermer" : "إغلاق"}
@@ -652,16 +652,16 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
               <div
                 key={active ?? "intro"}
                 dir={rtl ? "rtl" : "ltr"}
-                className="explore-panel relative mx-auto max-h-[46svh] w-full max-w-md overflow-y-auto rounded-3xl border border-white/12 bg-white/[0.07] p-4 text-white shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl md:me-0 md:ms-auto md:max-w-[350px] md:p-6"
+                className="explore-panel relative mx-auto max-h-[46svh] w-full max-w-md overflow-y-auto rounded-[var(--radius-lg)] border border-white/12 bg-white/[0.07] p-4 text-white shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl md:me-0 md:ms-auto md:max-w-[350px] md:p-6"
                 aria-live="polite"
               >
                 <div className="text-xs font-semibold text-sun">
                   {step ? `${explorer.groups[step.group][lang]} · ${idx + 1}/${steps.length}` : "Meta Quest 3"}
                 </div>
                 <h3 className="font-display mt-1 text-lg font-semibold md:mt-1.5 md:text-2xl">{step ? step.title[lang] : explorer.intro.title[lang]}</h3>
-                <p className="mt-1.5 text-[0.82rem] leading-relaxed text-white/70 md:mt-2 md:text-[0.95rem]">{step ? step.text[lang] : explorer.intro.text[lang]}</p>
+                <p className="mt-1.5 text-[0.82rem] leading-relaxed text-white/75 md:mt-2 md:text-[0.95rem]">{step ? step.text[lang] : explorer.intro.text[lang]}</p>
                 {(step ? step.spec : explorer.introSpec) && (
-                  <div className="mt-2.5 rounded-xl bg-white/[0.08] px-3 py-2 text-[0.7rem] md:mt-3 md:text-xs font-medium leading-relaxed text-white/85 ring-1 ring-white/10">
+                  <div className="mt-2.5 rounded-[var(--radius-sm)] bg-white/[0.08] px-3 py-2 text-[0.7rem] md:mt-3 md:text-xs font-medium leading-relaxed text-white ring-1 ring-white/10">
                     {t((step ? step.spec : explorer.introSpec)!)}
                   </div>
                 )}
@@ -671,7 +671,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
                     <button type="button" onClick={() => setTour(true)} className="btn w-full justify-center bg-sun text-ink hover:brightness-105">
                       ▶ {t(explorer.tour)}
                     </button>
-                    <p className="mt-2 text-center text-xs text-white/50">{t(explorer.or)}</p>
+                    <p className="mt-2 text-center text-xs text-white/60">{t(explorer.or)}</p>
                   </div>
                 ) : (
                   <div className="mt-4 flex items-center gap-2">

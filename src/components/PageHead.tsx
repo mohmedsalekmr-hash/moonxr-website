@@ -6,7 +6,7 @@ export default function PageHead({ kicker, title, sub, children }: { kicker: str
       <div className="wrap relative">
         <div className="kicker">{kicker}</div>
         <h1 className="font-display mt-5 max-w-4xl text-4xl font-bold leading-[1.08] md:text-6xl">{title}</h1>
-        {sub && <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink/70">{sub}</p>}
+        {sub && <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink/75">{sub}</p>}
         {children}
       </div>
     </section>

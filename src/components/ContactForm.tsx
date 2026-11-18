@@ -31,27 +31,27 @@ export default function ContactForm({ lang }: { lang: Locale }) {
     setSent(true);
   };
 
-  const field = "mt-2 w-full rounded-xl border border-ink/12 bg-white px-4 py-3 text-ink placeholder:text-ink/30 outline-none transition-colors focus:border-sun";
+  const field = "mt-2 w-full rounded-[var(--radius-sm)] border border-ink/12 bg-white px-4 py-3 text-ink placeholder:text-ink/30 outline-none transition-colors focus:border-sun";
 
   return (
     <form onSubmit={onSubmit} className="card grid gap-5 p-6 md:grid-cols-2 md:p-8">
-      <label className="text-sm text-ink/80">
+      <label className="text-sm text-ink/75">
         {c.name[lang]} *
         <input name="name" required autoComplete="name" className={field} />
       </label>
-      <label className="text-sm text-ink/80">
+      <label className="text-sm text-ink/75">
         {c.org[lang]}
         <input name="org" autoComplete="organization" className={field} />
       </label>
-      <label className="text-sm text-ink/80">
+      <label className="text-sm text-ink/75">
         {c.email[lang]} *
         <input name="email" type="email" required autoComplete="email" className={field} dir="ltr" />
       </label>
-      <label className="text-sm text-ink/80">
+      <label className="text-sm text-ink/75">
         {c.phone[lang]}
         <input name="phone" type="tel" autoComplete="tel" className={field} dir="ltr" />
       </label>
-      <label className="text-sm text-ink/80 md:col-span-2">
+      <label className="text-sm text-ink/75 md:col-span-2">
         {c.type[lang]}
         <select name="type" className={field} defaultValue={c.types[lang][0]}>
           {c.types[lang].map((o) => (
@@ -61,7 +61,7 @@ export default function ContactForm({ lang }: { lang: Locale }) {
           ))}
         </select>
       </label>
-      <label className="text-sm text-ink/80 md:col-span-2">
+      <label className="text-sm text-ink/75 md:col-span-2">
         {c.msg[lang]} *
         <textarea name="message" required rows={5} className={field} />
       </label>

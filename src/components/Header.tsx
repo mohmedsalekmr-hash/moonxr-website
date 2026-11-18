@@ -51,7 +51,7 @@ export default function Header({ lang }: { lang: Locale }) {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         dark
-          ? "hdr-dark border-b border-white/10 bg-[#0b1220]/70 backdrop-blur-xl"
+          ? "hdr-dark border-b border-white/10 bg-navy-deep/70 backdrop-blur-xl"
           : scrolled || open
             ? "bg-white/85 backdrop-blur-xl border-b border-line"
             : "bg-transparent border-b border-transparent"
@@ -68,7 +68,7 @@ export default function Header({ lang }: { lang: Locale }) {
               key={l.href}
               href={l.href}
               className={`rounded-full px-4 py-2 text-[0.95rem] transition-colors ${
-                isActive(l.href) ? "text-ink bg-ink/5" : "text-ink/70 hover:text-ink"
+                isActive(l.href) ? "text-ink bg-ink/5" : "text-ink/75 hover:text-ink"
               }`}
             >
               {l.label}
@@ -80,7 +80,7 @@ export default function Header({ lang }: { lang: Locale }) {
           <Link
             href={switchHref}
             hrefLang={other}
-            className="rounded-full border border-ink/15 px-3 py-1.5 text-sm font-semibold text-ink/80 hover:border-ink/40 hover:text-ink"
+            className="rounded-full border border-ink/15 px-3 py-1.5 text-sm font-semibold text-ink/75 hover:border-ink/40 hover:text-ink"
             aria-label={other === "ar" ? "العربية" : "Français"}
           >
             {other === "ar" ? "عربي" : "FR"}
@@ -113,7 +113,7 @@ export default function Header({ lang }: { lang: Locale }) {
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="font-display rounded-xl px-3 py-3 text-2xl font-semibold text-ink/90 hover:bg-ink/5"
+              className="font-display rounded-[var(--radius-sm)] px-3 py-3 text-2xl font-semibold text-ink hover:bg-ink/5"
             >
               {l.label}
             </Link>

@@ -113,7 +113,7 @@ export function PartnersBody({
           <div className="kicker">{labels.partners}</div>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             {partners.map((o, i) => (
-              <article key={o.name} className="group overflow-hidden rounded-3xl border border-line bg-white shadow-[0_20px_50px_-30px_rgba(11,27,63,0.35)] transition-transform duration-500 hover:-translate-y-1">
+              <article key={o.name} className="group overflow-hidden rounded-[var(--radius-lg)] border border-line bg-white shadow-[0_20px_50px_-30px_rgba(11,27,63,0.35)] transition-transform duration-500 hover:-translate-y-1">
                 <div className="relative grid h-56 place-items-center overflow-hidden bg-white md:h-64">
                   <div className="float" style={{ animationDelay: `${i * -3}s` }}>
                     <Logo org={o} area={15000} maxW={300} maxH={130} />
@@ -122,7 +122,7 @@ export function PartnersBody({
                 <div className="border-t border-line bg-white p-8">
                   <div className="text-xs font-semibold text-sun-deep">{o.role?.[lang]}</div>
                   <h3 className="font-display mt-1 text-xl font-semibold">{o.name}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-ink/65">{o.text?.[lang]}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-ink/60">{o.text?.[lang]}</p>
                 </div>
               </article>
             ))}

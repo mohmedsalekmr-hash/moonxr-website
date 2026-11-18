@@ -61,7 +61,7 @@ export function MediaPanel({
   return (
     <div
       ref={box}
-      className={`media-panel relative overflow-hidden rounded-[1.75rem] bg-[#0b1220] ${ratio}`}
+      className={`media-panel relative overflow-hidden rounded-[var(--radius-lg)] bg-navy-deep ${ratio}`}
     >
       <img
         src={bg}
@@ -69,13 +69,13 @@ export function MediaPanel({
         aria-hidden
         className="absolute inset-0 h-full w-full scale-125 object-cover opacity-70 blur-3xl saturate-150"
       />
-      <div className="absolute inset-0 bg-[#05070d]/25" />
+      <div className="absolute inset-0 bg-navy-deep/25" />
       <div
         className="absolute inset-5 grid place-items-center md:inset-8"
         style={{ containerType: "size" } as CSSProperties}
       >
         <div
-          className="panel-media relative overflow-hidden rounded-2xl shadow-[0_30px_60px_-25px_rgba(0,0,0,0.7)] ring-1 ring-white/10"
+          className="panel-media relative overflow-hidden rounded-[var(--radius-sm)] shadow-[0_30px_60px_-25px_rgba(0,0,0,0.7)] ring-1 ring-white/10"
           style={{ "--ar": m.w / m.h, "--nw": `${m.w}px` } as CSSProperties}
         >
           {m.type === "video" ? (
@@ -245,7 +245,7 @@ export function ScrollStory({
   return (
     <section
       ref={root}
-      className="relative bg-[#0b1220] text-white"
+      className="relative bg-navy-deep text-white"
       style={{ height: `calc(100svh + ${(n - 1) * 60}svh)` }}
     >
       <div className="sticky top-0 h-[100svh] overflow-hidden">
@@ -260,7 +260,7 @@ export function ScrollStory({
             style={{ opacity: l.src === m.src ? 0.75 : 0 }}
           />
         ))}
-        <div className="absolute inset-0 bg-[#05070d]/40" />
+        <div className="absolute inset-0 bg-navy-deep/40" />
 
         {/* Two fixed columns: text | media */}
         <div className="wrap relative grid h-full grid-rows-[minmax(0,1fr)_auto] gap-6 pb-10 pt-20 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:grid-rows-1 md:items-center md:gap-14 md:pb-0 md:pt-[72px]">
@@ -281,7 +281,7 @@ export function ScrollStory({
                   }}
                 >
                   <div
-                    className="panel-media relative overflow-hidden rounded-2xl shadow-[0_40px_80px_-30px_rgba(0,0,0,0.85)] ring-1 ring-white/10"
+                    className="panel-media relative overflow-hidden rounded-[var(--radius-sm)] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.85)] ring-1 ring-white/10"
                     style={
                       { "--ar": l.w / l.h, "--nw": `${l.w}px` } as CSSProperties
                     }
@@ -332,7 +332,7 @@ export function ScrollStory({
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <span className="h-px w-10 bg-white/30" />
-                    <span className="uppercase tracking-[0.16em] text-white/65 rtl:tracking-normal">
+                    <span className="uppercase tracking-[0.16em] text-white/60 rtl:tracking-normal">
                       {scenes[i].kicker}
                     </span>
                   </div>
@@ -388,7 +388,7 @@ export function ScrollStory({
                     cy="18"
                     r="16"
                     fill="none"
-                    stroke="#fbb730"
+                    stroke="#fab62d"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeDasharray="100.5"

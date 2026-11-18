@@ -39,11 +39,11 @@ export default async function ContactList({ lang, tone = "dark" }: { lang: Local
       {rows.map((r) => {
         const inner = (
           <>
-            <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-full ${dark ? "bg-white/8 text-sun" : "bg-sky/8 text-sky"}`}>
+            <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-full ${dark ? "bg-white/8 text-sun" : "bg-brand-soft text-brand"}`}>
               <Icon d={r.icon} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className={`block text-xs ${dark ? "text-white/50" : "text-ink/50"}`}>{r.label}</span>
+              <span className={`block text-xs ${dark ? "text-white/60" : "text-ink/60"}`}>{r.label}</span>
               <span className={`mt-0.5 block truncate font-semibold ${dark ? "text-white" : "text-ink"}`} dir={r.ltr ? "ltr" : undefined} style={r.ltr ? { textAlign: "start" } : undefined}>
                 {r.value}
               </span>

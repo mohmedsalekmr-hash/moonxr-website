@@ -32,8 +32,8 @@ export default function Showcase({ items, head, all, hint }: { items: ShowcaseIt
   };
 
   return (
-    <section className="relative overflow-hidden bg-[#0b1b3f] py-20 text-white md:py-28">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_15%_0%,rgba(0,122,255,0.25),transparent_70%)]" />
+    <section className="relative overflow-hidden bg-navy py-20 text-white md:py-28">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_15%_0%,rgba(111,138,214,0.22),transparent_70%)]" />
       <div className="wrap relative flex items-end justify-between gap-6">
         <div>{head}</div>
         <Link href={all.href} className="hidden shrink-0 rounded-full border border-white/25 px-5 py-2.5 text-sm font-semibold transition-colors hover:border-sun hover:bg-sun hover:text-ink md:inline-flex">
@@ -58,15 +58,15 @@ export default function Showcase({ items, head, all, hint }: { items: ShowcaseIt
         {items.map((it, i) => (
           <Link key={it.slug} href={it.href} draggable={false} className="group relative block shrink-0 snap-start select-none">
             <ViewTransition name={`project-${it.slug}`} share="morph" default="none">
-              <div className="veil relative h-[62svh] max-h-[620px] min-h-[380px] w-[80vw] overflow-hidden rounded-[1.75rem] bg-navy sm:w-[420px] lg:w-[min(30vw,440px)]">
+              <div className="veil relative h-[62svh] max-h-[620px] min-h-[380px] w-[80vw] overflow-hidden rounded-[var(--radius-lg)] bg-navy sm:w-[420px] lg:w-[min(30vw,440px)]">
                 <img src={it.image} alt="" draggable={false} loading={i < 3 ? "eager" : "lazy"} style={{ objectPosition: it.pos }} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.06]" />
               </div>
             </ViewTransition>
-            <span className="absolute end-5 top-5 z-[2] rounded-full bg-white/12 px-3 py-1 text-[0.7rem] font-medium tracking-wide text-white/90 ring-1 ring-white/20 backdrop-blur-md rtl:text-xs">{it.tag}</span>
+            <span className="absolute end-5 top-5 z-[2] rounded-full bg-white/12 px-3 py-1 text-[0.7rem] font-medium tracking-wide text-white ring-1 ring-white/20 backdrop-blur-md rtl:text-xs">{it.tag}</span>
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] p-6 md:p-7">
               <div className="text-xs font-medium text-white/60">{it.meta}</div>
               <h3 className="font-display mt-2 text-2xl font-bold leading-tight md:text-[1.7rem]">{it.title}</h3>
-              <p className="mt-2 text-sm text-white/70">{it.short}</p>
+              <p className="mt-2 text-sm text-white/75">{it.short}</p>
               <span className="mt-5 inline-grid h-11 w-11 place-items-center rounded-full border border-white/30 transition-all group-hover:border-sun group-hover:bg-sun group-hover:text-ink">
                 <span className="rtl:rotate-180">→</span>
               </span>
@@ -77,7 +77,7 @@ export default function Showcase({ items, head, all, hint }: { items: ShowcaseIt
       </div>
 
       <div className="wrap relative mt-6 flex items-center justify-between gap-4">
-        <span className="inline-flex items-center gap-2 text-sm text-white/55">
+        <span className="inline-flex items-center gap-2 text-sm text-white/60">
           <svg viewBox="0 0 24 24" className="hint-swipe h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1-6 6h-1a6 6 0 0 1-4.6-2.2L4.6 15a1.5 1.5 0 0 1 2.3-1.9L9 15" />
           </svg>

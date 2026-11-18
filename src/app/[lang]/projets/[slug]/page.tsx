@@ -68,18 +68,18 @@ export default async function ProjectPage({
             hint={{ desktop: L.hintDesk[lang], touch: L.hintTouch[lang] }}
             opening={
               <>
-                <nav className="flex flex-wrap items-center gap-2 text-xs text-white/55" aria-label="Breadcrumb">
+                <nav className="flex flex-wrap items-center gap-2 text-xs text-white/60" aria-label="Breadcrumb">
                   <Link href={`/${lang}/projets`} className="hover:text-white">{ui.nav.projects[lang]}</Link>
                   <span>/</span>
                   <span className="text-sun">{p.meta[lang]}</span>
                 </nav>
-                <h1 className="font-display mt-4 text-[1.75rem] font-bold leading-[1.08] md:mt-5 md:text-5xl">{p.title[lang]}</h1>
+                <h1 className="font-display mt-4 text-3xl font-bold leading-[1.08] md:mt-5 md:text-5xl">{p.title[lang]}</h1>
                 <p className="mt-3 text-[0.95rem] leading-relaxed text-white/75 md:mt-5 md:text-lg">{p.intro[lang]}</p>
                 <dl className="mt-5 hidden grid-cols-2 gap-x-6 gap-y-3 border-t border-white/15 pt-4 sm:grid md:mt-7">
                   {p.facts.slice(0, 4).map((f, k) => (
                     <div key={k}>
                       <dt className="text-[0.7rem] font-medium uppercase tracking-[0.12em] text-white/45 rtl:text-xs rtl:tracking-normal">{f.k[lang]}</dt>
-                      <dd className="mt-0.5 text-sm font-semibold text-white/90">{f.v[lang]}</dd>
+                      <dd className="mt-0.5 text-sm font-semibold text-white">{f.v[lang]}</dd>
                     </div>
                   ))}
                 </dl>
@@ -101,7 +101,7 @@ export default async function ProjectPage({
                   <div className="mx-auto grid h-11 w-11 place-items-center rounded-full border border-ink/15 text-ink/40">
                     {ph.kind === "video" ? "▶" : "◻"}
                   </div>
-                  <div className="mt-3 text-sm text-ink/50">
+                  <div className="mt-3 text-sm text-ink/60">
                     {ph.label[lang]}
                   </div>
                 </div>

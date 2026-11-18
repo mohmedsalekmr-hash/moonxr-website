@@ -25,12 +25,12 @@ export default async function Footer({ lang }: { lang: Locale }) {
           </div>
           <nav aria-label="Footer" className="flex flex-wrap gap-x-7 gap-y-3">
             {links.map((l) => (
-              <Link key={l.href} href={l.href} className="text-sm text-white/70 transition-colors hover:text-white">
+              <Link key={l.href} href={l.href} className="text-sm text-white/75 transition-colors hover:text-white">
                 {l.label}
               </Link>
             ))}
           </nav>
-          <Link href={lang === "fr" ? "/ar" : "/fr"} hrefLang={lang === "fr" ? "ar" : "fr"} className="w-fit rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/50 hover:text-white">
+          <Link href={lang === "fr" ? "/ar" : "/fr"} hrefLang={lang === "fr" ? "ar" : "fr"} className="w-fit rounded-full border border-white/20 px-4 py-2 text-sm text-white/75 hover:border-white/50 hover:text-white">
             {lang === "fr" ? "العربية" : "Français"}
           </Link>
         </div>

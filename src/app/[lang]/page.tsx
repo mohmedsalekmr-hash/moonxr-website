@@ -30,7 +30,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       <>
           {/* 1 — HERO: the headset */}
           <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pb-14 md:flex-row md:items-center md:pb-0">
-            <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_70%_at_72%_45%,rgba(0,122,255,0.16),transparent_70%),radial-gradient(40%_40%_at_15%_85%,rgba(251,183,48,0.14),transparent_70%),linear-gradient(180deg,#f3f6fc,#ffffff)] rtl:bg-[radial-gradient(60%_70%_at_28%_45%,rgba(0,122,255,0.16),transparent_70%),radial-gradient(40%_40%_at_85%_85%,rgba(251,183,48,0.14),transparent_70%),linear-gradient(180deg,#f3f6fc,#ffffff)]" />
+            <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_70%_at_72%_45%,rgba(37,60,128,0.12),transparent_70%),radial-gradient(40%_40%_at_15%_85%,rgba(250,182,45,0.14),transparent_70%),linear-gradient(180deg,#eef1f9,#ffffff)] rtl:bg-[radial-gradient(60%_70%_at_28%_45%,rgba(37,60,128,0.12),transparent_70%),radial-gradient(40%_40%_at_85%_85%,rgba(250,182,45,0.14),transparent_70%),linear-gradient(180deg,#eef1f9,#ffffff)]" />
             {/* phone: the headset has its own stage above the text; desktop: full-bleed behind it */}
             <div className="hero-stage relative z-0 mt-16 h-[40svh] min-h-[270px] w-full md:absolute md:inset-0 md:mt-0 md:h-auto">
               <Hero3D rtl={rtl} lang={lang} />
@@ -43,7 +43,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                   <br />
                   <span className="text-sun-deep">{ui.hero.l2a[lang]}</span> {ui.hero.l2b[lang]}
                 </h1>
-                <p className="mt-4 max-w-md text-[0.95rem] leading-relaxed text-ink/70 md:mt-6 md:text-lg">{ui.hero.sub[lang]}</p>
+                <p className="mt-4 max-w-md text-[0.95rem] leading-relaxed text-ink/75 md:mt-6 md:text-lg">{ui.hero.sub[lang]}</p>
                 <div className="mt-6 flex flex-wrap gap-3 md:mt-8">
                   <Link href={`/${lang}/projets`} className="btn btn-sun">
                     {ui.hero.cta1[lang]}
@@ -65,16 +65,16 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
               <Reveal>
                 <div className="kicker">{h.aboutKicker[lang]}</div>
                 <p className="font-display mt-5 max-w-5xl text-[1.55rem] font-semibold leading-[1.22] md:mt-6 md:text-5xl md:leading-[1.12]">
-                  {h.statementA[lang]} <span className="text-sky">{h.statementB[lang]}</span> {h.statementC[lang]}
+                  {h.statementA[lang]} <span className="text-brand">{h.statementB[lang]}</span> {h.statementC[lang]}
                 </p>
               </Reveal>
               {/* phone: cards to swipe; desktop: four columns */}
               <div className="no-scrollbar -mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:mt-14 sm:grid sm:gap-x-8 sm:gap-y-8 sm:overflow-visible sm:border-t sm:border-line sm:px-0 sm:pb-0 sm:pt-10 sm:grid-cols-2 lg:grid-cols-4">
                 {services.map((s, i) => (
-                  <Reveal key={s.n} delay={i * 80} className="w-[78%] shrink-0 snap-start rounded-2xl border border-line bg-white p-5 shadow-[0_8px_24px_-18px_rgba(11,27,63,0.35)] sm:w-auto sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
-                    <div className="font-display text-sm font-semibold text-sky">{s.n}</div>
+                  <Reveal key={s.n} delay={i * 80} className="w-[78%] shrink-0 snap-start rounded-[var(--radius-sm)] border border-line bg-white p-5 shadow-[0_8px_24px_-18px_rgba(11,27,63,0.35)] sm:w-auto sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+                    <div className="font-display text-sm font-semibold text-brand">{s.n}</div>
                     <h3 className="font-display mt-2 text-lg font-semibold sm:mt-3">{s.title[lang]}</h3>
-                    <p className="mt-2 text-[0.95rem] leading-relaxed text-ink/70 sm:text-sm sm:text-ink/60">{s.text[lang]}</p>
+                    <p className="mt-2 text-[0.95rem] leading-relaxed text-ink/75 sm:text-sm sm:text-ink/60">{s.text[lang]}</p>
                   </Reveal>
                 ))}
               </div>
@@ -129,12 +129,12 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 <div className="kicker">{h.processKicker[lang]}</div>
                 <h2 className="font-display mt-4 max-w-2xl text-3xl font-bold leading-tight md:text-5xl">{h.processTitle[lang]}</h2>
               </Reveal>
-              <ol className="no-scrollbar -mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:mt-12 sm:grid sm:gap-px sm:overflow-hidden sm:rounded-3xl sm:border sm:border-line sm:bg-line sm:px-0 sm:pb-0 sm:grid-cols-2 lg:grid-cols-4">
+              <ol className="no-scrollbar -mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:mt-12 sm:grid sm:gap-px sm:overflow-hidden sm:rounded-[var(--radius-lg)] sm:border sm:border-line sm:bg-line sm:px-0 sm:pb-0 sm:grid-cols-2 lg:grid-cols-4">
                 {steps.map((s, i) => (
-                  <Reveal as="li" key={i} delay={i * 80} className="w-[78%] shrink-0 snap-start rounded-2xl border border-line bg-white p-5 shadow-[0_8px_24px_-18px_rgba(11,27,63,0.35)] sm:w-auto sm:rounded-none sm:border-0 sm:p-7 sm:shadow-none md:p-8">
-                    <div className="font-display text-sm font-semibold text-sky">{String(i + 1).padStart(2, "0")}</div>
+                  <Reveal as="li" key={i} delay={i * 80} className="w-[78%] shrink-0 snap-start rounded-[var(--radius-sm)] border border-line bg-white p-5 shadow-[0_8px_24px_-18px_rgba(11,27,63,0.35)] sm:w-auto sm:rounded-none sm:border-0 sm:p-7 sm:shadow-none md:p-8">
+                    <div className="font-display text-sm font-semibold text-brand">{String(i + 1).padStart(2, "0")}</div>
                     <h3 className="font-display mt-3 text-lg font-semibold sm:mt-6">{s.title[lang]}</h3>
-                    <p className="mt-2 text-[0.95rem] leading-relaxed text-ink/70 sm:text-sm sm:text-ink/60">{s.text[lang]}</p>
+                    <p className="mt-2 text-[0.95rem] leading-relaxed text-ink/75 sm:text-sm sm:text-ink/60">{s.text[lang]}</p>
                   </Reveal>
                 ))}
               </ol>
@@ -152,7 +152,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 <div>
                   <div className="kicker">{h.ecoKicker[lang]}</div>
                   <h2 className="font-display mt-4 max-w-2xl text-3xl font-bold leading-tight md:text-5xl">{h.ecoTitle[lang]}</h2>
-                  <p className="mt-3 max-w-xl text-[0.95rem] text-ink/70 md:mt-4 md:text-base md:text-ink/60">{h.ecoSub[lang]}</p>
+                  <p className="mt-3 max-w-xl text-[0.95rem] text-ink/75 md:mt-4 md:text-base md:text-ink/60">{h.ecoSub[lang]}</p>
                 </div>
                 <Link href={`/${lang}/partenaires`} className="btn btn-ghost">
                   {h.ecoCta[lang]}

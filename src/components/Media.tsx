@@ -153,9 +153,9 @@ export function Gallery({ photos, closeLabel }: { photos: GPhoto[]; closeLabel: 
             <img
               src={photos[i].src}
               alt={photos[i].alt}
-              className="max-h-[80vh] w-auto rounded-xl object-contain"
+              className="max-h-[80vh] w-auto rounded-[var(--radius-sm)] object-contain"
             />
-            <figcaption className="mt-3 flex items-center justify-end gap-4 text-sm text-white/80">
+            <figcaption className="mt-3 flex items-center justify-end gap-4 text-sm text-white/75">
               <span className="text-mute" dir="ltr">
                 {i + 1} / {photos.length}
               </span>

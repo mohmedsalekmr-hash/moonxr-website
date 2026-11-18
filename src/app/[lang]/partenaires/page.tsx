@@ -74,7 +74,7 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
               <div className="kicker">{ui.partners.suppliers[lang]}</div>
               <h2 className="font-display mt-4 max-w-2xl text-3xl font-bold md:text-5xl">{C.techTitle[lang]}</h2>
             </div>
-            <p className="max-w-xs text-sm text-ink/55">{C.techSub[lang]}</p>
+            <p className="max-w-xs text-sm text-ink/60">{C.techSub[lang]}</p>
           </Reveal>
           <Reveal className="mt-12">
             <TechWall orgs={suppliers} lang={lang} />

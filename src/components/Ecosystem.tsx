@@ -20,7 +20,7 @@ export function EcoGrid({ partners, suppliers, lang, labels, more }: { partners:
         {partners.map((o, i) => (
           <Fragment key={o.name}>
             {i > 0 && <span className="hidden h-28 w-px bg-ink/10 sm:mx-auto sm:block" />}
-            <div className="group flex flex-col items-center gap-3 rounded-2xl bg-white p-4 text-center sm:gap-5 sm:bg-transparent sm:p-0 sm:py-4">
+            <div className="group flex flex-col items-center gap-3 rounded-[var(--radius-sm)] bg-white p-4 text-center sm:gap-5 sm:bg-transparent sm:p-0 sm:py-4">
               <div className="grid h-[70px] place-items-center transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-[1.04] sm:h-[120px]">
                 <span className="sm:hidden">
                   <Logo org={o} area={4200} maxW={130} maxH={64} eager />
@@ -31,7 +31,7 @@ export function EcoGrid({ partners, suppliers, lang, labels, more }: { partners:
               </div>
               <div>
                 <div className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sun-deep rtl:text-xs rtl:tracking-normal">{labels.partner}</div>
-                <div className="mt-1 text-[0.8rem] leading-snug text-ink/65 sm:text-sm sm:text-ink/55">{o.role?.[lang]}</div>
+                <div className="mt-1 text-[0.8rem] leading-snug text-ink/60 sm:text-sm sm:text-ink/60">{o.role?.[lang]}</div>
               </div>
             </div>
           </Fragment>
@@ -65,10 +65,10 @@ export function ClientCards({ items, lang, cta }: { items: { org: Org; href: str
   return (
     <div className="grid gap-5 md:grid-cols-3">
       {items.map((it, i) => (
-        <Link key={it.org.name} href={it.href} className={`group relative block overflow-hidden rounded-3xl ${i === 0 ? "md:col-span-2 md:row-span-2" : ""}`}>
+        <Link key={it.org.name} href={it.href} className={`group relative block overflow-hidden rounded-[var(--radius-lg)] ${i === 0 ? "md:col-span-2 md:row-span-2" : ""}`}>
           <div className={`relative ${i === 0 ? "aspect-[16/10] md:aspect-auto md:h-full" : "aspect-[16/10]"}`}>
             <img src={it.image} alt="" loading="lazy" style={{ objectPosition: it.pos }} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#05070d]/85 via-[#05070d]/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-navy-deep/85 via-navy-deep/20 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60 rtl:text-sm rtl:tracking-normal">{it.org.name}</div>
@@ -90,8 +90,8 @@ export function PartnerFeatures({ orgs, lang, extra }: { orgs: Org[]; lang: Loca
   return (
     <div className="space-y-6">
       {orgs.map((o, i) => (
-        <article key={o.name} className="grid overflow-hidden rounded-3xl border border-line bg-white md:grid-cols-2">
-          <div className={`relative grid min-h-[150px] place-items-center overflow-hidden md:min-h-[260px] bg-[radial-gradient(70%_70%_at_50%_40%,#ffffff,#eef2f9)] ${i % 2 ? "md:order-2" : ""}`}>
+        <article key={o.name} className="grid overflow-hidden rounded-[var(--radius-lg)] border border-line bg-white md:grid-cols-2">
+          <div className={`relative grid min-h-[150px] place-items-center overflow-hidden md:min-h-[260px] bg-[radial-gradient(70%_70%_at_50%_40%,#ffffff,#eef1f9)] ${i % 2 ? "md:order-2" : ""}`}>
             {extra[o.name]?.image && <img src={extra[o.name].image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-[0.12]" />}
             <div className="float relative">
               <Logo org={o} area={22000} maxW={270} maxH={160} />
@@ -100,17 +100,17 @@ export function PartnerFeatures({ orgs, lang, extra }: { orgs: Org[]; lang: Loca
           <div className="p-6 md:p-12">
             <div className="text-xs font-semibold text-sun-deep">{o.role?.[lang]}</div>
             <h3 className="font-display mt-2 text-2xl font-bold md:text-3xl">{o.name}</h3>
-            <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/70 md:text-base md:text-ink/65">{o.text?.[lang]}</p>
+            <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/75 md:text-base md:text-ink/60">{o.text?.[lang]}</p>
             <ul className="mt-5 space-y-2.5 md:mt-6">
               {extra[o.name]?.points.map((pt, k) => (
                 <li key={k} className="flex items-start gap-3 text-sm text-ink/75">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-sky" />
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
                   {pt[lang]}
                 </li>
               ))}
             </ul>
             {o.url && (
-              <a href={o.url} target="_blank" rel="noopener noreferrer" className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-sky hover:underline">
+              <a href={o.url} target="_blank" rel="noopener noreferrer" className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-brand hover:underline">
                 {o.url.replace("https://", "")} <span className="rtl:rotate-180">↗</span>
               </a>
             )}
@@ -127,13 +127,13 @@ export function TechWall({ orgs, lang }: { orgs: Org[]; lang: Locale }) {
     <ul className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
       {orgs.map((o) => (
         <li key={o.name}>
-          <div tabIndex={0} className="tech-tile group relative grid h-36 place-items-center overflow-hidden rounded-2xl border border-line bg-white px-6 outline-none transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_24px_50px_-28px_rgba(11,27,63,0.45)] focus-visible:ring-2 focus-visible:ring-sky md:h-44">
+          <div tabIndex={0} className="tech-tile group relative grid h-36 place-items-center overflow-hidden rounded-[var(--radius-sm)] border border-line bg-white px-6 outline-none transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_24px_50px_-28px_rgba(11,27,63,0.45)] focus-visible:ring-2 focus-visible:ring-brand md:h-44">
             <div className="transition-all duration-500 group-hover:-translate-y-6 group-hover:scale-90 group-focus:-translate-y-6 group-focus:scale-90">
               <Logo org={o} area={4200} maxW={150} maxH={56} />
             </div>
             <div className="absolute inset-x-0 bottom-0 translate-y-3 p-4 text-center opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100">
               <div className="text-sm font-semibold">{o.name}</div>
-              {o.role && <div className="text-xs text-ink/55">{o.role[lang]}</div>}
+              {o.role && <div className="text-xs text-ink/60">{o.role[lang]}</div>}
             </div>
           </div>
         </li>

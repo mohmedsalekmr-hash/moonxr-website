@@ -20,11 +20,11 @@ export default async function CTA({ lang }: { lang: Locale }) {
   ];
   return (
     <section className="relative overflow-hidden bg-navy text-white">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[360px] bg-[radial-gradient(45%_100%_at_50%_0%,rgba(0,122,255,0.28),transparent_70%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[360px] bg-[radial-gradient(45%_100%_at_50%_0%,rgba(111,138,214,0.24),transparent_70%)]" />
       <div className="wrap relative py-20 text-center md:py-24">
         <Reveal>
           <div className="kicker justify-center !text-sun">{ui.nav.contact[lang]}</div>
-          <h2 className="font-display mx-auto mt-4 max-w-2xl text-3xl font-bold leading-[1.12] md:text-[2.6rem]">{ui.cta.title[lang]}</h2>
+          <h2 className="font-display mx-auto mt-4 max-w-2xl text-3xl font-bold leading-[1.12] md:text-5xl">{ui.cta.title[lang]}</h2>
           <p className="mx-auto mt-3 max-w-xl text-white/60">{ui.cta.sub[lang]}</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href={`/${lang}/contact`} className="btn btn-sun">
@@ -34,7 +34,7 @@ export default async function CTA({ lang }: { lang: Locale }) {
               {fr ? "Appeler" : "اتصل بنا"}
             </a>
           </div>
-          <ul className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-white/65">
+          <ul className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-white/60">
             {items.map((c, i) => {
               const body = (
                 <>
