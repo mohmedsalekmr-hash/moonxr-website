@@ -11,7 +11,7 @@ const ICON = {
 };
 
 /** Closing chapter of every page: one calm, centred invitation and a single quiet line of contacts. */
-export default async function CTA({ lang }: { lang: Locale }) {
+export default async function CTA({ lang, fade = true }: { lang: Locale; fade?: boolean }) {
   const { ui, contact: CONTACT } = await getContent();
   const fr = lang === "fr";
   const items = [
@@ -20,8 +20,10 @@ export default async function CTA({ lang }: { lang: Locale }) {
     { icon: ICON.pin, value: ui.contact.city[lang] },
   ];
   return (
+    <>
+    {fade && <div aria-hidden className="fade-to-navy h-28 md:h-44" />}
     <section className="relative overflow-hidden bg-navy text-white">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[360px] bg-[radial-gradient(45%_100%_at_50%_0%,rgba(111,138,214,0.24),transparent_70%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_45%_at_50%_45%,rgba(111,138,214,0.18),transparent_70%)]" />
       <div className="wrap relative py-20 text-center md:py-24">
         <Reveal>
           <SectionHeader dark center kicker={ui.nav.contact[lang]} title={ui.cta.title[lang]} lead={ui.cta.sub[lang]} />
@@ -59,5 +61,6 @@ export default async function CTA({ lang }: { lang: Locale }) {
         </Reveal>
       </div>
     </section>
+    </>
   );
 }

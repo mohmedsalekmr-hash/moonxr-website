@@ -489,3 +489,9 @@ section[data-explore] { color: #fff; }
 @media (prefers-reduced-motion: reduce) {
   .tour-bar { animation: none; }
 }
+
+.rise { animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+/* white sections melt into the blue ones instead of a hard edge */
+.fade-to-navy {
+  background: linear-gradient(180deg, #ffffff 0%, #f3f5fb 18%, #d4dcf1 38%, #8fa2d9 58%, #4b5f9f 76%, #22336a 90%, var(--color-navy) 100%);
+}

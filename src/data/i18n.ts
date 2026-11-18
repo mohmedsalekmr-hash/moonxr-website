@@ -41,8 +41,8 @@ export const ui = {
     statementA: { fr: "Nous concevons, installons et animons des expériences de", ar: "نصمّم ونركّب وندير تجارب" },
     statementB: { fr: "réalité virtuelle", ar: "الواقع الافتراضي" },
     statementC: {
-      fr: "pour les entreprises, les écoles et les événements en Mauritanie.",
-      ar: "للشركات والمدارس والفعاليات في موريتانيا.",
+      fr: "en Mauritanie.",
+      ar: "في موريتانيا.",
     },
     workTitle: { fr: "Des projets réels, livrés sur le terrain.", ar: "مشاريع حقيقية، منفّذة في الميدان." },
     processKicker: { fr: "Notre méthode", ar: "طريقتنا" },

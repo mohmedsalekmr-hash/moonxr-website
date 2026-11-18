@@ -9,6 +9,8 @@ import Hero3D from "@/components/Hero3D";
 import { Reveal } from "@/components/Media";
 import { LogoMarquee } from "@/components/Logos";
 import Showcase from "@/components/Showcase";
+import ServiceBento from "@/components/ServiceBento";
+import ProcessLine from "@/components/ProcessLine";
 import { EcoGrid } from "@/components/Ecosystem";
 import ExploreButton from "@/components/ExploreButton";
 import CTA from "@/components/CTA";
@@ -60,28 +62,21 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     ),
     about: (
       <>
-          {/* 2 — WHO WE ARE */}
-          <section className="pb-14 pt-16 md:pb-24 md:pt-32">
+          {/* 2 — WHAT WE DO: one sentence, four photo tiles */}
+          <section className="pb-6 pt-16 md:pb-10 md:pt-28">
             <div className="wrap">
               <Reveal>
                 <div className="kicker">{h.aboutKicker[lang]}</div>
-                <p className="font-display mt-5 max-w-5xl text-[1.55rem] font-semibold leading-[1.22] md:mt-6 md:text-5xl md:leading-[1.12]">
+                <h2 className="section-title !max-w-4xl">
                   {h.statementA[lang]} <span className="text-brand">{h.statementB[lang]}</span> {h.statementC[lang]}
-                </p>
+                </h2>
               </Reveal>
-              {/* phone: cards to swipe; desktop: four columns */}
-              <div className="no-scrollbar -mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:mt-14 sm:grid sm:gap-x-8 sm:gap-y-8 sm:overflow-visible sm:border-t sm:border-line sm:px-0 sm:pb-0 sm:pt-10 sm:grid-cols-2 lg:grid-cols-4">
-                {services.map((s, i) => (
-                  <Reveal key={s.n} delay={i * 80} className="w-[78%] shrink-0 snap-start rounded-[var(--radius-sm)] border border-line bg-white p-5 shadow-[0_8px_24px_-18px_rgba(11,27,63,0.35)] sm:w-auto sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
-                    <div className="font-display text-sm font-semibold text-brand">{s.n}</div>
-                    <h3 className="font-display mt-2 text-lg font-semibold sm:mt-3">{s.title[lang]}</h3>
-                    <p className="mt-2 text-[0.95rem] leading-relaxed text-ink/75 sm:text-sm sm:text-ink/60">{s.text[lang]}</p>
-                  </Reveal>
-                ))}
-              </div>
+              <Reveal>
+                <ServiceBento services={services} lang={lang} />
+              </Reveal>
             </div>
-            <div className="wrap mt-12 md:mt-16">
-              <div className="flex flex-col items-stretch gap-2 border-t border-line pt-8 md:flex-row md:items-center md:gap-10">
+            <div className="wrap mt-10 md:mt-14">
+              <div className="flex flex-col items-stretch gap-2 md:flex-row md:items-center md:gap-10">
                 <p className="shrink-0 text-center text-xs font-semibold uppercase tracking-[0.18em] text-ink/45 md:text-start rtl:text-sm rtl:tracking-normal">{ui.trust[lang]}</p>
                 <div className="min-w-0 flex-1">
                   <LogoMarquee orgs={clients} speed={30} size={{ area: 3600, maxW: 130, maxH: 46 }} itemClass="px-8 md:px-12" />
@@ -94,6 +89,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     ),
     work: (
       <>
+          {/* the page melts from white into the brand blue: one transition only */}
+          <div aria-hidden className="fade-to-navy h-48 md:h-80" />
           {/* 3 — OUR WORK — a film strip that slides sideways as you scroll */}
           <Showcase
             items={projects.map((p) => ({
@@ -123,21 +120,15 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     ),
     process: (
       <>
-          {/* 4 — HOW WE WORK */}
-          <section className="py-16 md:py-32">
+          {/* 4 — HOW WE WORK: one line, four stops */}
+          <section className="relative bg-navy pb-20 pt-6 text-white md:pb-28 md:pt-10">
             <div className="wrap">
-              <Reveal>
-                <SectionHeader kicker={h.processKicker[lang]} title={h.processTitle[lang]} />
-              </Reveal>
-              <ol className="no-scrollbar -mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:mt-12 sm:grid sm:gap-px sm:overflow-hidden sm:rounded-[var(--radius-lg)] sm:border sm:border-line sm:bg-line sm:px-0 sm:pb-0 sm:grid-cols-2 lg:grid-cols-4">
-                {steps.map((s, i) => (
-                  <Reveal as="li" key={i} delay={i * 80} className="w-[78%] shrink-0 snap-start rounded-[var(--radius-sm)] border border-line bg-white p-5 shadow-[0_8px_24px_-18px_rgba(11,27,63,0.35)] sm:w-auto sm:rounded-none sm:border-0 sm:p-7 sm:shadow-none md:p-8">
-                    <div className="font-display text-sm font-semibold text-brand">{String(i + 1).padStart(2, "0")}</div>
-                    <h3 className="font-display mt-3 text-lg font-semibold sm:mt-6">{s.title[lang]}</h3>
-                    <p className="mt-2 text-[0.95rem] leading-relaxed text-ink/75 sm:text-sm sm:text-ink/60">{s.text[lang]}</p>
-                  </Reveal>
-                ))}
-              </ol>
+              <div className="border-t border-white/10 pt-14 md:pt-20">
+                <Reveal>
+                  <SectionHeader dark center kicker={h.processKicker[lang]} title={h.processTitle[lang]} />
+                </Reveal>
+                <ProcessLine steps={steps} lang={lang} />
+              </div>
             </div>
           </section>
 
@@ -171,7 +162,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     contact: (
       <>
           {/* 6 — CONTACT */}
-          <CTA lang={lang} />
+          <CTA lang={lang} fade={false} />
       </>
     ),
   };

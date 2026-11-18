@@ -32,8 +32,8 @@ export default function Showcase({ items, head, all, hint }: { items: ShowcaseIt
   };
 
   return (
-    <section className="relative overflow-hidden bg-navy py-20 text-white md:py-28">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_15%_0%,rgba(111,138,214,0.22),transparent_70%)]" />
+    <section className="relative overflow-hidden bg-navy pb-16 pt-4 text-white md:pb-24 md:pt-6">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_45%_at_20%_45%,rgba(111,138,214,0.16),transparent_70%)]" />
       <div className="wrap relative flex items-end justify-between gap-6">
         <div>{head}</div>
         <Link href={all.href} className="hidden shrink-0 rounded-full border border-white/25 px-5 py-2.5 text-sm font-semibold transition-colors hover:border-sun hover:bg-sun hover:text-ink md:inline-flex">
