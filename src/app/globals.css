@@ -1,157 +1,353 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-inter), sans-serif;
-  --font-display: var(--font-outfit), sans-serif;
-  
-  /* Moon.mr Core Color Palette */
-  --color-moon-blue-light: #007aff;
-  --color-moon-blue: #0c3585;
-  --color-moon-blue-dark: #071a3c;
-  --color-moon-yellow: #fbb730;
-  --color-moon-white: #ffffff;
-  --color-moon-gray: #f8fafc;
-  --color-moon-dark: #020617;
-  
-  /* Brand mappings */
-  --color-brand-cyan: var(--color-moon-blue-light);
-  --color-brand-purple: var(--color-moon-blue);
-  --color-brand-primary: var(--color-moon-yellow);
-  --color-brand-dark: var(--color-moon-dark);
-  --color-brand-panel: var(--color-moon-blue-dark);
-  
-  /* Override Tailwind Default Colors for global consistency */
-  --color-purple-300: #3b82f6; 
-  --color-purple-400: var(--color-moon-blue-light);
-  --color-purple-500: var(--color-moon-blue);
-  --color-purple-600: #1e40af;
-  --color-purple-900: var(--color-moon-blue-dark);
-  
-  /* Mapping cyan/amber to Moon Yellow */
-  --color-cyan-300: #fde047;
-  --color-cyan-400: #facc15;
-  --color-cyan-500: var(--color-moon-yellow);
-  --color-cyan-600: #ca8a04;
-  --color-cyan-950: #422006;
-  --color-amber-400: var(--color-moon-yellow);
+  --color-ink: #05070d;
+  --color-ink-2: #0b0f1a;
+  --color-ink-3: #121828;
+  --color-line: rgba(5, 7, 13, 0.09);
+  --color-mute: #5d667a;
+  --color-sun: #fbb730;
+  --color-sky: #007aff;
+  --color-tile: #f4f5f7;
+  --color-soft: #f5f7fb;
+  --color-sun-deep: #c47f00;
+  --color-navy: #0b1b3f;
+  --font-display: var(--font-sora), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
 }
 
-@layer utilities {
-  .glass-panel {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)];
-  }
-  
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-moon-blue to-moon-blue-light;
-  }
-  
-  .text-gradient-gold {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-moon-yellow to-yellow-600;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 5px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.1);
-    border-radius: 99px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255,255,255,0.2);
-  }
+html.lenis,
+html.lenis body {
+  height: auto;
 }
-
-/* ── Base layout — prevent ALL horizontal overflow ── */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
 
 html {
+  background: #ffffff;
+  color: var(--color-ink);
   scroll-behavior: smooth;
-  overflow-x: hidden;
-  max-width: 100%;
+  -webkit-text-size-adjust: 100%;
 }
-
+html[dir="rtl"] {
+  --font-display: var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+}
 body {
-  background-color: var(--color-brand-dark);
-  color: var(--color-moon-white);
+  font-family: var(--font-sans);
   overflow-x: hidden;
-  max-width: 100%;
+  -webkit-font-smoothing: antialiased;
 }
-
-/* ── Custom Scrollbar for a premium feel ── */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-brand-dark); 
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-moon-blue-dark); 
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-moon-blue); 
-}
-
-/* ── Smooth headset float — pure CSS for buttery motion ── */
-@keyframes headsetFloat {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-14px);
-  }
-}
-
-/* ── Ambient glow pulse ── */
-@keyframes glowPulse {
-  0%, 100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.05);
-  }
-}
-
-/* ── Slow continuous spin ── */
-@keyframes slowSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* ── Selection colors ── */
 ::selection {
-  background: rgba(0, 122, 255, 0.3);
-  color: white;
+  background: var(--color-sun);
+  color: var(--color-ink);
+}
+:focus-visible {
+  outline: 2px solid var(--color-sun);
+  outline-offset: 3px;
+  border-radius: 6px;
 }
 
-/* ── Orbital / planetary animation ── */
-@keyframes orbit-cw {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
-@keyframes orbit-ccw {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(-360deg); }
+html[dir="rtl"] .font-display {
+  letter-spacing: 0;
 }
 
-/* ── Infinite marquee (kept for footer/other use) ── */
+@layer components {
+.wrap {
+  width: min(75rem, 100% - 2.5rem);
+  margin-inline: auto;
+}
+/* Large screens: everything grows together, so the page keeps its proportions */
+@media (min-width: 1680px) { html { font-size: 17.5px; } }
+@media (min-width: 1920px) { html { font-size: 19px; } }
+@media (min-width: 2300px) { html { font-size: 21px; } }
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-sun-deep);
+}
+html[dir="rtl"] .kicker {
+  letter-spacing: 0;
+  font-size: 0.9rem;
+}
+.kicker::before {
+  content: "";
+  width: 1.6rem;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.85rem 1.35rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+.btn-sun {
+  background: var(--color-sun);
+  color: var(--color-ink);
+}
+.btn-sun:hover {
+  background: #ffc955;
+}
+.btn-ghost {
+  border: 1px solid rgba(5, 7, 13, 0.16);
+  color: var(--color-ink);
+  background: #fff;
+}
+.btn-ghost:hover {
+  border-color: rgba(5, 7, 13, 0.4);
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--color-line);
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 2px rgba(5, 7, 13, 0.03), 0 10px 30px -14px rgba(5, 7, 13, 0.12);
+}
+
+}
+
+/* Reveal on scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--d, 0ms);
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(60% 60% at 50% 0%, rgba(0, 122, 255, 0.10), transparent 70%);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* Logo marquee — client and partner logos glide continuously */
+.marquee {
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--speed, 40s) linear infinite;
+}
+.marquee-track.reverse {
+  animation-direction: reverse;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
 @keyframes marquee {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  to {
+    transform: translateX(-50%);
+  }
 }
-@keyframes marquee-reverse {
-  0%   { transform: translateX(-50%); }
-  100% { transform: translateX(0); }
+/* Gentle floating for partner logos */
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track, .float {
+    animation: none;
+  }
 }
 
-/* ── Performance hints ── */
-.animate-canvas-bg { will-change: transform; }
+/* Hero explore mode (click the headset) */
+.hero-copy,
+.hero-fade {
+  transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+section[data-explore] .hero-copy {
+  opacity: 0;
+  transform: translateY(16px);
+}
+section[data-explore] .hero-copy * {
+  pointer-events: none !important;
+}
+section[data-explore] .hero-fade {
+  opacity: 0;
+}
+section[data-explore] .hero-stage {
+  z-index: 20;
+}
+.explore-panel {
+  animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Callouts attached to parts of the 3D headset */
+.callout { width: 0; height: 0; animation: fadein 0.6s ease both; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+.callout-line {
+  position: absolute; left: 0; top: 0; width: 54px; height: 1.5px;
+  background: linear-gradient(90deg, rgba(0, 122, 255, 0.9), rgba(11, 27, 63, 0.25));
+  transform-origin: 0 50%; transform: rotate(var(--ang, 0rad));
+}
+.callout-dot {
+  position: absolute; left: -8px; top: -8px; width: 16px; height: 16px; border-radius: 999px;
+  background: #fff; box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.25), 0 2px 8px rgba(11, 27, 63, 0.3);
+  border: 4px solid #007aff; cursor: pointer;
+}
+.callout-dot.is-active { background: #007aff; box-shadow: 0 0 0 8px rgba(0, 122, 255, 0.22); }
+.callout-label {
+  position: absolute; left: 0; top: 0; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px 6px 6px; border-radius: 999px; font-size: 0.82rem; font-weight: 600;
+  background: rgba(255, 255, 255, 0.92); color: var(--color-ink);
+  box-shadow: 0 8px 24px -10px rgba(11, 27, 63, 0.45); backdrop-filter: blur(8px);
+  transform: translate(var(--dx, 0), var(--dy, 0)) translate(0, -50%);
+  transition: background 0.25s, color 0.25s;
+}
+.callout[data-side="l"] .callout-label { transform: translate(var(--dx, 0), var(--dy, 0)) translate(-100%, -50%); }
+.callout-label:hover { background: #fff; }
+.callout-label.is-active { background: #007aff; color: #fff; }
+.callout-num {
+  display: grid; place-items: center; width: 20px; height: 20px; border-radius: 999px;
+  background: rgba(11, 27, 63, 0.08); font-size: 0.7rem;
+}
+.callout-label.is-active .callout-num { background: rgba(255, 255, 255, 0.25); }
+@media (max-width: 767px) {
+  .callout-label { font-size: 0.72rem; padding: 4px 10px 4px 4px; }
+  .callout-num { width: 16px; height: 16px; }
+}
+
+/* ---------- Intro (first visit) ---------- */
+.intro {
+  position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; align-content: center; gap: 22px;
+  background: #fff; pointer-events: none;
+  animation: intro-out 0.6s cubic-bezier(0.7, 0, 0.2, 1) 1.15s forwards;
+}
+.intro-logo { width: min(240px, 50vw); height: auto; animation: intro-logo 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.intro-bar { width: 120px; height: 2px; border-radius: 2px; background: rgba(11, 27, 63, 0.1); overflow: hidden; position: relative; }
+.intro-bar::after { content: ""; position: absolute; inset: 0; background: #fbb730; transform-origin: 0 50%; animation: intro-bar 1s ease-in-out 0.1s both; }
+@keyframes intro-logo { from { opacity: 0; transform: translateY(10px) scale(0.96); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes intro-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes intro-out { to { opacity: 0; visibility: hidden; transform: translateY(-8px); } }
+html.mx-seen .intro { display: none; }
+@media (prefers-reduced-motion: reduce) { .intro { display: none; } }
+
+/* ---------- Page transitions (View Transitions API) ---------- */
+header { view-transition-name: site-header; }
+::view-transition-old(.page-out) { animation: 160ms ease-in both vt-fade reverse; }
+::view-transition-new(.page-in) { animation: 280ms ease-out 120ms both vt-fade, 480ms cubic-bezier(0.2, 0.7, 0.2, 1) both vt-rise; }
+::view-transition-group(.morph) { animation-duration: 560ms; animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1); }
+::view-transition-image-pair(.morph) { animation-name: vt-blur; }
+@keyframes vt-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vt-rise { from { transform: translateY(18px); } to { transform: none; } }
+@keyframes vt-blur { 40% { filter: blur(2px); } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+
+/* ---------- One media frame for every photo and video ---------- */
+.media-frame { overflow: hidden; border-radius: 1.5rem; background: #eef2f8; isolation: isolate; }
+
+.caption-in { animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+
+
+/* ── Media panels (project pages) ──────────────────────── */
+/* The media keeps its proportions, fits the panel and is never enlarged much past its real size */
+.panel-media {
+  aspect-ratio: var(--ar);
+  width: min(100cqw, calc(100cqh * var(--ar)), calc(var(--nw) * 1.15));
+}
+
+/* Navy veil — the same treatment as our presentation deck: softens the light, unifies the photos */
+.veil::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(11, 27, 63, 0.35) 0%, rgba(11, 27, 63, 0.2) 35%, rgba(8, 15, 38, 0.92) 100%),
+    rgba(18, 32, 78, 0.18);
+}
+
+/* Scroll hint: a 3-second arc and a hand that nudges upwards */
+.hint-arc {
+  stroke-dashoffset: 100.5;
+  animation: hint-arc 3s linear infinite;
+}
+@keyframes hint-arc {
+  to { stroke-dashoffset: 0; }
+}
+.hint-hand {
+  animation: hint-hand 1.5s ease-in-out infinite;
+}
+@keyframes hint-hand {
+  0%, 100% { transform: translateY(3px); }
+  50% { transform: translateY(-4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hint-arc, .hint-hand { animation: none; }
+}
+
+/* Dark glass header on project pages */
+.hdr-dark nav a { color: rgba(255, 255, 255, 0.7); }
+.hdr-dark nav a:hover, .hdr-dark nav a[aria-current] { color: #fff; background: rgba(255, 255, 255, 0.08); }
+.hdr-dark a[hreflang], .hdr-dark button { color: #fff; border-color: rgba(255, 255, 255, 0.25); }
+.hdr-dark button span { background-color: #fff; }
+.hdr-dark nav a.bg-ink\/5 { color: #fff; background: rgba(255, 255, 255, 0.1); }
+.hint-swipe {
+  animation: hint-swipe 1.6s ease-in-out infinite;
+}
+@keyframes hint-swipe {
+  0%, 100% { transform: translateX(3px); }
+  50% { transform: translateX(-5px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hint-swipe { animation: none; }
+}

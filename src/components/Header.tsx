@@ -1,241 +1,118 @@
 "use client";
 
-import { useLanguage } from "@/context/LanguageContext";
-import { LanguageToggle } from "./LanguageToggle";
 import Link from "next/link";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { Boxes, FileText, X, Mail, Phone, MapPin } from "lucide-react";
-import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { ui, type Locale } from "@/data/i18n";
 
-export function Header() {
-  const { t } = useLanguage();
-  const { scrollY } = useScroll();
-  const [isContactOpen, setIsContactOpen] = useState(false);
+export default function Header({ lang }: { lang: Locale }) {
+  const pathname = usePathname() || `/${lang}`;
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleOpen = () => setIsContactOpen(true);
-    window.addEventListener("openContactModal", handleOpen);
-    return () => window.removeEventListener("openContactModal", handleOpen);
+    const on = () => setScrolled(window.scrollY > 24);
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
   }, []);
 
-  // Close modal on Escape key
   useEffect(() => {
-    if (!isContactOpen) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsContactOpen(false);
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
     };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [isContactOpen]);
+  }, [open]);
 
-  const backgroundColor = useTransform(
-    scrollY,
-    [0, 60],
-    ["rgba(7, 26, 60, 0)", "rgba(7, 26, 60, 0.85)"]
-  );
-  const backdropBlur = useTransform(scrollY, [0, 60], ["blur(0px)", "blur(18px)"]);
-  const borderColor = useTransform(
-    scrollY,
-    [0, 60],
-    ["rgba(255,255,255,0)", "rgba(0,122,255,0.18)"]
-  );
-  // Separate transform for the accent line opacity — avoids calling useTransform inside JSX
-  const accentLineOpacity = useTransform(scrollY, [0, 60], [0, 1]);
+  const other: Locale = lang === "fr" ? "ar" : "fr";
+  const switchHref = pathname.replace(/^\/(fr|ar)(?=\/|$)/, `/${other}`);
+
+  const links = [
+    { href: `/${lang}/projets`, label: ui.nav.projects[lang] },
+    { href: `/${lang}/partenaires`, label: ui.nav.partners[lang] },
+    { href: `/${lang}/a-propos`, label: ui.nav.about[lang] },
+  ];
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
+
+  // Project pages are one dark experience: the bar is dark glass there
+  const dark = /\/projets\/[^/]+$/.test(pathname) && !open;
 
   return (
-    <>
-      <motion.header
-        style={{ backgroundColor, backdropFilter: backdropBlur, borderBottomColor: borderColor }}
-        className="fixed top-0 left-0 right-0 z-40 border-b"
-      >
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+    <header
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        dark
+          ? "hdr-dark border-b border-white/10 bg-[#0b1220]/70 backdrop-blur-xl"
+          : scrolled || open
+            ? "bg-white/85 backdrop-blur-xl border-b border-line"
+            : "bg-transparent border-b border-transparent"
+      }`}
+    >
+      <div className="wrap flex h-16 items-center justify-between gap-6 md:h-[72px]">
+        <Link href={`/${lang}`} className="shrink-0" aria-label="Moon XR">
+          <img src={dark ? "/media/logos/moonxr-d.svg" : "/media/logos/moonxr-l.svg"} alt="Moon XR" width={1920} height={315} className="h-6 w-auto md:h-7" />
+        </Link>
 
-          {/* Logo */}
-          <Link
-            href="/"
-            onClick={(e) => {
-              if (typeof window !== "undefined" && window.location.pathname === "/") {
-                e.preventDefault();
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }
-            }}
-            className="flex items-center space-x-3 group cursor-pointer"
-          >
-            <div className="relative flex items-center justify-center w-14 h-14">
-              <svg
-                viewBox="0 0 64 64"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-10 h-10 relative z-10 drop-shadow-[0_0_15px_rgba(0,122,255,0.3)] group-hover:scale-110 transition-transform duration-500"
-              >
-                {/* Minimalist Premium VR Headset */}
-                <path 
-                  d="M 18 22 
-                     C 26 22 38 22 46 22 
-                     C 49.3 22 52 24.7 52 28 
-                     V 36 
-                     C 52 39.3 49.3 42 46 42 
-                     C 40 42 36 36 32 36 
-                     C 28 36 24 42 18 42 
-                     C 14.7 42 12 39.3 12 36 
-                     V 28 
-                     C 12 24.7 14.7 22 18 22 Z" 
-                  fill="#ffffff" 
-                  className="drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]"
-                />
-
-                {/* Cyberpunk XR Glow Line */}
-                <path 
-                  d="M 20 32 H 44" 
-                  stroke="#007aff" 
-                  strokeWidth="2.5" 
-                  strokeLinecap="round" 
-                  className="animate-pulse" 
-                  style={{ filter: "drop-shadow(0 0 6px #007aff)" }}
-                />
-              </svg>
-            </div>
-
-            <div className="flex flex-col">
-              <span className="font-display font-bold text-3xl tracking-wider leading-none lowercase flex items-center">
-                <span className="text-white">m</span><span className="text-moon-yellow">o</span><span className="text-white">on</span>
-                <span className="text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.6)] uppercase ml-1.5 text-2xl">XR</span>
-              </span>
-              <span className="text-[9px] uppercase tracking-[0.3em] text-white/40 mt-1 pl-1">Virtual Reality</span>
-            </div>
-          </Link>
-
-          {/* Navigation */}
-          <motion.nav
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="hidden md:flex items-center relative bg-brand-dark/40 backdrop-blur-2xl px-1.5 py-1.5 rounded-full border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
-          >
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-moon-blue-light/5 via-moon-blue/10 to-moon-blue-light/5 blur-md -z-10" />
-
-            <Link href="/#providers" className="relative group px-6 py-2.5 rounded-full overflow-hidden transition-all duration-300">
-              <div className="absolute inset-0 bg-gradient-to-r from-moon-blue-light/10 to-moon-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
-              <span className="relative z-10 flex items-center space-x-2 text-[11px] font-bold uppercase tracking-[0.15em] text-white/80 group-hover:text-moon-blue-light transition-colors">
-                <Boxes className="w-3.5 h-3.5" />
-                <span>{t("Providers", "Fournisseurs")}</span>
-              </span>
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Navigation">
+          {links.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className={`rounded-full px-4 py-2 text-[0.95rem] transition-colors ${
+                isActive(l.href) ? "text-ink bg-ink/5" : "text-ink/70 hover:text-ink"
+              }`}
+            >
+              {l.label}
             </Link>
+          ))}
+        </nav>
 
-            <button
-              onClick={() => setIsContactOpen(true)}
-              className="relative group px-6 py-2.5 rounded-full overflow-hidden transition-all duration-300"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-moon-yellow/10 to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
-              <span className="relative z-10 flex items-center space-x-2 text-[11px] font-bold uppercase tracking-[0.15em] text-white/80 group-hover:text-moon-yellow transition-colors">
-                <FileText className="w-3.5 h-3.5" />
-                <span>{t("Contact", "Contact")}</span>
-              </span>
-            </button>
-          </motion.nav>
-
-          {/* Language Toggle */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="flex items-center"
+        <div className="flex items-center gap-2">
+          <Link
+            href={switchHref}
+            hrefLang={other}
+            className="rounded-full border border-ink/15 px-3 py-1.5 text-sm font-semibold text-ink/80 hover:border-ink/40 hover:text-ink"
+            aria-label={other === "ar" ? "العربية" : "Français"}
           >
-            <LanguageToggle />
-          </motion.div>
+            {other === "ar" ? "عربي" : "FR"}
+          </Link>
+          <Link href={`/${lang}/contact`} className="btn btn-sun hidden !py-2.5 md:inline-flex">
+            {ui.nav.contact[lang]}
+          </Link>
+          <button
+            type="button"
+            className="relative grid h-10 w-10 place-items-center rounded-full border border-ink/15 md:hidden"
+            aria-label={open ? ui.nav.close[lang] : ui.nav.menu[lang]}
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+          >
+            <span className={`absolute h-0.5 w-4 bg-ink transition-transform ${open ? "rotate-45" : "-translate-y-1"}`} />
+            <span className={`absolute h-0.5 w-4 bg-ink transition-transform ${open ? "-rotate-45" : "translate-y-1"}`} />
+          </button>
         </div>
+      </div>
 
-        {/* Accent progress line */}
-        <motion.div
-          style={{ opacity: accentLineOpacity }}
-          className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"
-        />
-      </motion.header>
-
-      {/* Contact Modal */}
-      <AnimatePresence>
-        {isContactOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsContactOpen(false)}
-              className="absolute inset-0 bg-brand-dark/90 backdrop-blur-xl"
-            />
-
-            {/* Modal */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, y: 20 }}
-              transition={{ type: "spring", stiffness: 280, damping: 28 }}
-              className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar bg-brand-dark border border-white/10 rounded-3xl"
+      {/* Mobile menu */}
+      <div
+        className={`md:hidden overflow-hidden transition-[max-height,opacity] duration-300 ${
+          open ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+        }`}
+      >
+        <nav className="wrap flex flex-col gap-1 pb-6 pt-2" aria-label="Menu">
+          {[{ href: `/${lang}`, label: ui.nav.home[lang] }, ...links].map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              onClick={() => setOpen(false)}
+              className="font-display rounded-xl px-3 py-3 text-2xl font-semibold text-ink/90 hover:bg-ink/5"
             >
-              <div className="relative z-10 flex flex-col md:flex-row">
-                <div className="w-full bg-transparent p-6 sm:p-10 md:p-12 flex flex-col justify-center items-center text-center backdrop-blur-sm relative min-h-max">
-                  <div className="sticky top-0 right-0 w-full flex justify-end z-50 mb-4 md:absolute md:top-5 md:right-5 md:mb-0">
-                    <button
-                      onClick={() => setIsContactOpen(false)}
-                      aria-label="Close modal"
-                      className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white/70 hover:text-white transition-colors"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-moon-white via-moon-blue-light to-moon-blue mb-4 tracking-tight">
-                    {t("Get in Touch", "Contactez-nous")}
-                  </h2>
-                  <p className="text-white/60 mb-10 max-w-md">
-                    {t(
-                      "Ready to revolutionize your enterprise with VR? Reach out to our executive team directly.",
-                      "Prêt à révolutionner votre entreprise avec la réalité virtuelle ? Contactez directement notre équipe dirigeante."
-                    )}
-                  </p>
-
-                  <div className="grid md:grid-cols-3 gap-5 w-full max-w-3xl">
-                    {/* Email */}
-                    <div className="relative flex flex-col items-center p-7 bg-transparent rounded-3xl border border-white/5 hover:border-moon-blue-light/40 transition-all duration-500 group overflow-hidden hover:shadow-[0_0_40px_rgba(0,122,255,0.15)]">
-                      <div className="absolute inset-0 bg-gradient-to-br from-moon-blue-light/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      <div className="w-14 h-14 rounded-2xl bg-moon-blue-dark/50 flex items-center justify-center mb-5 group-hover:shadow-[0_0_30px_rgba(0,122,255,0.4)] group-hover:scale-110 transition-all duration-500 border border-moon-blue-light/20 relative z-10">
-                        <Mail className="w-6 h-6 text-moon-blue-light drop-shadow-[0_0_8px_rgba(0,122,255,0.8)]" />
-                      </div>
-                      <p className="text-moon-blue-light/80 text-[10px] font-bold uppercase tracking-[0.2em] mb-2 relative z-10">{t("Email Us", "Envoyez un Email")}</p>
-                      <a href="mailto:mohamedsaleck@moon.mr" className="text-white text-base font-medium hover:text-moon-blue-light transition-colors relative z-10 break-all">
-                        mohamedsaleck@moon.mr
-                      </a>
-                    </div>
-
-                    {/* Phone */}
-                    <div className="relative flex flex-col items-center p-7 bg-transparent rounded-3xl border border-white/5 hover:border-moon-yellow/40 transition-all duration-500 group overflow-hidden hover:shadow-[0_0_40px_rgba(251,183,48,0.15)]">
-                      <div className="absolute inset-0 bg-gradient-to-br from-moon-yellow/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      <div className="w-14 h-14 rounded-2xl bg-amber-950/50 flex items-center justify-center mb-5 group-hover:shadow-[0_0_30px_rgba(251,183,48,0.4)] group-hover:scale-110 transition-all duration-500 border border-moon-yellow/20 relative z-10">
-                        <Phone className="w-6 h-6 text-moon-yellow drop-shadow-[0_0_8px_rgba(251,183,48,0.8)]" />
-                      </div>
-                      <p className="text-moon-yellow/80 text-[10px] font-bold uppercase tracking-[0.2em] mb-2 relative z-10">{t("Call Us", "Appelez-nous")}</p>
-                      <a href="tel:+22230454777" className="text-white text-base font-medium hover:text-moon-yellow transition-colors relative z-10">
-                        +222 30454777
-                      </a>
-                    </div>
-
-                    {/* Location */}
-                    <div className="relative flex flex-col items-center p-7 bg-transparent rounded-3xl border border-white/5 hover:border-emerald-500/40 transition-all duration-500 group overflow-hidden hover:shadow-[0_0_40px_rgba(16,185,129,0.15)]">
-                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      <div className="w-14 h-14 rounded-2xl bg-emerald-950/50 flex items-center justify-center mb-5 group-hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] group-hover:scale-110 transition-all duration-500 border border-emerald-500/20 relative z-10">
-                        <MapPin className="w-6 h-6 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-                      </div>
-                      <p className="text-emerald-400/80 text-[10px] font-bold uppercase tracking-[0.2em] mb-2 relative z-10">{t("Location", "Emplacement")}</p>
-                      <span className="text-white text-base font-medium relative z-10">Nouakchott, Mauritania</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </>
+              {l.label}
+            </Link>
+          ))}
+          <Link href={`/${lang}/contact`} onClick={() => setOpen(false)} className="btn btn-sun mt-3 justify-center">
+            {ui.nav.contact[lang]}
+          </Link>
+        </nav>
+      </div>
+    </header>
   );
 }

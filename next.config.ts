@@ -1,31 +1,24 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Allow fetching favicons/logos from Google's CDN
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "t3.gstatic.com",
+  turbopack: {
+    rules: {
+      "*.css": {
+        loaders: ["@tailwindcss/turbopack"],
+        as: "*.css",
       },
-      {
-        protocol: "https",
-        hostname: "www.google.com",
-      },
-      {
-        protocol: "https",
-        hostname: "www.unidraw.com",
-      },
-    ],
+    },
   },
-
-  // Suppress false-positive hydration warnings from browser extensions
-  reactStrictMode: true,
-
-  // Compiler options
-  compiler: {
-    // Remove console.log in production builds
-    removeConsole: process.env.NODE_ENV === "production",
+  async redirects() {
+    return [{ source: "/", destination: "/fr", permanent: false }];
+  },
+  async headers() {
+    return [
+      {
+        source: "/media/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" }],
+      },
+    ];
   },
 };
 
