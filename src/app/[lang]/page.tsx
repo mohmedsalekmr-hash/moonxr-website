@@ -29,21 +29,22 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     hero: (
       <>
           {/* 1 — HERO: the headset */}
-          <section className="relative isolate flex min-h-[100svh] items-end overflow-hidden pb-16 md:items-center md:pb-0">
+          <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pb-14 md:flex-row md:items-center md:pb-0">
             <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_70%_at_72%_45%,rgba(0,122,255,0.16),transparent_70%),radial-gradient(40%_40%_at_15%_85%,rgba(251,183,48,0.14),transparent_70%),linear-gradient(180deg,#f3f6fc,#ffffff)] rtl:bg-[radial-gradient(60%_70%_at_28%_45%,rgba(0,122,255,0.16),transparent_70%),radial-gradient(40%_40%_at_85%_85%,rgba(251,183,48,0.14),transparent_70%),linear-gradient(180deg,#f3f6fc,#ffffff)]" />
-            <div className="hero-stage absolute inset-0 z-0">
+            {/* phone: the headset has its own stage above the text; desktop: full-bleed behind it */}
+            <div className="hero-stage relative z-0 mt-16 h-[40svh] min-h-[270px] w-full md:absolute md:inset-0 md:mt-0 md:h-auto">
               <Hero3D rtl={rtl} lang={lang} />
             </div>
-            <div className="hero-copy wrap pointer-events-none relative z-10 pt-24">
+            <div className="hero-copy wrap pointer-events-none relative z-10 pt-2 md:pt-24">
               <div className="pointer-events-auto max-w-xl">
                 <div className="kicker">{ui.hero.kicker[lang]}</div>
-                <h1 className="font-display mt-5 text-[2.6rem] font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
+                <h1 className="font-display mt-4 text-[2.35rem] font-bold leading-[1.06] sm:text-6xl md:mt-5 lg:text-7xl">
                   {ui.hero.l1[lang]}
                   <br />
                   <span className="text-sun-deep">{ui.hero.l2a[lang]}</span> {ui.hero.l2b[lang]}
                 </h1>
-                <p className="mt-6 max-w-md text-base leading-relaxed text-ink/70 md:text-lg">{ui.hero.sub[lang]}</p>
-                <div className="mt-8 flex flex-wrap gap-3">
+                <p className="mt-4 max-w-md text-[0.95rem] leading-relaxed text-ink/70 md:mt-6 md:text-lg">{ui.hero.sub[lang]}</p>
+                <div className="mt-6 flex flex-wrap gap-3 md:mt-8">
                   <Link href={`/${lang}/projets`} className="btn btn-sun">
                     {ui.hero.cta1[lang]}
                   </Link>

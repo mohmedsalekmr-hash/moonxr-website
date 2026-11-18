@@ -59,8 +59,17 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
     if (!explore) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && exit();
     window.addEventListener("keydown", onKey);
-    section.scrollIntoView({ behavior: "smooth", block: "start" });
-    return () => window.removeEventListener("keydown", onKey);
+    const phone = window.matchMedia("(max-width: 767px)").matches;
+    if (phone) {
+      document.documentElement.style.overflow = "hidden";
+      document.documentElement.setAttribute("data-explore-full", "");
+    }
+    else section.scrollIntoView({ behavior: "smooth", block: "start" });
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.documentElement.style.overflow = "";
+      document.documentElement.removeAttribute("data-explore-full");
+    };
   }, [explore, exit]);
 
   useEffect(() => {
@@ -146,22 +155,39 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
       const headSize = headBox.getSize(V());
       const flatR = (b: import("three").Box3) => { const z = b.getSize(new THREE.Vector3()); return 0.5 * Math.hypot(z.x, z.y, z.z * 0.4); };
       const headRadius = flatR(headBox);
-      type Ctrl = { node: import("three").Object3D; name: string; side: number; finalW: import("three").Vector3; delta: import("three").Vector3; box: import("three").Box3; rotY: number };
+      type Ctrl = {
+        node: import("three").Object3D; name: string; side: number; rotY: number;
+        base: import("three").Box3; baseW: import("three").Vector3;
+        finalW: import("three").Vector3; delta: import("three").Vector3; box: import("three").Box3;
+      };
       const controllers: Ctrl[] = [];
       model.traverse((o) => {
         if (o.name !== PART.controllerLeft && o.name !== PART.controllerRight) return;
         const node = o.parent ?? o;
         const b = new THREE.Box3().setFromObject(node);
-        const cc = b.getCenter(V()), cs = b.getSize(V());
-        const side = Math.sign(cc.x - headCenter.x) || 1;
-        const want = new THREE.Vector3(headCenter.x + side * (headSize.x / 2 + cs.x / 2 + 0.025), headCenter.y - headSize.y * 0.35, headCenter.z + 0.03);
-        const delta = want.clone().sub(cc);
-        controllers.push({ node, name: o.name, side, finalW: node.getWorldPosition(V()).add(delta), delta, box: b.clone().translate(delta), rotY: node.rotation.y });
+        const side = Math.sign(b.getCenter(V()).x - headCenter.x) || 1;
+        controllers.push({ node, name: o.name, side, rotY: node.rotation.y, base: b, baseW: node.getWorldPosition(V()), finalW: V(), delta: V(), box: b.clone() });
       });
-      const layoutBox = headBox.clone();
-      controllers.forEach((c) => layoutBox.union(c.box));
-      const layoutCenter = layoutBox.getCenter(V());
-      const layoutRadius = flatR(layoutBox);
+      // desktop (landscape): a controller on each side of the headset; phone (portrait): both under it
+      const layoutBox = new THREE.Box3();
+      const layoutCenter = V();
+      let layoutRadius = 0;
+      const setLayout = (portrait: boolean) => {
+        controllers.forEach((c) => {
+          const cc = c.base.getCenter(V()), cs = c.base.getSize(V());
+          const want = portrait
+            ? new THREE.Vector3(headCenter.x + c.side * (cs.x / 2 + 0.03), headBox.min.y - cs.y / 2 - 0.015, headCenter.z + 0.02)
+            : new THREE.Vector3(headCenter.x + c.side * (headSize.x / 2 + cs.x / 2 + 0.025), headCenter.y - headSize.y * 0.35, headCenter.z + 0.03);
+          c.delta.copy(want).sub(cc);
+          c.finalW.copy(c.baseW).add(c.delta);
+          c.box.copy(c.base).translate(c.delta);
+        });
+        layoutBox.copy(headBox);
+        controllers.forEach((c) => layoutBox.union(c.box));
+        layoutBox.getCenter(layoutCenter);
+        layoutRadius = flatR(layoutBox);
+      };
+      setLayout(false);
       // hotspots on the controllers follow them to their new place
       const ctrlOf = (id: string) => controllers.find((c) => c.name === (id === "trigger" ? PART.controllerRight : PART.controllerLeft));
       const pointOf = (id: string) => {
@@ -224,13 +250,13 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
       let exploring = false;
       // while exploring, the 3D set must fit in the area left free by the title (top) and the info card
       // (right on desktop, bottom on phones): fractions of the canvas
-      const area = () => (wide ? { w: 0.62, h: 0.72 } : { w: 0.92, h: 0.48 });
+      const area = () => (wide ? { w: 0.62, h: 0.72 } : { w: 0.92, h: 0.42 });
       const fitDist = (r: number) => {
         const a = area();
         const t = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
         return (r / Math.min(t * a.h, t * camera.aspect * a.w)) * 1.02;
       };
-      const idleView = () => ({ target: headCenter.clone(), pos: sph(headCenter, 0.6 * (rtl ? -1 : 1), 0.12, (wide ? 0.62 : 0.78) * fit) });
+      const idleView = () => ({ target: headCenter.clone(), pos: sph(headCenter, 0.6 * (rtl ? -1 : 1), 0.12, (wide ? 0.62 : 0.7) * fit) });
       const overview = () => ({ target: layoutCenter.clone(), pos: sph(layoutCenter, 0.32, 0.14, fitDist(layoutRadius)) });
       const headView = () => ({ target: headCenter.clone(), pos: sph(headCenter, 0.4, 0.14, fitDist(headRadius)) });
 
@@ -243,7 +269,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
         camera.aspect = w / h;
         // centre of the free area: desktop x 4–64 %, y 18–90 %; phone y 10–56 %
         shiftGoalX = exploring ? (wide ? (rtl ? -0.16 : 0.16) * w : 0) : wide ? (rtl ? 0.22 : -0.22) * w : 0;
-        shiftGoalY = exploring ? (wide ? -0.04 * h : 0.17 * h) : wide ? 0 : 0.24 * h;
+        shiftGoalY = exploring ? (wide ? -0.04 * h : 0.2 * h) : wide ? 0 : 0.07 * h;
         camera.updateProjectionMatrix();
       };
       resize();
@@ -296,6 +322,9 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
           renderer.domElement.style.touchAction = "none";
           renderer.domElement.style.cursor = "grab";
           resize();
+          setLayout(!wide);
+          refreshPts();
+          
           anim = headView();
           staged = false;
         },
@@ -377,6 +406,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
       // callouts: dot on the part + label pushed outward from the model's centre
       const ids = Object.keys(HOTSPOTS);
       const pts = ids.map((id) => pointOf(id));
+      const refreshPts = () => ids.forEach((id, i) => pts[i].copy(pointOf(id)));
       const occluded: Record<string, boolean> = {};
       const v = new THREE.Vector3(), c2 = new THREE.Vector3(), dir = new THREE.Vector3();
       const clock = new THREE.Clock();
@@ -589,7 +619,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
               labelRefs.current[s.id] = n;
             }}
             data-dim={step && step.id !== s.id ? "" : undefined}
-            data-hide={step && step.group !== s.group ? "" : undefined}
+            data-hide={step && (step.group !== s.group || (step.group === "controller" && (step.id === "trigger") !== (s.id === "trigger"))) ? "" : undefined}
             className="callout pointer-events-none absolute left-0 top-0"
             style={{ animationDelay: `${s.group === "headset" ? 0.9 + i * 0.1 : 2.6 + i * 0.1}s` }}
           >
@@ -605,7 +635,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
       {/* explore UI */}
       {explore && (
         <>
-          <div className="pointer-events-none absolute inset-x-0 top-20 z-10 md:top-24">
+          <div className="pointer-events-none absolute inset-x-0 top-[max(1rem,env(safe-area-inset-top))] z-10 md:top-24">
             <div className="wrap flex items-start justify-between gap-4">
               <div dir={rtl ? "rtl" : "ltr"}>
                 <div className="kicker !text-sun">{explorer.kicker[lang]}</div>
@@ -617,27 +647,27 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
             </div>
           </div>
 
-          <div className="absolute inset-x-0 bottom-4 z-10 md:bottom-auto md:top-1/2 md:-translate-y-1/2">
+          <div className="absolute inset-x-0 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-10 md:bottom-auto md:top-1/2 md:-translate-y-1/2">
             <div className="wrap">
               <div
                 key={active ?? "intro"}
                 dir={rtl ? "rtl" : "ltr"}
-                className="explore-panel relative mx-auto w-full max-w-md overflow-hidden rounded-3xl border border-white/12 bg-white/[0.07] p-5 text-white shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl md:me-0 md:ms-auto md:max-w-[350px] md:p-6"
+                className="explore-panel relative mx-auto max-h-[46svh] w-full max-w-md overflow-y-auto rounded-3xl border border-white/12 bg-white/[0.07] p-4 text-white shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl md:me-0 md:ms-auto md:max-w-[350px] md:p-6"
                 aria-live="polite"
               >
                 <div className="text-xs font-semibold text-sun">
                   {step ? `${explorer.groups[step.group][lang]} · ${idx + 1}/${steps.length}` : "Meta Quest 3"}
                 </div>
-                <h3 className="font-display mt-1.5 text-xl font-semibold md:text-2xl">{step ? step.title[lang] : explorer.intro.title[lang]}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70 md:text-[0.95rem]">{step ? step.text[lang] : explorer.intro.text[lang]}</p>
+                <h3 className="font-display mt-1 text-lg font-semibold md:mt-1.5 md:text-2xl">{step ? step.title[lang] : explorer.intro.title[lang]}</h3>
+                <p className="mt-1.5 text-[0.82rem] leading-relaxed text-white/70 md:mt-2 md:text-[0.95rem]">{step ? step.text[lang] : explorer.intro.text[lang]}</p>
                 {(step ? step.spec : explorer.introSpec) && (
-                  <div className="mt-3 rounded-xl bg-white/[0.08] px-3 py-2 text-xs font-medium leading-relaxed text-white/85 ring-1 ring-white/10">
+                  <div className="mt-2.5 rounded-xl bg-white/[0.08] px-3 py-2 text-[0.7rem] md:mt-3 md:text-xs font-medium leading-relaxed text-white/85 ring-1 ring-white/10">
                     {t((step ? step.spec : explorer.introSpec)!)}
                   </div>
                 )}
 
                 {!step && !tour ? (
-                  <div className="mt-5">
+                  <div className="mt-4 md:mt-5">
                     <button type="button" onClick={() => setTour(true)} className="btn w-full justify-center bg-sun text-ink hover:brightness-105">
                       ▶ {t(explorer.tour)}
                     </button>

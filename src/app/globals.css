@@ -219,6 +219,13 @@ section[data-explore] .hero-fade {
 section[data-explore] .hero-stage {
   z-index: 20;
 }
+/* phones: exploring the headset takes the whole screen, the header steps aside */
+html[data-explore-full] header { opacity: 0; pointer-events: none; }
+@media (max-width: 767px) {
+  section[data-explore] .hero-stage {
+    position: fixed; inset: 0; height: auto; min-height: 0; margin: 0; z-index: 60;
+  }
+}
 .explore-panel {
   animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
