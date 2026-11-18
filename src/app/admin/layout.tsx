@@ -8,7 +8,6 @@ const arabic = IBM_Plex_Sans_Arabic({ subsets: ["arabic"], variable: "--font-ara
 export const metadata: Metadata = {
   title: "Moon XR · لوحة التحكم",
   robots: { index: false, follow: false },
-  icons: { icon: "/favicon.svg" },
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

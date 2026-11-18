@@ -30,12 +30,12 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
     description: ar
       ? "قسم التقنيات التفاعلية في Moon Technology: فعاليات الواقع الافتراضي، ومحاكيات التدريب، والمرافقة في الموقع."
       : "Division technologie immersive de Moon Technology : événements VR, simulateurs de formation et accompagnement sur site, à Nouakchott.",
-    icons: { icon: "/favicon.svg" },
-    openGraph: { images: ["/media/photos/moov-wide.webp"] },
+    openGraph: { type: "website", siteName: "Moon XR", locale: ar ? "ar_MR" : "fr_MR" },
+    twitter: { card: "summary_large_image" },
   };
 }
 
-export const viewport: Viewport = { themeColor: "#0a1431" };
+export const viewport: Viewport = { themeColor: "#ffffff" };
 
 export default async function RootLayout({ children, params }: LayoutProps<"/[lang]">) {
   const { lang } = await params;
