@@ -1,4 +1,5 @@
 import { getContent } from "@/lib/content";
+import { rimg } from "@/lib/img";
 import type { Metadata } from "next";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
@@ -64,7 +65,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
                 href={`/${lang}/projets/${p.slug}`}
                 className={`group relative overflow-hidden rounded-[var(--radius-lg)] bg-navy ${i === 0 ? "row-span-2" : ""}`}
               >
-                <img src={p.cover.src} alt={p.cover.alt[lang]} loading={i === 0 ? "eager" : "lazy"} style={{ objectPosition: p.cover.pos }} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img {...rimg(p.cover.src, i === 0 ? "(min-width: 1024px) 30vw, 50vw" : "(min-width: 1024px) 25vw, 50vw")} alt={p.cover.alt[lang]} loading={i === 0 ? "eager" : "lazy"} style={{ objectPosition: p.cover.pos }} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-deep/80 via-transparent to-transparent" />
                 <span className="absolute bottom-3 start-3 end-3 text-xs font-semibold text-white md:bottom-4 md:start-4 md:text-sm">{p.title[lang]}</span>
               </Link>
@@ -87,7 +88,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
                   {groups.get(y)!.map((p) => (
                     <li key={p.slug}>
                       <Link href={`/${lang}/projets/${p.slug}`} className="group flex items-center gap-4 rounded-[var(--radius-sm)] bg-white p-3 ring-1 ring-line transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-26px_rgba(20,36,84,0.45)]">
-                        <img src={p.cover.src} alt="" loading="lazy" style={{ objectPosition: p.cover.pos }} className="h-16 w-20 shrink-0 rounded-[0.6rem] object-cover" />
+                        <img {...rimg(p.cover.src, "120px")} alt="" loading="lazy" style={{ objectPosition: p.cover.pos }} className="h-16 w-20 shrink-0 rounded-[0.6rem] object-cover" />
                         <span className="min-w-0">
                           <span className="block font-semibold leading-snug">{p.title[lang]}</span>
                           <span className="mt-0.5 block truncate text-xs text-ink/60">{p.meta[lang]}</span>

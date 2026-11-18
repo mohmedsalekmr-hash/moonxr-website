@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { rimg } from "@/lib/img";
 import type { Org, Project } from "@/data/projects";
 import type { Locale, T } from "@/data/i18n";
 import { Fragment } from "react";
@@ -77,7 +78,7 @@ export function ClientCards({ items, lang, cta }: { items: { org: Org; href: str
       {items.map((it, i) => (
         <Link key={it.org.name} href={it.href} className={`group relative block overflow-hidden rounded-[var(--radius-lg)] ${i === 0 ? "md:col-span-2 md:row-span-2" : ""}`}>
           <div className={`relative ${i === 0 ? "aspect-[16/10] md:aspect-auto md:h-full" : "aspect-[16/10]"}`}>
-            <img src={it.image} alt="" loading="lazy" style={{ objectPosition: it.pos }} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105" />
+            <img {...rimg(it.image, "(min-width: 768px) 50vw, 100vw")} alt="" loading="lazy" style={{ objectPosition: it.pos }} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-navy-deep/85 via-navy-deep/20 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6">
               <div>
@@ -123,7 +124,7 @@ export function ClientIndex({ projects, orgs, lang, cta }: { projects: Project[]
                 <div className="mt-1 text-sm text-ink/60">{p.meta[lang]}</div>
               </div>
               <div className="relative hidden aspect-[16/10] overflow-hidden rounded-[var(--radius-sm)] bg-navy lg:block">
-                <img src={p.cover.src} alt="" loading="lazy" style={{ objectPosition: p.cover.pos }} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img {...rimg(p.cover.src, "200px")} alt="" loading="lazy" style={{ objectPosition: p.cover.pos }} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
               </div>
               <span className="hidden h-11 w-11 place-items-center rounded-full border border-ink/15 transition-colors group-hover:border-sun group-hover:bg-sun lg:grid" aria-label={cta}>
                 <span className="rtl:rotate-180">→</span>

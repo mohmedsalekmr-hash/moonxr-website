@@ -1,4 +1,5 @@
 import { useShared } from "@/components/ContentProvider";
+import { rimg } from "@/lib/img";
 import Link from "next/link";
 import { ViewTransition } from "react";
 import type { Project } from "@/data/projects";
@@ -13,7 +14,7 @@ export default function ProjectCard({ p, lang, featured = false }: { p: Project;
       <ViewTransition name={`project-${p.slug}`} share="morph" default="none">
         <div className={`veil relative overflow-hidden rounded-[var(--radius-lg)] bg-navy ${featured ? "aspect-[4/5] sm:aspect-[16/9] lg:aspect-[21/9]" : "aspect-[4/3] sm:aspect-[5/4] lg:aspect-[4/5]"}`}>
           <img
-            src={p.cover.src}
+            {...rimg(p.cover.src, featured ? "(min-width: 1024px) 1200px, 100vw" : "(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw")}
             alt={p.cover.alt[lang]}
             width={p.cover.w}
             height={p.cover.h}

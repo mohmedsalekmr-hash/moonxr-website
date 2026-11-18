@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { rimg } from "@/lib/img";
 import { ViewTransition, useRef } from "react";
 
 export type ShowcaseItem = { slug: string; href: string; image: string; pos?: string; tag: string; title: string; short: string; meta: string };
@@ -70,7 +71,7 @@ export default function Showcase({ items, head, all, hint, look = "sheet" }: { i
           <Link key={it.slug} href={it.href} draggable={false} className="group relative block shrink-0 snap-start select-none">
             <ViewTransition name={`project-${it.slug}`} share="morph" default="none">
               <div className="veil relative h-[62svh] max-h-[620px] min-h-[380px] w-[80vw] overflow-hidden rounded-[var(--radius-lg)] bg-navy sm:w-[420px] lg:w-[min(30vw,440px)]">
-                <img src={it.image} alt="" draggable={false} loading={i < 3 ? "eager" : "lazy"} style={{ objectPosition: it.pos }} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.06]" />
+                <img {...rimg(it.image, "(min-width: 768px) 420px, 80vw")} alt="" draggable={false} loading={i < 3 ? "eager" : "lazy"} style={{ objectPosition: it.pos }} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.06]" />
               </div>
             </ViewTransition>
             <span className="absolute end-5 top-5 z-[2] tag tag-dark ring-1 ring-white/20">{it.tag}</span>

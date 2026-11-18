@@ -79,6 +79,13 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
     let cleanup = () => {};
 
     (async () => {
+      // let the page paint and settle first; the scene starts when the browser is idle
+      await new Promise<void>((r) => {
+        const ric = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+        if (ric) ric(() => r(), { timeout: 1500 });
+        else setTimeout(r, 400);
+      });
+      if (disposed) return;
       const THREE = await import("three");
       const { OrbitControls } = await import("three/examples/jsm/controls/OrbitControls.js");
       const { RoomEnvironment } = await import("three/examples/jsm/environments/RoomEnvironment.js");

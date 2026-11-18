@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { rimg } from "@/lib/img";
 import type { Locale, T } from "@/data/i18n";
 
 export const SERVICE_IMG = [
@@ -22,7 +23,7 @@ export default function ServiceBento({ services, lang }: { services: { title: T;
             className={`veil group relative block aspect-[4/5] w-[78%] shrink-0 snap-start overflow-hidden rounded-[var(--radius-lg)] bg-navy sm:aspect-[4/3] sm:w-auto lg:aspect-auto ${span[i] ?? ""}`}
           >
             <img
-              src={img.src}
+              {...rimg(img.src, i === 0 ? "(min-width: 1024px) 50vw, 90vw" : "(min-width: 1024px) 25vw, 90vw")}
               alt=""
               loading="lazy"
               style={{ objectPosition: img.pos }}

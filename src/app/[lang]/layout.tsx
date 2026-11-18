@@ -42,8 +42,10 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   if (!hasLocale(lang)) notFound();
   const { ui, contact } = await getContent();
   return (
-    <html lang={lang} dir={lang === "ar" ? "rtl" : "ltr"} className={`${sora.variable} ${inter.variable} ${arabic.variable}`} suppressHydrationWarning>
+    <html lang={lang} dir={lang === "ar" ? "rtl" : "ltr"} translate="no" className={`${sora.variable} ${inter.variable} ${arabic.variable}`} suppressHydrationWarning>
       <head>
+        {/* the site is already in French and Arabic: no "Translate this page?" prompt from the browser */}
+        <meta name="google" content="notranslate" />
         {/* the intro animation plays once per visit */}
         <script
           dangerouslySetInnerHTML={{

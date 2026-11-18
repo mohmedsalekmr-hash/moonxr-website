@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { rimg } from "@/lib/img";
 
 export type SceneMedia = {
   type: "image" | "video";
@@ -64,7 +65,7 @@ export function MediaPanel({
       className={`media-panel relative overflow-hidden rounded-[var(--radius-lg)] bg-navy-deep ${ratio}`}
     >
       <img
-        src={bg}
+        src={rimg(bg ?? "").srcSet ? `${bg!.slice(0, -5)}-480.webp` : bg}
         alt=""
         aria-hidden
         className="absolute inset-0 h-full w-full scale-125 object-cover opacity-70 blur-3xl saturate-150"
@@ -91,7 +92,7 @@ export function MediaPanel({
             />
           ) : (
             <img
-              src={m.src}
+              {...rimg(m.src, "(min-width: 768px) 60vw, 100vw")}
               alt=""
               width={m.w}
               height={m.h}
@@ -253,7 +254,7 @@ export function ScrollStory({
         {layers.map((l) => (
           <img
             key={"bg" + l.src}
-            src={l.type === "video" ? l.poster : l.src}
+            src={(() => { const s = (l.type === "video" ? l.poster : l.src) ?? ""; return rimg(s).srcSet ? `${s.slice(0, -5)}-480.webp` : s; })()}
             alt=""
             aria-hidden
             className="absolute inset-0 h-full w-full scale-125 object-cover blur-3xl saturate-150 transition-opacity duration-1000"
@@ -303,7 +304,7 @@ export function ScrollStory({
                       />
                     ) : (
                       <img
-                        src={l.src}
+                        {...rimg(l.src, "(min-width: 768px) 55vw, 100vw")}
                         alt=""
                         width={l.w}
                         height={l.h}

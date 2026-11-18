@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { rimg } from "@/lib/img";
 
 /** Fades content in when it scrolls into view. */
 export function Reveal({
@@ -128,7 +129,7 @@ export function Gallery({ photos, closeLabel }: { photos: GPhoto[]; closeLabel: 
                 aria-label={p.alt}
               >
                 <img
-                  src={p.src}
+                  {...rimg(p.src, "(min-width: 768px) 50vw, 100vw")}
                   alt={p.alt}
                   width={p.w}
                   height={p.h}
