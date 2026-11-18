@@ -176,7 +176,7 @@ export const projects: Project[] = [
     scenes: [
       { media: img("mattel-bus-smile", 940, 1175), title: { fr: "La 5G Mattel, en réalité virtuelle.", ar: "الجيل الخامس لماتل، بالواقع الافتراضي." } },
       {
-        media: img("mattel-bus-femme", 1080, 1350),
+        media: img("mattel-bus-poster", 810, 1080),
         kicker: K.need,
         title: { fr: "La 5G Mattel, au plus près des clients.", ar: "الجيل الخامس لماتل، في أقرب نقطة من العملاء." },
         text: { fr: "Rendre la nouvelle génération tangible pour le public.", ar: "جعل الجيل الجديد ملموساً للجمهور." },
@@ -193,7 +193,7 @@ export const projects: Project[] = [
         title: { fr: "Chacun vit l'expérience à sa façon.", ar: "كلٌّ يعيش التجربة على طريقته." },
       },
       {
-        media: img("mattel-bus-pull", 1080, 1350),
+        media: img("mattel-bus-visiteuse", 810, 1080),
         kicker: K.result,
         title: { fr: "Le public au contact de la nouvelle génération.", ar: "الجمهور على تماس مع الجيل الجديد." },
         text: { fr: "Une découverte directe de la 5G, à travers une expérience immersive.", ar: "اكتشاف مباشر للجيل الخامس، عبر تجربة غامرة." },
