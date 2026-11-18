@@ -1,0 +1,111 @@
+# Nightly safety net for the Moon XR website (free, runs on GitHub).
+#  1. checks that the site answers, and wakes the Supabase database
+#  2. saves an ENCRYPTED copy of the database (last 30 nights are kept)
+#  3. mirrors every photo/video uploaded from /admin
+# Everything is stored on the "backups" branch of this repository.
+# Needs two repository secrets: SUPABASE_DB_URL and BACKUP_PASSPHRASE.
+name: Nightly backup
+
+on:
+  schedule:
+    - cron: "17 3 * * *" # every night at 03:17 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency: backup
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: The website answers
+        run: |
+          for p in /fr /ar /api/keepalive; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "https://moonxr-site.vercel.app$p")
+            echo "$p -> $code"
+            [ "$code" = "200" ] || { echo "::error::$p answered $code"; exit 1; }
+          done
+
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DB: ${{ secrets.SUPABASE_DB_URL }}
+      PASS: ${{ secrets.BACKUP_PASSPHRASE }}
+      MEDIA_URL: https://jhferwtmaklnnruorkeh.supabase.co/storage/v1/object/public/media
+    steps:
+      - name: Secrets are set
+        run: |
+          if [ -z "$DB" ] || [ -z "$PASS" ]; then
+            echo "::error::Add the SUPABASE_DB_URL and BACKUP_PASSPHRASE secrets (Settings > Secrets and variables > Actions)"
+            exit 1
+          fi
+
+      - name: Install the PostgreSQL 17 client
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list >/dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17
+
+      - name: Open the backups branch
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          url="https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}"
+          if git ls-remote --exit-code --heads "$url" backups >/dev/null; then
+            git clone -q --depth 1 --branch backups "$url" store
+          else
+            mkdir store && cd store && git init -q -b backups && git remote add origin "$url"
+          fi
+
+      - name: Encrypted database copy
+        run: |
+          PG=/usr/lib/postgresql/17/bin
+          day=$(date -u +%F)
+          mkdir -p store/db
+          $PG/pg_dump "$DB" --schema=public --no-owner --no-privileges -Fc -f db.dump
+          gpg --batch --yes --pinentry-mode loopback --passphrase "$PASS" --symmetric --cipher-algo AES256 -o "store/db/moonxr-$day.dump.gpg" db.dump
+          rm -f db.dump
+          ls -1t store/db/*.gpg | tail -n +31 | xargs -r rm -f
+          $PG/psql "$DB" -Atc "select name from storage.objects where bucket_id = 'media' order by name" > media.txt
+          echo "$(wc -l < media.txt) uploaded files listed"
+
+      - name: Mirror uploaded media
+        run: |
+          mkdir -p store/media
+          while IFS= read -r name; do
+            [ -z "$name" ] && continue
+            [ -f "store/media/$name" ] && continue
+            mkdir -p "store/media/$(dirname "$name")"
+            curl -fsS --max-time 120 -o "store/media/$name" "$MEDIA_URL/$name" || echo "could not download $name"
+          done < media.txt
+
+      - name: Restore guide
+        run: |
+          cat > store/README.md <<'MD'
+          # Moon XR — backups
+
+          - `db/moonxr-YYYY-MM-DD.dump.gpg`: the whole database, encrypted (the last 30 nights).
+          - `media/`: every photo and video uploaded from /admin.
+
+          ## Restore the database
+          1. Decrypt (asks for the BACKUP_PASSPHRASE):
+             `gpg -o moonxr.dump -d db/moonxr-YYYY-MM-DD.dump.gpg`
+          2. Load it into a Supabase project (PostgreSQL 17 client):
+             `pg_restore --clean --if-exists --no-owner -d "<connection string>" moonxr.dump`
+          MD
+          sed -i 's/^          //' store/README.md
+
+      - name: Save to the backups branch
+        run: |
+          cd store
+          git config user.name "moonxr-backup"
+          git config user.email "backup@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Backup $(date -u +%F)" || { echo "nothing new"; exit 0; }
+          git push -q origin backups

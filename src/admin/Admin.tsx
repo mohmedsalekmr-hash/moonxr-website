@@ -8,6 +8,7 @@ import HomeTab from "./Home";
 import TextsTab from "./Texts";
 import OrgsTab from "./Orgs";
 import ContactTab from "./Contact";
+import HistoryTab from "./History";
 
 const TABS = [
   { id: "projects", label: "المشاريع" },
@@ -15,6 +16,7 @@ const TABS = [
   { id: "texts", label: "نصوص الموقع" },
   { id: "orgs", label: "العملاء والشركاء" },
   { id: "contact", label: "التواصل" },
+  { id: "history", label: "السجل" },
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
 
@@ -115,6 +117,7 @@ export default function Admin() {
         {tab === "texts" && <TextsTab />}
         {tab === "orgs" && <OrgsTab />}
         {tab === "contact" && <ContactTab />}
+        {tab === "history" && <HistoryTab />}
       </main>
     </div>
   );
