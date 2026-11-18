@@ -15,7 +15,7 @@ const T = {
 };
 
 /** Contact form: the request is saved in the Moon XR back office (tab «الطلبات»). */
-export default function ContactForm({ lang }: { lang: Locale }) {
+export default function ContactForm({ lang, bare = false }: { lang: Locale; bare?: boolean }) {
   const { ui, contact: CONTACT } = useShared();
   const c = ui.contact;
   const [state, setState] = useState<"idle" | "sending" | "done" | "invalid" | "flood" | "server">("idle");
@@ -36,7 +36,7 @@ export default function ContactForm({ lang }: { lang: Locale }) {
 
   if (state === "done") {
     return (
-      <div className="card grid place-items-center gap-3 p-10 text-center" role="status">
+      <div className={`${bare ? "" : "card"} grid min-h-[420px] place-items-center content-center gap-3 p-10 text-center`} role="status">
         <span className="grid h-14 w-14 place-items-center rounded-full bg-brand-soft text-2xl text-brand">✓</span>
         <p className="font-display text-xl font-bold">{T.done[lang]}</p>
         <p className="text-ink/60">{T.doneSub[lang]}</p>
@@ -51,7 +51,7 @@ export default function ContactForm({ lang }: { lang: Locale }) {
   const err = state === "invalid" || state === "flood" || state === "server";
 
   return (
-    <form onSubmit={onSubmit} className="card grid gap-5 p-6 md:grid-cols-2 md:p-8">
+    <form onSubmit={onSubmit} className={`${bare ? "px-6 pb-7 pt-5 md:px-10 md:pb-10 md:pt-6" : "card p-6 md:p-10"} relative grid gap-5 md:grid-cols-2`}>
       <label className="text-sm text-ink/75">
         {c.name[lang]} *
         <input name="name" required minLength={2} maxLength={120} autoComplete="name" className={field} />

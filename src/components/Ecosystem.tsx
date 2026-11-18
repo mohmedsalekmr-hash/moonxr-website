@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Org } from "@/data/projects";
+import type { Org, Project } from "@/data/projects";
 import type { Locale, T } from "@/data/i18n";
 import { Fragment } from "react";
 import { Logo, LogoMarquee } from "@/components/Logos";
@@ -85,23 +85,62 @@ export function ClientCards({ items, lang, cta }: { items: { org: Org; href: str
   );
 }
 
-/** Partner feature rows: a floating logo stage beside the story. */
+/** Client references: one row per client we delivered for, built from the projects' "Client" fact. */
+export function ClientIndex({ projects, orgs, lang, cta }: { projects: Project[]; orgs: Org[]; lang: Locale; cta: string }) {
+  const rows = projects
+    .map((p) => ({ p, client: p.facts.find((f) => f.k.fr === "Client")?.v }))
+    .filter((r): r is { p: Project; client: T } => !!r.client);
+  const logoOf = (name: string) => orgs.find((o) => o.logo && name.toLowerCase().startsWith(o.name.toLowerCase().split(" ")[0]));
+  return (
+    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 lg:gap-0 lg:divide-y lg:divide-line lg:border-y lg:border-line">
+      {rows.map(({ p, client }) => {
+        const org = logoOf(client.fr);
+        return (
+          <li key={p.slug}>
+            <Link
+              href={`/${lang}/projets/${p.slug}`}
+              className="group grid h-full items-center gap-4 overflow-hidden rounded-[var(--radius-sm)] border border-line bg-white p-4 transition-colors lg:grid-cols-[220px_minmax(0,1fr)_200px_auto] lg:gap-8 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-2 lg:py-6 lg:hover:bg-soft"
+            >
+              <div className="flex h-14 items-center">
+                {org ? (
+                  <Logo org={org} area={6000} maxW={150} maxH={56} />
+                ) : (
+                  <span className="font-display text-2xl font-bold tracking-tight text-navy">{client[lang].split(" — ")[0].split(" (")[0]}</span>
+                )}
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs text-ink/60">{client[lang]}</div>
+                <div className="font-display mt-1 text-lg font-semibold leading-snug md:text-xl">{p.title[lang]}</div>
+                <div className="mt-1 text-sm text-ink/60">{p.meta[lang]}</div>
+              </div>
+              <div className="relative hidden aspect-[16/10] overflow-hidden rounded-[var(--radius-sm)] bg-navy lg:block">
+                <img src={p.cover.src} alt="" loading="lazy" style={{ objectPosition: p.cover.pos }} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              </div>
+              <span className="hidden h-11 w-11 place-items-center rounded-full border border-ink/15 transition-colors group-hover:border-sun group-hover:bg-sun lg:grid" aria-label={cta}>
+                <span className="rtl:rotate-180">→</span>
+              </span>
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/** Partner cards side by side: logo, role, what we do together. */
 export function PartnerFeatures({ orgs, lang, extra }: { orgs: Org[]; lang: Locale; extra: Record<string, { points: T[]; image?: string }> }) {
   return (
-    <div className="space-y-6">
-      {orgs.map((o, i) => (
-        <article key={o.name} className="grid overflow-hidden rounded-[var(--radius-lg)] border border-line bg-white md:grid-cols-2">
-          <div className={`relative grid min-h-[150px] place-items-center overflow-hidden md:min-h-[260px] bg-[radial-gradient(70%_70%_at_50%_40%,#ffffff,#eef1f9)] ${i % 2 ? "md:order-2" : ""}`}>
-            {extra[o.name]?.image && <img src={extra[o.name].image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-[0.12]" />}
-            <div className="float relative">
-              <Logo org={o} area={22000} maxW={270} maxH={160} />
-            </div>
+    <div className="grid gap-5 md:grid-cols-2">
+      {orgs.map((o) => (
+        <article key={o.name} className="flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-line bg-white">
+          <div className="grid h-44 place-items-center border-b border-line bg-[radial-gradient(70%_80%_at_50%_30%,#ffffff,#eef1f9)] md:h-52">
+            <Logo org={o} area={14000} maxW={230} maxH={110} />
           </div>
-          <div className="p-6 md:p-12">
-            <div className="text-xs font-semibold text-sun-deep">{o.role?.[lang]}</div>
-            <h3 className="font-display mt-2 text-2xl font-bold md:text-3xl">{o.name}</h3>
-            <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/75 md:text-base md:text-ink/60">{o.text?.[lang]}</p>
-            <ul className="mt-5 space-y-2.5 md:mt-6">
+          <div className="flex flex-1 flex-col p-6 md:p-8">
+            <span className="tag self-start">{o.role?.[lang]}</span>
+            <h3 className="font-display mt-4 text-2xl font-bold">{o.name}</h3>
+            <p className="mt-3 leading-relaxed text-ink/75">{o.text?.[lang]}</p>
+            <ul className="mt-5 space-y-2.5">
               {extra[o.name]?.points.map((pt, k) => (
                 <li key={k} className="flex items-start gap-3 text-sm text-ink/75">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
@@ -110,7 +149,7 @@ export function PartnerFeatures({ orgs, lang, extra }: { orgs: Org[]; lang: Loca
               ))}
             </ul>
             {o.url && (
-              <a href={o.url} target="_blank" rel="noopener noreferrer" className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-brand hover:underline">
+              <a href={o.url} target="_blank" rel="noopener noreferrer" className="mt-auto inline-flex items-center gap-2 pt-7 text-sm font-semibold text-brand hover:underline">
                 {o.url.replace("https://", "")} <span className="rtl:rotate-180">↗</span>
               </a>
             )}
@@ -121,20 +160,18 @@ export function PartnerFeatures({ orgs, lang, extra }: { orgs: Org[]; lang: Loca
   );
 }
 
-/** Technology wall: logo tiles that reveal what each supplier brings on hover / focus. */
+/** Technology suppliers: logo, name and speciality always visible (phones have no hover). */
 export function TechWall({ orgs, lang }: { orgs: Org[]; lang: Locale }) {
   return (
     <ul className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
       {orgs.map((o) => (
-        <li key={o.name}>
-          <div tabIndex={0} className="tech-tile group relative grid h-36 place-items-center overflow-hidden rounded-[var(--radius-sm)] border border-line bg-white px-6 outline-none transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_24px_50px_-28px_rgba(11,27,63,0.45)] focus-visible:ring-2 focus-visible:ring-brand md:h-44">
-            <div className="transition-all duration-500 group-hover:-translate-y-6 group-hover:scale-90 group-focus:-translate-y-6 group-focus:scale-90">
-              <Logo org={o} area={4200} maxW={150} maxH={56} />
-            </div>
-            <div className="absolute inset-x-0 bottom-0 translate-y-3 p-4 text-center opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100">
-              <div className="text-sm font-semibold">{o.name}</div>
-              {o.role && <div className="text-xs text-ink/60">{o.role[lang]}</div>}
-            </div>
+        <li key={o.name} className="flex flex-col rounded-[var(--radius-sm)] border border-line bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-28px_rgba(20,36,84,0.45)]">
+          <div className="grid h-16 place-items-center md:h-20">
+            <Logo org={o} area={4200} maxW={150} maxH={52} />
+          </div>
+          <div className="mt-4 border-t border-line pt-3 text-center">
+            <div className="text-sm font-semibold">{o.name}</div>
+            {o.role && <div className="mt-0.5 text-xs text-ink/60">{o.role[lang]}</div>}
           </div>
         </li>
       ))}

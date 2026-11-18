@@ -29,9 +29,9 @@ export default function ProjectFilter({ projects, lang }: { projects: Project[];
           </button>
         ))}
       </div>
-      <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map((p) => (
-          <ProjectCard key={p.slug} p={p} lang={lang} index={projects.indexOf(p)} />
+      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {list.map((p, i) => (
+          <ProjectCard key={p.slug} p={p} lang={lang} index={projects.indexOf(p)} featured={i === 0 && list.length > 2} />
         ))}
       </div>
     </>

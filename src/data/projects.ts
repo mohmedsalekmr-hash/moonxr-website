@@ -77,7 +77,7 @@ export const projects: Project[] = [
     title: { fr: "Lancement 5G — Moov Mauritel", ar: "إطلاق الجيل الخامس — موريتل" },
     short: { fr: "Activation VR · 4 casques, jeux et simulations", ar: "تجربة واقع افتراضي · 4 نظارات، ألعاب ومحاكاة" },
     meta: { fr: "Événement · Novembre 2026", ar: "فعالية · نوفمبر 2026" },
-    cover: { ...p("moov-pro-cover", "Un officiel découvre la réalité virtuelle sur l'espace Moon x Moov Mauritel", "مسؤول يكتشف الواقع الافتراضي في فضاء Moon x موريتل", 1144, 763), pos: "50% 40%" },
+    cover: { ...p("moov-pro-stand", "Un visiteur en pleine expérience VR sur l'espace Moon x Moov Mauritel", "زائر في قلب تجربة الواقع الافتراضي في فضاء Moon x موريتل", 1188, 792), pos: "55% 35%" },
     intro: {
       fr: "Pour le lancement de la 5G de Moov Mauritel, nous avons conçu et animé un espace de réalité virtuelle : jeux, simulations et une équipe Moon à chaque poste.",
       ar: "لإطلاق الجيل الخامس لموريتل، صمّمنا وأدرنا فضاءً للواقع الافتراضي: ألعاب ومحاكاة، وفريق Moon عند كل نظارة.",
@@ -105,7 +105,7 @@ export const projects: Project[] = [
     scenes: [
       { media: vid("moov-officiel-hl", 480, 848), title: { fr: "Faire vivre la 5G, casque sur la tête.", ar: "أن تعيش الجيل الخامس، والنظارة على رأسك." } },
             {
-        media: img("moov-pro-stand", 1188, 792),
+        media: img("moov-c", 1080, 810),
         kicker: K.approach,
         title: { fr: "Un espace VR de quatre casques et quatre écrans.", ar: "فضاء واقع افتراضي من أربع نظارات وأربع شاشات." },
         text: { fr: "Jeux, Pilgrim VR et Field Ready VR, avec un membre de l'équipe Moon à chaque poste.", ar: "ألعاب وPilgrim VR وField Ready VR، مع فرد من فريق Moon عند كل نظارة." },
@@ -143,7 +143,7 @@ export const projects: Project[] = [
     title: { fr: "Lancement 5G — Mattel", ar: "إطلاق الجيل الخامس — ماتل" },
     short: { fr: "Expérience VR pour le lancement de la 5G", ar: "تجربة واقع افتراضي لإطلاق الجيل الخامس" },
     meta: { fr: "Événement · Novembre 2026", ar: "فعالية · نوفمبر 2026" },
-    cover: { ...p("mattel-bus-smile", "Lancement de la 5G Mattel : un visiteur en pleine expérience VR", "إطلاق الجيل الخامس لماتل: زائر في قلب تجربة الواقع الافتراضي", 940, 1175), pos: "50% 30%" },
+    cover: { ...p("mattel-bus-femme", "Une visiteuse découvre la 5G Mattel en réalité virtuelle", "زائرة تكتشف الجيل الخامس لماتل بالواقع الافتراضي", 1080, 1350), pos: "50% 30%" },
     intro: {
       fr: "Pour le lancement de la 5G de Mattel, nous avons fait vivre la nouvelle génération au public à travers des expériences en réalité virtuelle.",
       ar: "في إطلاق الجيل الخامس لماتل، جعلنا الجمهور يعيش الجيل الجديد عبر تجارب الواقع الافتراضي.",
@@ -251,7 +251,7 @@ export const projects: Project[] = [
     title: { fr: "3 simulateurs de soudage — EETFP", ar: "3 محاكيات لحام — EETFP" },
     short: { fr: "Soldamatic · Skillveri AURA · WAVE NG", ar: "Soldamatic · Skillveri AURA · WAVE NG" },
     meta: { fr: "Formation · Nouakchott · 2025", ar: "تدريب · نواكشوط · 2025" },
-    cover: { ...p("eetfp-simulator", "Un formateur teste un simulateur de soudage à l'EETFP", "مدرّب يجرّب محاكي لحام في EETFP", 1061, 853), pos: "60% 30%" },
+    cover: { ...p("eetfp-soldamatic", "Exercice de soudage sur le simulateur Soldamatic à l'EETFP", "تمرين لحام على محاكي Soldamatic في EETFP", 1200, 1600), pos: "50% 40%" },
     intro: {
       fr: "Au lycée technique de Nouakchott (EETFP), trois simulateurs de soudage permettent aux élèves de répéter les gestes sans risque et sans consommer de matière.",
       ar: "في الثانوية الفنية بنواكشوط (EETFP)، تتيح ثلاثة محاكيات لحام للطلاب تكرار الحركات بلا خطر ودون استهلاك المواد.",

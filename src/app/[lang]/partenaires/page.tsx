@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { hasLocale } from "@/data/i18n";
 
 import { Reveal } from "@/components/Media";
-import { ClientCards, PartnerFeatures, TechWall } from "@/components/Ecosystem";
+import { ClientIndex, PartnerFeatures, TechWall } from "@/components/Ecosystem";
 import CTA from "@/components/CTA";
 import Page from "@/components/Page";
 import PageHead from "@/components/PageHead";
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/partenaire
 
 export default async function PartnersPage({ params }: PageProps<"/[lang]/partenaires">) {
   const { lang } = await params;
-  const { ui, clients, partners, suppliers, partnersPage: C } = await getContent();
+  const { ui, clients, partners, suppliers, projects, partnersPage: C } = await getContent();
   const extra = Object.fromEntries(partners.map((o) => [o.name, { points: o.points ?? [] }]));
   if (!hasLocale(lang)) notFound();
 
@@ -39,16 +39,8 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
           <Reveal>
             <SectionHeader kicker={ui.partners.clients[lang]} title={C.clientsTitle[lang]} />
           </Reveal>
-          <Reveal className="mt-12">
-            <ClientCards
-              lang={lang}
-              cta={C.view[lang]}
-              items={[
-                { org: clients[0], href: `/${lang}/projets/moov-mauritel`, image: "/media/photos/moov-wide.webp", pos: "60% 40%", label: { fr: "Lancement 5G", ar: "إطلاق الجيل الخامس" } },
-                { org: clients[1], href: `/${lang}/projets/mattel`, image: "/media/photos/mattel-bus-smile.webp", pos: "50% 30%", label: { fr: "Lancement 5G", ar: "إطلاق الجيل الخامس" } },
-                { org: { name: "EETFP", logo: "", r: 1 }, href: `/${lang}/projets/eetfp`, image: "/media/photos/eetfp-simulator.webp", pos: "60% 30%", label: { fr: "Lycée technique · 3 simulateurs de soudage", ar: "الثانوية الفنية · 3 محاكيات لحام" } },
-              ]}
-            />
+          <Reveal className="mt-10">
+            <ClientIndex projects={projects} orgs={clients} lang={lang} cta={C.view[lang]} />
           </Reveal>
         </div>
       </section>
@@ -59,7 +51,7 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
           <Reveal>
             <SectionHeader kicker={ui.partners.kicker[lang]} title={C.partnersTitle[lang]} />
           </Reveal>
-          <Reveal className="mt-12">
+          <Reveal className="mt-10">
             <PartnerFeatures orgs={partners} lang={lang} extra={extra} />
           </Reveal>
         </div>
@@ -68,14 +60,10 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
       {/* TECHNOLOGY SUPPLIERS */}
       <section id="technologies" className="scroll-mt-20 py-14 md:py-24">
         <div className="wrap">
-          <Reveal className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <div className="kicker">{ui.partners.suppliers[lang]}</div>
-              <h2 className="section-title">{C.techTitle[lang]}</h2>
-            </div>
-            <p className="max-w-xs text-sm text-ink/60">{C.techSub[lang]}</p>
+          <Reveal>
+            <SectionHeader kicker={ui.partners.suppliers[lang]} title={C.techTitle[lang]} />
           </Reveal>
-          <Reveal className="mt-12">
+          <Reveal className="mt-10">
             <TechWall orgs={suppliers} lang={lang} />
           </Reveal>
         </div>
