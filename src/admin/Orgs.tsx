@@ -7,7 +7,7 @@ import { Section } from "./Projects";
 import { emptyT, Field, MediaBox, moveItem, RowTools, SaveBar, TField, Toggle, type T } from "./ui";
 
 type Kind = "client" | "partner" | "supplier";
-type Org = { id?: string; kind: Kind; name: string; logo: string; ratio: number; url: string | null; role: T | null; body: T | null; points: unknown; position: number; visible: boolean };
+type Org = { id?: string; kind: Kind; name: string; logo: string; ratio: number; url: string | null; role: T | null; body: T | null; points: unknown; position: number; visible: boolean; category?: string | null };
 
 const KINDS: { id: Kind; name: string; sub: string }[] = [
   { id: "client", name: "العملاء", sub: "الشعارات في شريط «وثقوا بنا» وصفحة الشركاء." },
@@ -82,6 +82,20 @@ export default function OrgsTab() {
                     <Field label="الاسم" value={o.name} onChange={(v) => update(k.id, i, { name: v })} />
                     <Field label="الموقع الإلكتروني" hint="اختياري" value={o.url} placeholder="https://" onChange={(v) => update(k.id, i, { url: v || null })} />
                   </div>
+                  {k.id === "supplier" && (
+                    <div className="grid gap-3 md:grid-cols-[1fr_14rem]">
+                      <TField label="التخصص (سطر قصير)" value={o.role} onChange={(v) => update(k.id, i, { role: v })} />
+                      <label className="block text-sm">
+                        <span className="text-black/60">المجموعة في صفحة الشركاء</span>
+                        <select className="inp mt-1" value={o.category ?? "platform"} onChange={(e) => update(k.id, i, { category: e.target.value })}>
+                          <option value="industry">اللحام والصناعة</option>
+                          <option value="education">التعليم والصحة</option>
+                          <option value="safety">السلامة</option>
+                          <option value="platform">المنصّات</option>
+                        </select>
+                      </label>
+                    </div>
+                  )}
                   {k.id === "partner" && (
                     <>
                       <TField label="الدور" value={o.role} onChange={(v) => update(k.id, i, { role: v })} />
@@ -96,7 +110,7 @@ export default function OrgsTab() {
             ))}
             <button
               className="btn btn-light self-start"
-              onClick={() => setKind(k.id, [...items, { kind: k.id, name: "", logo: "", ratio: 1, url: null, role: null, body: null, points: null, position: items.length, visible: true }])}
+              onClick={() => setKind(k.id, [...items, { kind: k.id, name: "", logo: "", ratio: 1, url: null, role: null, body: null, points: null, position: items.length, visible: true, category: k.id === "supplier" ? "platform" : null }])}
             >
               + إضافة
             </button>

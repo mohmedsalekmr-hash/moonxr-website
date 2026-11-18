@@ -76,18 +76,18 @@ export const aboutPage = {
 export const partnersPage = {
   kicker: { fr: "Notre écosystème", ar: "منظومتنا" },
   title: {
-    fr: "Les bons partenaires, les meilleures technologies.",
-    ar: "الشركاء المناسبون، وأفضل التقنيات.",
+    fr: "Clients, partenaires, technologies.",
+    ar: "عملاؤنا، شركاؤنا، تقنياتنا.",
   },
   sub: {
-    fr: "Moon XR réunit des clients de premier plan, des partenaires de confiance et des fournisseurs reconnus pour livrer des expériences qui fonctionnent, sur place.",
-    ar: "يجمع Moon XR عملاء بارزين وشركاء موثوقين ومزوّدين معروفين، لتقديم تجارب تعمل فعلاً في الموقع.",
+    fr: "Ceux qui nous font confiance, et ce que nous installons.",
+    ar: "من وثق بنا، وما نركّبه لهم.",
   },
-  clientsTitle: { fr: "Ils nous ont fait confiance.", ar: "وثقوا بنا." },
+  clientsTitle: { fr: "Ils nous font confiance.", ar: "وثقوا بنا." },
   partnersTitle: { fr: "Nos partenaires.", ar: "شركاؤنا." },
   techTitle: {
-    fr: "Les technologies que nous déployons.",
-    ar: "التقنيات التي ننشرها.",
+    fr: "Nos technologies, par besoin.",
+    ar: "تقنياتنا، حسب الحاجة.",
   },
   techSub: {
     fr: "Survolez un logo pour découvrir ce que chaque fournisseur apporte.",

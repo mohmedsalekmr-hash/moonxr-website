@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { hasLocale } from "@/data/i18n";
 
 import { Reveal } from "@/components/Media";
-import { ClientIndex, PartnerFeatures, TechWall } from "@/components/Ecosystem";
+import { ClientIndex, PartnerFeatures, TechGroups } from "@/components/Ecosystem";
 import CTA from "@/components/CTA";
 import Page from "@/components/Page";
 import PageHead from "@/components/PageHead";
@@ -20,17 +20,27 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/partenaire
 export default async function PartnersPage({ params }: PageProps<"/[lang]/partenaires">) {
   const { lang } = await params;
   const { ui, clients, partners, suppliers, projects, partnersPage: C } = await getContent();
+  const clientCount = projects.filter((p) => p.facts.some((f) => f.k.fr === "Client")).length;
   const extra = Object.fromEntries(partners.map((o) => [o.name, { points: o.points ?? [] }]));
   if (!hasLocale(lang)) notFound();
 
   return (
     <Page>
       <PageHead kicker={C.kicker[lang]} title={C.title[lang]} sub={C.sub[lang]}>
-        <div className="mt-8 flex flex-wrap gap-2 text-sm">
-          <a href="#clients" className="rounded-full border border-ink/12 bg-white px-4 py-2 hover:border-ink/35">{ui.partners.clients[lang]}</a>
-          <a href="#partenaires" className="rounded-full border border-ink/12 bg-white px-4 py-2 hover:border-ink/35">{ui.partners.kicker[lang]}</a>
-          <a href="#technologies" className="rounded-full border border-ink/12 bg-white px-4 py-2 hover:border-ink/35">{ui.partners.suppliers[lang]}</a>
-        </div>
+        <nav aria-label={C.kicker[lang]} className="mt-10 grid max-w-2xl grid-cols-3 overflow-hidden rounded-[var(--radius-sm)] border border-line bg-white">
+          {[
+            { href: "#clients", n: clientCount, l: ui.partners.clients[lang] },
+            { href: "#partenaires", n: partners.length, l: ui.partners.kicker[lang] },
+            { href: "#technologies", n: suppliers.length, l: lang === "ar" ? "تقنيات" : "Technologies" },
+          ].map((s, i) => (
+            <a key={s.href} href={s.href} className={`group p-4 transition-colors hover:bg-brand-soft md:p-6 ${i ? "border-s border-line" : ""}`}>
+              <div className="font-display text-3xl font-bold text-brand md:text-4xl">{s.n}</div>
+              <div className="mt-1 flex items-center gap-1.5 text-xs text-ink/60 md:text-sm">
+                {s.l} <span className="transition-transform group-hover:translate-y-0.5">↓</span>
+              </div>
+            </a>
+          ))}
+        </nav>
       </PageHead>
 
       {/* CLIENTS */}
@@ -64,7 +74,7 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
             <SectionHeader kicker={ui.partners.suppliers[lang]} title={C.techTitle[lang]} />
           </Reveal>
           <Reveal className="mt-10">
-            <TechWall orgs={suppliers} lang={lang} />
+            <TechGroups orgs={suppliers} partners={partners} lang={lang} />
           </Reveal>
         </div>
       </section>

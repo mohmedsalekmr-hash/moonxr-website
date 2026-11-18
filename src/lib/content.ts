@@ -57,7 +57,7 @@ function merge<V>(base: V, over: unknown): V {
 }
 
 type ProjectRow = Pick<Project, "slug" | "category" | "title" | "short" | "meta" | "intro" | "cover" | "facts" | "scenes">;
-type OrgRow = { kind: "client" | "partner" | "supplier"; name: string; logo: string; ratio: number; url: string | null; role: Org["role"] | null; body: Org["text"] | null; points: unknown };
+type OrgRow = { kind: "client" | "partner" | "supplier"; name: string; logo: string; ratio: number; url: string | null; role: Org["role"] | null; body: Org["text"] | null; points: unknown; category?: string | null };
 
 function toProject(row: ProjectRow): Project {
   const base = local.getProject(row.slug);
@@ -77,6 +77,7 @@ function toOrg(row: OrgRow): Org {
   if (row.url) o.url = row.url;
   if (row.role) o.role = row.role;
   if (row.body) o.text = row.body;
+  if (row.category) o.category = row.category;
   o.points = Array.isArray(row.points) && row.points.length ? (row.points as Org["points"]) : partnerPoints[row.name];
   return o;
 }

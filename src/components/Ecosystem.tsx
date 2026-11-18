@@ -109,8 +109,7 @@ export function ClientIndex({ projects, orgs, lang, cta }: { projects: Project[]
                 )}
               </div>
               <div className="min-w-0">
-                <div className="text-xs text-ink/60">{client[lang]}</div>
-                <div className="font-display mt-1 text-lg font-semibold leading-snug md:text-xl">{p.title[lang]}</div>
+                <div className="font-display text-lg font-semibold leading-snug md:text-xl">{p.title[lang]}</div>
                 <div className="mt-1 text-sm text-ink/60">{p.meta[lang]}</div>
               </div>
               <div className="relative hidden aspect-[16/10] overflow-hidden rounded-[var(--radius-sm)] bg-navy lg:block">
@@ -176,5 +175,50 @@ export function TechWall({ orgs, lang }: { orgs: Org[]; lang: Locale }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+const GROUPS: { id: string; title: T; text: T }[] = [
+  { id: "industry", title: { fr: "Soudage & industrie", ar: "اللحام والصناعة" }, text: { fr: "Des simulateurs pour former aux métiers techniques, sans risque.", ar: "محاكيات لتعليم المهن التقنية، بلا مخاطر." } },
+  { id: "education", title: { fr: "Éducation & santé", ar: "التعليم والصحة" }, text: { fr: "Des cours en VR, de la salle de classe à l'anatomie.", ar: "دروس بالواقع الافتراضي، من الفصل إلى التشريح." } },
+  { id: "safety", title: { fr: "Sécurité", ar: "السلامة" }, text: { fr: "Les bons réflexes, appris en situation simulée.", ar: "ردود الفعل الصحيحة، تُتعلَّم في مواقف محاكاة." } },
+  { id: "platform", title: { fr: "Plateformes", ar: "المنصّات" }, text: { fr: "Pour diffuser et gérer les contenus XR.", ar: "لنشر محتوى XR وإدارته." } },
+];
+
+/** Technology suppliers grouped by need: a visitor knows the need before the brand. */
+export function TechGroups({ orgs, partners, lang }: { orgs: Org[]; partners: Org[]; lang: Locale }) {
+  const groups = GROUPS.map((g) => ({ ...g, items: orgs.filter((o) => (o.category ?? "platform") === g.id) })).filter((g) => g.items.length);
+  const official = (name: string) => partners.find((p) => p.name === name)?.role?.[lang];
+  return (
+    <div className="divide-y divide-line border-y border-line">
+      {groups.map((g) => (
+        <section key={g.id} className="grid gap-6 py-10 md:grid-cols-[minmax(0,1fr)_minmax(0,2.2fr)] md:gap-12 md:py-14">
+          <div>
+            <div className="flex items-baseline gap-3">
+              <h3 className="font-display text-2xl font-bold md:text-3xl">{g.title[lang]}</h3>
+              <span className="font-display text-sm font-semibold text-brand">{g.items.length}</span>
+            </div>
+            <p className="mt-2 max-w-xs text-ink/60">{g.text[lang]}</p>
+          </div>
+          <ul className={`grid grid-cols-2 gap-3 md:gap-4 ${g.items.length >= 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+            {g.items.map((o) => {
+              const badge = official(o.name);
+              return (
+                <li key={o.name} className="group relative flex flex-col rounded-[var(--radius-sm)] border border-line bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:border-brand/20 hover:shadow-[0_24px_50px_-28px_rgba(20,36,84,0.45)] md:p-6">
+                  {badge && <span className="tag absolute start-3 top-3 !bg-sun/20 !text-sun-deep !text-[0.65rem]">{badge}</span>}
+                  <div className={`grid h-20 place-items-center md:h-24 ${badge ? "mt-4" : ""}`}>
+                    <Logo org={o} area={6200} maxW={170} maxH={64} />
+                  </div>
+                  <div className="mt-4 text-center">
+                    <div className="text-sm font-semibold">{o.name}</div>
+                    {o.role && <div className="mt-1 text-xs leading-snug text-ink/60">{o.role[lang]}</div>}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
+    </div>
   );
 }
