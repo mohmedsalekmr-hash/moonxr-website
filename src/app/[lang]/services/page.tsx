@@ -56,10 +56,10 @@ export default async function ServicesPage({ params }: PageProps<"/[lang]/servic
             const img = SERVICE_IMG[i % SERVICE_IMG.length];
             const related = projects.filter((p) => (SHOWN_IN[i] ?? []).includes(p.category));
             return (
-              <Reveal key={i}>
+              <Reveal key={i} className={i === 0 ? "!opacity-100 !transform-none" : ""}>
                 <article id={`s${i + 1}`} className="grid scroll-mt-24 items-center gap-6 md:grid-cols-2 md:gap-14">
                   <div className={`relative aspect-[4/3] overflow-hidden rounded-[var(--radius-lg)] bg-navy ${i % 2 ? "md:order-2" : ""}`}>
-                    <img {...rimg(img.src, "(min-width: 768px) 50vw, 100vw")} alt="" loading={i === 0 ? "eager" : "lazy"} style={{ objectPosition: img.pos }} className="absolute inset-0 h-full w-full object-cover" />
+                    <img {...rimg(img.src, "(min-width: 768px) 50vw, 100vw")} alt="" loading={i === 0 ? "eager" : "lazy"} fetchPriority={i === 0 ? "high" : "auto"} style={{ objectPosition: img.pos }} className="absolute inset-0 h-full w-full object-cover" />
                   </div>
                   <div>
                     <div className="font-display text-sm font-semibold text-brand">{String(i + 1).padStart(2, "0")}</div>
