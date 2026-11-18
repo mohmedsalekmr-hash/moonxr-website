@@ -22,22 +22,22 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
     <Page>
       <PageHead kicker={ui.nav.about[lang]} title={copy.title[lang]} sub={copy.sub[lang]} />
 
-      <section className="pb-20">
+      <section className="pb-14 md:pb-20">
         <div className="wrap">
           <img src="/media/photos/moov-wide.webp" alt="" width={1080} height={608} className="aspect-[16/8] w-full rounded-3xl border border-line object-cover" />
         </div>
       </section>
 
-      <section className="py-20">
+      <section className="py-14 md:py-20">
         <div className="wrap">
           <Reveal>
             <div className="kicker">{ui.services.kicker[lang]}</div>
             <h2 className="font-display mt-4 max-w-3xl text-3xl font-bold md:text-4xl">{ui.services.title[lang]}</h2>
           </Reveal>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          <div className="no-scrollbar -mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:mt-10 sm:grid sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 sm:grid-cols-2">
             {services.map((s, i) => (
-              <Reveal key={s.n} delay={(i % 2) * 90}>
-                <div className="card flex h-full gap-5 p-7">
+              <Reveal key={s.n} delay={(i % 2) * 90} className="w-[80%] shrink-0 snap-start sm:w-auto">
+                <div className="card flex h-full gap-4 p-5 sm:gap-5 sm:p-7">
                   <div className="font-display text-sm font-semibold text-sky">{s.n}</div>
                   <div>
                     <h3 className="font-display text-xl font-semibold">{s.title[lang]}</h3>
@@ -50,7 +50,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
         </div>
       </section>
 
-      <section className="py-20">
+      <section className="py-14 md:py-20">
         <div className="wrap grid gap-12 md:grid-cols-2">
           <Reveal>
             <div className="kicker">{copy.sectors[lang]}</div>
@@ -71,15 +71,15 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
       </section>
 
       {/* COMMITMENT */}
-      <section className="bg-soft py-24 md:py-28">
+      <section className="bg-soft py-16 md:py-28">
         <div className="wrap">
           <Reveal>
             <div className="kicker">{pillars.kicker[lang]}</div>
             <h2 className="font-display mt-4 max-w-3xl text-3xl font-bold leading-tight md:text-4xl">{pillars.title[lang]}</h2>
           </Reveal>
-          <div className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+          <div className="no-scrollbar -mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:mt-14 sm:grid sm:gap-10 sm:overflow-visible sm:px-0 sm:pb-0 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
             {pillars.items.map((it, i) => (
-              <Reveal key={i} delay={i * 90} className="border-t-2 border-ink/10 pt-6">
+              <Reveal key={i} delay={i * 90} className="w-[78%] shrink-0 snap-start rounded-2xl bg-white p-5 sm:w-auto sm:rounded-none sm:border-t-2 sm:border-ink/10 sm:bg-transparent sm:p-0 sm:pt-6">
                 <div className="font-display text-sm font-semibold text-sky">0{i + 1}</div>
                 <h3 className="font-display mt-3 text-lg font-semibold">{it.t[lang]}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink/65">{it.d[lang]}</p>

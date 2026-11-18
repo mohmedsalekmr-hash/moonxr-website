@@ -33,7 +33,7 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
       </PageHead>
 
       {/* CLIENTS */}
-      <section id="clients" className="scroll-mt-20 pb-20 md:pb-24">
+      <section id="clients" className="scroll-mt-20 pb-14 md:pb-24">
         <div className="wrap">
           <Reveal>
             <div className="kicker">{ui.partners.clients[lang]}</div>
@@ -54,7 +54,7 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
       </section>
 
       {/* PARTNERS */}
-      <section id="partenaires" className="scroll-mt-20 bg-soft py-20 md:py-24">
+      <section id="partenaires" className="scroll-mt-20 bg-soft py-14 md:py-24">
         <div className="wrap">
           <Reveal>
             <div className="kicker">{ui.partners.kicker[lang]}</div>
@@ -67,7 +67,7 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
       </section>
 
       {/* TECHNOLOGY SUPPLIERS */}
-      <section id="technologies" className="scroll-mt-20 py-20 md:py-24">
+      <section id="technologies" className="scroll-mt-20 py-14 md:py-24">
         <div className="wrap">
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
             <div>

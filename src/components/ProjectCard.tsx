@@ -11,7 +11,7 @@ export default function ProjectCard({ p, lang }: { p: Project; lang: Locale; ind
   return (
     <Link href={`/${lang}/projets/${p.slug}`} className="group relative block" aria-label={`${p.title[lang]} — ${ui.work.view[lang]}`}>
       <ViewTransition name={`project-${p.slug}`} share="morph" default="none">
-        <div className="veil relative aspect-[4/5] overflow-hidden rounded-[1.75rem] bg-navy sm:aspect-[5/4] lg:aspect-[4/5]">
+        <div className="veil relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-navy sm:aspect-[5/4] sm:rounded-[1.75rem] lg:aspect-[4/5]">
           <img
             src={p.cover.src}
             alt={p.cover.alt[lang]}

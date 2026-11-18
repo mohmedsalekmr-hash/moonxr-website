@@ -16,17 +16,22 @@ export function EcoGrid({ partners, suppliers, lang, labels, more }: { partners:
   return (
     <div>
       {/* Partners: two big logos, no boxes, a single hairline between them */}
-      <div className="grid items-center sm:grid-cols-[1fr_1px_1fr]">
+      <div className="grid grid-cols-2 items-start gap-4 sm:grid-cols-[1fr_1px_1fr] sm:items-center sm:gap-0">
         {partners.map((o, i) => (
           <Fragment key={o.name}>
-            {i > 0 && <span className="mx-auto my-8 h-px w-24 bg-ink/10 sm:my-0 sm:h-28 sm:w-px" />}
-            <div className="group flex flex-col items-center gap-5 py-4 text-center">
-              <div className="grid h-[120px] place-items-center transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-[1.04]">
-                <Logo org={o} area={10500} maxW={240} maxH={120} />
+            {i > 0 && <span className="hidden h-28 w-px bg-ink/10 sm:mx-auto sm:block" />}
+            <div className="group flex flex-col items-center gap-3 rounded-2xl bg-white p-4 text-center sm:gap-5 sm:bg-transparent sm:p-0 sm:py-4">
+              <div className="grid h-[70px] place-items-center transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-[1.04] sm:h-[120px]">
+                <span className="sm:hidden">
+                  <Logo org={o} area={4200} maxW={130} maxH={64} eager />
+                </span>
+                <span className="hidden sm:block">
+                  <Logo org={o} area={10500} maxW={240} maxH={120} />
+                </span>
               </div>
               <div>
                 <div className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sun-deep rtl:text-xs rtl:tracking-normal">{labels.partner}</div>
-                <div className="mt-1 text-sm text-ink/55">{o.role?.[lang]}</div>
+                <div className="mt-1 text-[0.8rem] leading-snug text-ink/65 sm:text-sm sm:text-ink/55">{o.role?.[lang]}</div>
               </div>
             </div>
           </Fragment>
@@ -34,7 +39,7 @@ export function EcoGrid({ partners, suppliers, lang, labels, more }: { partners:
       </div>
 
       {/* Technologies: a quiet label, then two rows gliding in opposite directions */}
-      <div className="mt-16 flex items-center gap-5 md:mt-20">
+      <div className="mt-10 flex items-center gap-5 md:mt-20">
         <span className="h-px flex-1 bg-gradient-to-r from-transparent to-ink/15 rtl:bg-gradient-to-l" />
         <span className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/45 rtl:text-sm rtl:tracking-normal">{labels.supplier}</span>
         <span className="h-px flex-1 bg-gradient-to-l from-transparent to-ink/15 rtl:bg-gradient-to-r" />
@@ -86,17 +91,17 @@ export function PartnerFeatures({ orgs, lang, extra }: { orgs: Org[]; lang: Loca
     <div className="space-y-6">
       {orgs.map((o, i) => (
         <article key={o.name} className="grid overflow-hidden rounded-3xl border border-line bg-white md:grid-cols-2">
-          <div className={`relative grid min-h-[260px] place-items-center overflow-hidden bg-[radial-gradient(70%_70%_at_50%_40%,#ffffff,#eef2f9)] ${i % 2 ? "md:order-2" : ""}`}>
+          <div className={`relative grid min-h-[150px] place-items-center overflow-hidden md:min-h-[260px] bg-[radial-gradient(70%_70%_at_50%_40%,#ffffff,#eef2f9)] ${i % 2 ? "md:order-2" : ""}`}>
             {extra[o.name]?.image && <img src={extra[o.name].image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-[0.12]" />}
             <div className="float relative">
               <Logo org={o} area={22000} maxW={270} maxH={160} />
             </div>
           </div>
-          <div className="p-8 md:p-12">
+          <div className="p-6 md:p-12">
             <div className="text-xs font-semibold text-sun-deep">{o.role?.[lang]}</div>
             <h3 className="font-display mt-2 text-2xl font-bold md:text-3xl">{o.name}</h3>
-            <p className="mt-3 leading-relaxed text-ink/65">{o.text?.[lang]}</p>
-            <ul className="mt-6 space-y-2.5">
+            <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/70 md:text-base md:text-ink/65">{o.text?.[lang]}</p>
+            <ul className="mt-5 space-y-2.5 md:mt-6">
               {extra[o.name]?.points.map((pt, k) => (
                 <li key={k} className="flex items-start gap-3 text-sm text-ink/75">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-sky" />

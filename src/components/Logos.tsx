@@ -20,7 +20,7 @@ function logoSize(r: number, area: number, maxW: number, maxH: number) {
   return { width: Math.round(w), height: Math.round(h) };
 }
 
-export function Logo({ org, area = 3000, maxW = 150, maxH = 54 }: { org: Org; area?: number; maxW?: number; maxH?: number }) {
+export function Logo({ org, area = 3000, maxW = 150, maxH = 54, eager = false }: { org: Org; area?: number; maxW?: number; maxH?: number; eager?: boolean }) {
   const s = logoSize(org.r, area, maxW, maxH);
   return (
     <img
@@ -30,7 +30,7 @@ export function Logo({ org, area = 3000, maxW = 150, maxH = 54 }: { org: Org; ar
       width={s.width}
       height={s.height}
       style={{ width: s.width, height: s.height }}
-      loading="lazy"
+      loading={eager ? "eager" : "lazy"}
       decoding="async"
       className="object-contain"
     />
@@ -59,7 +59,7 @@ export function LogoMarquee({
       <ul className={`marquee-track items-center ${reverse ? "reverse" : ""}`} style={{ "--speed": `${speed}s` } as React.CSSProperties}>
         {row.map((o, i) => (
           <li key={i} aria-hidden={i >= orgs.length} className={`flex h-28 shrink-0 items-center justify-center ${itemClass}`}>
-            <Logo org={o} {...size} />
+            <Logo org={o} {...size} eager />
           </li>
         ))}
       </ul>
