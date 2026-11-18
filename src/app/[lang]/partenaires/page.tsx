@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { hasLocale } from "@/data/i18n";
 
 import { Reveal } from "@/components/Media";
-import { ClientIndex, PartnerFeatures, TechMarquee } from "@/components/Ecosystem";
+import { ClientIndex, PartnerFeatures, TechLogoRows } from "@/components/Ecosystem";
 import CTA from "@/components/CTA";
 import Page from "@/components/Page";
 import PageHead from "@/components/PageHead";
@@ -75,7 +75,7 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
           </Reveal>
         </div>
         <Reveal className="mt-8 md:mt-10">
-          <TechMarquee orgs={suppliers} partners={partners} lang={lang} />
+          <TechLogoRows orgs={suppliers.filter((o) => !partners.some((p) => p.name === o.name))} />
         </Reveal>
       </section>
 

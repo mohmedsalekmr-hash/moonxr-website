@@ -21,7 +21,9 @@ function logoSize(r: number, area: number, maxW: number, maxH: number) {
 }
 
 export function Logo({ org, area = 3000, maxW = 150, maxH = 54, eager = false }: { org: Org; area?: number; maxW?: number; maxH?: number; eager?: boolean }) {
-  const s = logoSize(org.r, area, maxW, maxH);
+  // square or tall marks (crests, symbols) read smaller than wordmarks of the same area: give them more room
+  const boost = org.r >= 0.8 && org.r < 1.3 ? 1.45 : 1;
+  const s = logoSize(org.r, area * boost * boost, maxW, maxH * boost);
   return (
     <img
       src={org.logo}
@@ -58,7 +60,7 @@ export function LogoMarquee({
     <div className="marquee overflow-hidden" dir="ltr">
       <ul className={`marquee-track items-center ${reverse ? "reverse" : ""}`} style={{ "--speed": `${speed}s` } as React.CSSProperties}>
         {row.map((o, i) => (
-          <li key={i} aria-hidden={i >= orgs.length} className={`flex h-28 shrink-0 items-center justify-center ${itemClass}`}>
+          <li key={i} aria-hidden={i >= orgs.length} tabIndex={-1} className={`flex h-28 shrink-0 items-center justify-center outline-none ${itemClass}`}>
             <Logo org={o} {...size} eager />
           </li>
         ))}

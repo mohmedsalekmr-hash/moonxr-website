@@ -5,6 +5,18 @@ import { Fragment } from "react";
 import type React from "react";
 import { Logo, LogoMarquee } from "@/components/Logos";
 
+/** Technology logos in two rows gliding in opposite directions: grey at rest, their own colours on hover or tap. */
+export function TechLogoRows({ orgs }: { orgs: Org[] }) {
+  const half = Math.ceil(orgs.length / 2);
+  const fade = "grayscale opacity-55 transition duration-500 hover:grayscale-0 hover:opacity-100 focus:grayscale-0 focus:opacity-100 active:grayscale-0 active:opacity-100";
+  return (
+    <div className="space-y-2">
+      <LogoMarquee orgs={orgs.slice(0, half)} speed={34} size={{ area: 4200, maxW: 150, maxH: 54 }} itemClass={`px-10 md:px-16 ${fade}`} />
+      <LogoMarquee orgs={orgs.slice(half)} speed={30} reverse size={{ area: 4200, maxW: 150, maxH: 54 }} itemClass={`px-10 md:px-16 ${fade}`} />
+    </div>
+  );
+}
+
 /**
  * Ecosystem grid: partners as two wide tiles, then the technology suppliers.
  * Hairline-separated tiles, logos in their own colours, name revealed on hover.
@@ -12,8 +24,6 @@ import { Logo, LogoMarquee } from "@/components/Logos";
 export function EcoGrid({ partners, suppliers, lang, labels, more }: { partners: Org[]; suppliers: Org[]; lang: Locale; labels: { partner: string; supplier: string }; more?: { href: string; label: string } }) {
   // Each logo appears once: partners are not repeated among the suppliers.
   const techs = suppliers.filter((o) => !partners.some((p) => p.name === o.name));
-  const half = Math.ceil(techs.length / 2);
-  const fade = "grayscale opacity-55 transition duration-500 hover:grayscale-0 hover:opacity-100";
   return (
     <div>
       {/* Partners: two big logos, no boxes, a single hairline between them */}
@@ -45,9 +55,8 @@ export function EcoGrid({ partners, suppliers, lang, labels, more }: { partners:
         <span className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/45 rtl:text-sm rtl:tracking-normal">{labels.supplier}</span>
         <span className="h-px flex-1 bg-gradient-to-l from-transparent to-ink/15 rtl:bg-gradient-to-r" />
       </div>
-      <div className="mt-6 space-y-2">
-        <LogoMarquee orgs={techs.slice(0, half)} speed={34} size={{ area: 4200, maxW: 150, maxH: 54 }} itemClass={`px-10 md:px-16 ${fade}`} />
-        <LogoMarquee orgs={techs.slice(half)} speed={30} reverse size={{ area: 4200, maxW: 150, maxH: 54 }} itemClass={`px-10 md:px-16 ${fade}`} />
+      <div className="mt-6">
+        <TechLogoRows orgs={techs} />
       </div>
       {more && (
         <div className="mt-8 text-center">

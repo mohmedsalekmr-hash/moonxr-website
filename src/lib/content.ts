@@ -82,7 +82,7 @@ function toOrg(row: OrgRow): Org {
   return o;
 }
 
-const DEFAULT_HOME: HomeSection[] = ["hero", "about", "work", "process", "ecosystem", "contact"].map((id) => ({ id, visible: id !== "ecosystem" }));
+const DEFAULT_HOME: HomeSection[] = ["hero", "about", "work", "process", "ecosystem", "contact"].map((id) => ({ id, visible: true }));
 
 export async function getContent(): Promise<Content> {
   const [rows, orgs, kv] = await Promise.all([
