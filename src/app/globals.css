@@ -363,11 +363,27 @@ header { view-transition-name: site-header; }
     linear-gradient(180deg, #0b1b3f 0%, #060c1d 100%);
 }
 section[data-explore] { color: #fff; }
+.hint-anchor { position: absolute; left: 0; top: 0; opacity: 0; transition: opacity 0.6s ease 0.2s; }
+.hint-anchor.is-on { opacity: 1; }
+.hint-dot {
+  position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; border-radius: 999px;
+  background: #fff; border: 3px solid #007aff; box-shadow: 0 2px 8px rgba(11, 27, 63, 0.3);
+}
+.hint-dot::after {
+  content: ""; position: absolute; inset: -9px; border-radius: 999px; border: 2px solid rgba(0, 122, 255, 0.5);
+  animation: hint-ping 2s ease-out infinite;
+}
+@keyframes hint-ping { from { transform: scale(0.4); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+.hint-line {
+  position: absolute; left: -0.75px; top: 6px; width: 1.5px; height: 64px;
+  background: linear-gradient(180deg, rgba(0, 122, 255, 0.9), rgba(0, 122, 255, 0.15));
+}
 .drag-pill {
+  position: absolute; left: 0; top: 70px;
   display: inline-flex; align-items: center; gap: 10px; transform: translateX(-50%) translateY(6px);
   padding: 7px 16px 7px 7px; border-radius: 999px; white-space: nowrap;
   font-size: 0.85rem; font-weight: 600; color: var(--color-ink);
-  background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(14px) saturate(1.4);
+  background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(16px) saturate(1.5);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 12px 30px -14px rgba(11, 27, 63, 0.45);
   border: 1px solid rgba(11, 27, 63, 0.08);
   opacity: 0; transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -386,7 +402,11 @@ section[data-explore] { color: #fff; }
   75% { transform: translateX(3px) rotate(8deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .drag-pill-icon svg { animation: none; }
+  .drag-pill-icon svg, .hint-dot::after { animation: none; }
+}
+@media (max-width: 767px) {
+  .hint-line { height: 40px; }
+  .drag-pill { top: 46px; font-size: 0.78rem; }
 }
 .callout[data-dim] { opacity: 0.35 !important; }
 .callout[data-hide] { opacity: 0 !important; pointer-events: none; }

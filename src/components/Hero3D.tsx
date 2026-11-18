@@ -117,7 +117,12 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
       model.traverse((o) => {
         const m = o as import("three").Mesh;
         if (!m.isMesh) return;
-        const mats = (Array.isArray(m.material) ? m.material : [m.material]).map((x) => x.clone());
+        const mats = (Array.isArray(m.material) ? m.material : [m.material]).map((x) => {
+          const c = x.clone();
+          c.userData.baseTransparent = c.transparent;
+          c.userData.baseOpacity = c.opacity;
+          return c;
+        });
         m.material = Array.isArray(m.material) ? mats : mats[0];
         groupMats[isCtrl(m) ? "controller" : "headset"].push(...mats);
       });
@@ -127,9 +132,9 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
       const applyDim = (g: "headset" | "controller") => {
         groupMeshes[g].forEach((o) => (o.visible = dim[g] > 0.02));
         groupMats[g].forEach((mat) => {
-          mat.transparent = dim[g] < 0.999;
-          mat.opacity = dim[g];
-          mat.depthWrite = dim[g] > 0.6;
+          mat.transparent = mat.userData.baseTransparent || dim[g] < 0.999;
+          mat.opacity = (mat.userData.baseOpacity ?? 1) * dim[g];
+          mat.depthWrite = mat.userData.baseTransparent ? mat.depthWrite : dim[g] > 0.6;
         });
       };
 
@@ -185,8 +190,8 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
             const mesh = m as import("three").Mesh;
             if (!mesh.isMesh) return;
             (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).forEach((mat) => {
-              mat.transparent = e * dim.controller * so < 0.999;
-              mat.opacity = e * dim.controller * so;
+              mat.transparent = mat.userData.baseTransparent || e * dim.controller * so < 0.999;
+              mat.opacity = (mat.userData.baseOpacity ?? 1) * e * dim.controller * so;
             });
           });
         });
@@ -417,8 +422,8 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
         });
 
         if (!exploring && hintRef.current) {
-          c2.set(headCenter.x, headBox.min.y, headCenter.z).project(camera);
-          hintRef.current.style.transform = `translate(${((c2.x + 1) / 2) * w}px, ${((1 - c2.y) / 2) * h + 18}px)`;
+          c2.set(headCenter.x, headBox.min.y + headSize.y * 0.12, headBox.max.z - 0.01).project(camera);
+          hintRef.current.style.transform = `translate(${((c2.x + 1) / 2) * w}px, ${((1 - c2.y) / 2) * h}px)`;
         }
 
 
@@ -551,6 +556,10 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
       {/* idle hint: a small glass pill under the headset, with a hand that swipes */}
       {ready && !explore && (
         <div ref={hintRef} className="pointer-events-none absolute left-0 top-0 z-10">
+          <span className={`hint-anchor ${hint ? "is-on" : ""}`} aria-hidden>
+            <span className="hint-dot" />
+            <span className="hint-line" />
+          </span>
           <button
             type="button"
             onClick={enter}
