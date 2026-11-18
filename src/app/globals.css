@@ -127,6 +127,60 @@ html[dir="rtl"] .kicker {
   border-color: rgba(10, 15, 31, 0.4);
 }
 
+/* outline button for dark backgrounds */
+.btn-line {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+.btn-line:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+.btn-sm {
+  padding: 0.55rem 1rem;
+  font-size: 0.85rem;
+}
+
+/* one heading scale for every section */
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.875rem;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  max-width: 42rem;
+  margin-top: 1rem;
+}
+@media (min-width: 768px) {
+  .section-title { font-size: 3rem; }
+}
+html[dir="rtl"] .section-title { letter-spacing: 0; line-height: 1.3; }
+.section-lead {
+  margin-top: 0.75rem;
+  max-width: 36rem;
+  font-size: 0.95rem;
+  color: rgb(10 15 31 / 0.6);
+}
+@media (min-width: 768px) {
+  .section-lead { margin-top: 1rem; font-size: 1rem; }
+}
+
+/* small label on cards and photos */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+}
+.tag-dark {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  backdrop-filter: blur(8px);
+}
+
 .card {
   background: #fff;
   border: 1px solid var(--color-line);

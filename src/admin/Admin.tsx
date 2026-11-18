@@ -9,21 +9,26 @@ import TextsTab from "./Texts";
 import OrgsTab from "./Orgs";
 import ContactTab from "./Contact";
 import HistoryTab from "./History";
+import RequestsTab from "./Requests";
+import BrandTab from "./Brand";
 
 const TABS = [
+  { id: "requests", label: "الطلبات" },
   { id: "projects", label: "المشاريع" },
   { id: "home", label: "الصفحة الرئيسية" },
   { id: "texts", label: "نصوص الموقع" },
   { id: "orgs", label: "العملاء والشركاء" },
   { id: "contact", label: "التواصل" },
   { id: "history", label: "السجل" },
+  { id: "brand", label: "دليل الهوية" },
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
 
 export default function Admin() {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<Tab>("projects");
+  const [tab, setTab] = useState<Tab>("requests");
+  const [newCount, setNewCount] = useState(0);
 
   useEffect(() => {
     sb.auth.getSession().then(({ data }) => setSession(data.session));
@@ -107,6 +112,9 @@ export default function Admin() {
               className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-semibold transition ${tab === t.id ? "border-navy text-navy" : "border-transparent text-black/45 hover:text-black"}`}
             >
               {t.label}
+              {t.id === "requests" && newCount > 0 && (
+                <span className="ms-1.5 rounded-full bg-sun px-1.5 py-0.5 text-[0.7rem] text-ink">{newCount}</span>
+              )}
             </button>
           ))}
         </nav>
@@ -118,6 +126,8 @@ export default function Admin() {
         {tab === "orgs" && <OrgsTab />}
         {tab === "contact" && <ContactTab />}
         {tab === "history" && <HistoryTab />}
+        {tab === "brand" && <BrandTab />}
+        {tab === "requests" && <RequestsTab onCount={setNewCount} />}
       </main>
     </div>
   );

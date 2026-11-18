@@ -1,5 +1,6 @@
 import { getContent } from "@/lib/content";
 import Link from "next/link";
+import SectionHeader from "@/components/SectionHeader";
 import { type Locale } from "@/data/i18n";
 import { Reveal } from "@/components/Media";
 
@@ -23,14 +24,12 @@ export default async function CTA({ lang }: { lang: Locale }) {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[360px] bg-[radial-gradient(45%_100%_at_50%_0%,rgba(111,138,214,0.24),transparent_70%)]" />
       <div className="wrap relative py-20 text-center md:py-24">
         <Reveal>
-          <div className="kicker justify-center !text-sun">{ui.nav.contact[lang]}</div>
-          <h2 className="font-display mx-auto mt-4 max-w-2xl text-3xl font-bold leading-[1.12] md:text-5xl">{ui.cta.title[lang]}</h2>
-          <p className="mx-auto mt-3 max-w-xl text-white/60">{ui.cta.sub[lang]}</p>
+          <SectionHeader dark center kicker={ui.nav.contact[lang]} title={ui.cta.title[lang]} lead={ui.cta.sub[lang]} />
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href={`/${lang}/contact`} className="btn btn-sun">
               {ui.cta.btn[lang]}
             </Link>
-            <a href={CONTACT.phoneHref} className="btn border border-white/25 text-white hover:border-white/60">
+            <a href={CONTACT.phoneHref} className="btn btn-line">
               {fr ? "Appeler" : "اتصل بنا"}
             </a>
           </div>

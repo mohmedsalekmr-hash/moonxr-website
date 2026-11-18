@@ -62,7 +62,7 @@ export default function Showcase({ items, head, all, hint }: { items: ShowcaseIt
                 <img src={it.image} alt="" draggable={false} loading={i < 3 ? "eager" : "lazy"} style={{ objectPosition: it.pos }} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.06]" />
               </div>
             </ViewTransition>
-            <span className="absolute end-5 top-5 z-[2] rounded-full bg-white/12 px-3 py-1 text-[0.7rem] font-medium tracking-wide text-white ring-1 ring-white/20 backdrop-blur-md rtl:text-xs">{it.tag}</span>
+            <span className="absolute end-5 top-5 z-[2] tag tag-dark ring-1 ring-white/20">{it.tag}</span>
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] p-6 md:p-7">
               <div className="text-xs font-medium text-white/60">{it.meta}</div>
               <h3 className="font-display mt-2 text-2xl font-bold leading-tight md:text-[1.7rem]">{it.title}</h3>

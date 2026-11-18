@@ -641,7 +641,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
                 <div className="kicker !text-sun">{explorer.kicker[lang]}</div>
                 <div className="mt-1 hidden text-sm text-white/60 md:block">{t(explorer.help)}</div>
               </div>
-              <button type="button" onClick={exit} className="pointer-events-auto btn border border-white/25 !py-2 text-sm text-white hover:border-white/60">
+              <button type="button" onClick={exit} className="pointer-events-auto btn btn-line btn-sm">
                 ✕ {lang === "fr" ? "Fermer" : "إغلاق"}
               </button>
             </div>
@@ -668,7 +668,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
 
                 {!step && !tour ? (
                   <div className="mt-4 md:mt-5">
-                    <button type="button" onClick={() => setTour(true)} className="btn w-full justify-center bg-sun text-ink hover:brightness-105">
+                    <button type="button" onClick={() => setTour(true)} className="btn btn-sun w-full justify-center">
                       ▶ {t(explorer.tour)}
                     </button>
                     <p className="mt-2 text-center text-xs text-white/60">{t(explorer.or)}</p>

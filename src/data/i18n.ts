@@ -153,8 +153,8 @@ export const ui = {
     msg: { fr: "Votre message", ar: "رسالتكم" },
     send: { fr: "Envoyer", ar: "إرسال" },
     note: {
-      fr: "Le bouton ouvre votre messagerie avec le message prérempli.",
-      ar: "يفتح الزر بريدكم الإلكتروني والرسالة جاهزة.",
+      fr: "Réponse sous 48 h, par e-mail ou téléphone.",
+      ar: "نردّ خلال 48 ساعة عبر البريد أو الهاتف.",
     },
     direct: { fr: "Ou directement", ar: "أو مباشرة" },
     city: { fr: "Nouakchott, Mauritanie", ar: "نواكشوط، موريتانيا" },

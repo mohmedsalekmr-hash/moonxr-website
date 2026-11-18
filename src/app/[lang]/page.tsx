@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { getContent } from "@/lib/content";
+import SectionHeader from "@/components/SectionHeader";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { hasLocale } from "@/data/i18n";
@@ -111,7 +112,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                   <span className="h-px w-8 bg-sun" />
                   {ui.work.kicker[lang]}
                 </div>
-                <h2 className="font-display mt-4 max-w-2xl text-3xl font-bold leading-tight md:text-5xl">{h.workTitle[lang]}</h2>
+                <h2 className="section-title">{h.workTitle[lang]}</h2>
               </>
             }
             all={{ href: `/${lang}/projets`, label: ui.work.seeAll[lang] }}
@@ -126,8 +127,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           <section className="py-16 md:py-32">
             <div className="wrap">
               <Reveal>
-                <div className="kicker">{h.processKicker[lang]}</div>
-                <h2 className="font-display mt-4 max-w-2xl text-3xl font-bold leading-tight md:text-5xl">{h.processTitle[lang]}</h2>
+                <SectionHeader kicker={h.processKicker[lang]} title={h.processTitle[lang]} />
               </Reveal>
               <ol className="no-scrollbar -mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:mt-12 sm:grid sm:gap-px sm:overflow-hidden sm:rounded-[var(--radius-lg)] sm:border sm:border-line sm:bg-line sm:px-0 sm:pb-0 sm:grid-cols-2 lg:grid-cols-4">
                 {steps.map((s, i) => (
@@ -148,15 +148,17 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           {/* 5 — ECOSYSTEM: partners and technology suppliers */}
           <section className="bg-soft py-16 md:py-32">
             <div className="wrap">
-              <Reveal className="flex flex-wrap items-end justify-between gap-6">
-                <div>
-                  <div className="kicker">{h.ecoKicker[lang]}</div>
-                  <h2 className="font-display mt-4 max-w-2xl text-3xl font-bold leading-tight md:text-5xl">{h.ecoTitle[lang]}</h2>
-                  <p className="mt-3 max-w-xl text-[0.95rem] text-ink/75 md:mt-4 md:text-base md:text-ink/60">{h.ecoSub[lang]}</p>
-                </div>
-                <Link href={`/${lang}/partenaires`} className="btn btn-ghost">
-                  {h.ecoCta[lang]}
-                </Link>
+              <Reveal>
+                <SectionHeader
+                  kicker={h.ecoKicker[lang]}
+                  title={h.ecoTitle[lang]}
+                  lead={h.ecoSub[lang]}
+                  action={
+                    <Link href={`/${lang}/partenaires`} className="btn btn-ghost">
+                      {h.ecoCta[lang]}
+                    </Link>
+                  }
+                />
               </Reveal>
               <Reveal className="mt-8 md:mt-12">
                 <EcoGrid partners={partners} suppliers={suppliers} lang={lang} labels={{ partner: lang === "ar" ? "شريك" : "Partenaire", supplier: ui.partners.suppliers[lang] }} more={{ href: `/${lang}/partenaires#technologies`, label: lang === "ar" ? "كل التقنيات" : "Toutes nos technologies" }} />

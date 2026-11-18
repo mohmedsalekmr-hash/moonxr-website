@@ -1,5 +1,6 @@
 import { getContent } from "@/lib/content";
 import type { Metadata } from "next";
+import SectionHeader from "@/components/SectionHeader";
 import { notFound } from "next/navigation";
 import { hasLocale } from "@/data/i18n";
 import PageHead from "@/components/PageHead";
@@ -31,8 +32,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
       <section className="py-14 md:py-20">
         <div className="wrap">
           <Reveal>
-            <div className="kicker">{ui.services.kicker[lang]}</div>
-            <h2 className="font-display mt-4 max-w-3xl text-3xl font-bold md:text-5xl">{ui.services.title[lang]}</h2>
+            <SectionHeader kicker={ui.services.kicker[lang]} title={ui.services.title[lang]} />
           </Reveal>
           <div className="no-scrollbar -mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:mt-10 sm:grid sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 sm:grid-cols-2">
             {services.map((s, i) => (
@@ -74,8 +74,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
       <section className="bg-soft py-16 md:py-28">
         <div className="wrap">
           <Reveal>
-            <div className="kicker">{pillars.kicker[lang]}</div>
-            <h2 className="font-display mt-4 max-w-3xl text-3xl font-bold leading-tight md:text-5xl">{pillars.title[lang]}</h2>
+            <SectionHeader kicker={pillars.kicker[lang]} title={pillars.title[lang]} />
           </Reveal>
           <div className="no-scrollbar -mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:mt-14 sm:grid sm:gap-10 sm:overflow-visible sm:px-0 sm:pb-0 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
             {pillars.items.map((it, i) => (

@@ -1,5 +1,6 @@
 import { getContent } from "@/lib/content";
 import type { Metadata } from "next";
+import SectionHeader from "@/components/SectionHeader";
 import { notFound } from "next/navigation";
 import { hasLocale } from "@/data/i18n";
 
@@ -36,8 +37,7 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
       <section id="clients" className="scroll-mt-20 pb-14 md:pb-24">
         <div className="wrap">
           <Reveal>
-            <div className="kicker">{ui.partners.clients[lang]}</div>
-            <h2 className="font-display mt-4 text-3xl font-bold md:text-5xl">{C.clientsTitle[lang]}</h2>
+            <SectionHeader kicker={ui.partners.clients[lang]} title={C.clientsTitle[lang]} />
           </Reveal>
           <Reveal className="mt-12">
             <ClientCards
@@ -57,8 +57,7 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
       <section id="partenaires" className="scroll-mt-20 bg-soft py-14 md:py-24">
         <div className="wrap">
           <Reveal>
-            <div className="kicker">{ui.partners.kicker[lang]}</div>
-            <h2 className="font-display mt-4 text-3xl font-bold md:text-5xl">{C.partnersTitle[lang]}</h2>
+            <SectionHeader kicker={ui.partners.kicker[lang]} title={C.partnersTitle[lang]} />
           </Reveal>
           <Reveal className="mt-12">
             <PartnerFeatures orgs={partners} lang={lang} extra={extra} />
@@ -72,7 +71,7 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <div className="kicker">{ui.partners.suppliers[lang]}</div>
-              <h2 className="font-display mt-4 max-w-2xl text-3xl font-bold md:text-5xl">{C.techTitle[lang]}</h2>
+              <h2 className="section-title">{C.techTitle[lang]}</h2>
             </div>
             <p className="max-w-xs text-sm text-ink/60">{C.techSub[lang]}</p>
           </Reveal>
