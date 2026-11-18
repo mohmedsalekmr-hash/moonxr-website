@@ -351,3 +351,52 @@ header { view-transition-name: site-header; }
 @media (prefers-reduced-motion: reduce) {
   .hint-swipe { animation: none; }
 }
+
+/* 3D headset: dark studio, idle drag hint, guided tour */
+.studio {
+  background:
+    radial-gradient(55% 60% at 50% 48%, rgba(0, 122, 255, 0.22), transparent 70%),
+    radial-gradient(40% 30% at 50% 92%, rgba(251, 183, 48, 0.12), transparent 70%),
+    linear-gradient(180deg, #0b1b3f 0%, #060c1d 100%);
+}
+section[data-explore] { color: #fff; }
+.drag-hint {
+  position: absolute; left: 0; top: 0; width: 0; height: 0;
+  opacity: 0; transition: opacity 0.6s ease;
+}
+.drag-hint.is-on { opacity: 1; }
+.drag-hint-arc {
+  position: absolute; left: -95px; top: 18px; width: 190px; height: 46px;
+  border: 2px dashed rgba(0, 122, 255, 0.55); border-top: 0; border-radius: 0 0 190px 190px / 0 0 46px 46px;
+}
+.drag-hint-arc::before, .drag-hint-arc::after {
+  content: ""; position: absolute; top: -6px; width: 10px; height: 10px;
+  border: solid rgba(0, 122, 255, 0.75); border-width: 0 2px 2px 0;
+}
+.drag-hint-arc::before { left: -3px; transform: rotate(135deg); }
+.drag-hint-arc::after { right: -3px; transform: rotate(-45deg); }
+.drag-hint-hand {
+  position: absolute; left: -30px; top: 30px; width: 60px; height: 60px; border-radius: 999px;
+  display: grid; place-items: center;
+  background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(6px);
+  box-shadow: 0 0 0 6px rgba(0, 122, 255, 0.15), 0 14px 30px -10px rgba(11, 27, 63, 0.45);
+}
+.drag-hint-cap {
+  position: absolute; top: 100px; left: 0; transform: translateX(-50%); white-space: nowrap;
+  border-radius: 999px; background: #0b1b3f; color: #fff; padding: 6px 12px; font-size: 0.75rem; font-weight: 600;
+  box-shadow: 0 10px 24px -10px rgba(11, 27, 63, 0.6);
+}
+.callout[data-dim] { opacity: 0.35 !important; }
+.callout[data-hide] { opacity: 0 !important; pointer-events: none; }
+.callout[data-hide] * { pointer-events: none !important; }
+.callout { animation-fill-mode: both; }
+.tour-bar {
+  position: absolute; left: 0; bottom: 0; height: 3px; width: 100%;
+  background: #fbb730; transform-origin: 0 50%;
+  animation: tour-bar linear both;
+}
+[dir="rtl"] .tour-bar { transform-origin: 100% 50%; }
+@keyframes tour-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .tour-bar { animation: none; }
+}

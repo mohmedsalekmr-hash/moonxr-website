@@ -111,7 +111,7 @@ export const projects: Project[] = [
         text: { fr: "Jeux, Pilgrim VR et Field Ready VR, avec un membre de l'équipe Moon à chaque poste.", ar: "ألعاب وPilgrim VR وField Ready VR، مع فرد من فريق Moon عند كل نظارة." },
       },
       {
-        media: img("moov-pro-official", 1188, 792),
+        media: img("moov-minister", 800, 1066),
         kicker: { fr: "Visite officielle", ar: "زيارة رسمية" },
         title: { fr: "Le ministre de la Transformation numérique sur le stand.", ar: "وزير التحول الرقمي في الجناح." },
         text: { fr: "Il a exploré la Grande Mosquée de La Mecque en réalité virtuelle.", ar: "استكشف المسجد الحرام بالواقع الافتراضي." },

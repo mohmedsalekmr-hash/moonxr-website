@@ -19,12 +19,12 @@ export const PART = {
 /** Points of interest on the model, used for the interactive tour. */
 export const HOTSPOTS: Record<string, { point: [number, number, number]; view: [number, number, number] }> = {
   // view = [azimuth, elevation, distance] of the camera around the point
-  cameras: { point: [0, -0.06, 0.125], view: [0.3, 0.1, 0.42] },
-  lenses: { point: [0.032, 0, 0.065], view: [Math.PI - 0.45, -0.38, 0.42] },
+  cameras: { point: [0, -0.06, 0.125], view: [0.35, 0.12, 0.5] },
+  lenses: { point: [0.032, 0, 0.065], view: [Math.PI - 0.5, -0.3, 0.56] },
   strap: { point: [0, 0.081, 0], view: [-2.3, 0.55, 0.6] },
-  joystick: { point: [0.121, -0.1532, 0.1891], view: [0.4, 0.85, 0.32] },
-  buttons: { point: [0.1017, -0.1483, 0.1804], view: [0.2, 0.9, 0.3] },
-  trigger: { point: [-0.0916, -0.1425, 0.1494], view: [-0.35, 0.35, 0.32] },
+  joystick: { point: [0.121, -0.1532, 0.1891], view: [0.5, 0.75, 0.4] },
+  buttons: { point: [0.1017, -0.1483, 0.1804], view: [0.25, 0.8, 0.38] },
+  trigger: { point: [-0.0916, -0.1425, 0.1494], view: [-0.45, 0.3, 0.4] },
 };
 
 let cache: Promise<THREE.Group> | null = null;

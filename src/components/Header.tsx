@@ -26,6 +26,14 @@ export default function Header({ lang }: { lang: Locale }) {
     };
   }, [open]);
 
+  // the home hero turns into a dark studio while the 3D headset is explored
+  const [studio, setStudio] = useState(false);
+  useEffect(() => {
+    const on = (e: Event) => setStudio(!!(e as CustomEvent<boolean>).detail);
+    window.addEventListener("mx-studio", on);
+    return () => window.removeEventListener("mx-studio", on);
+  }, []);
+
   const other: Locale = lang === "fr" ? "ar" : "fr";
   const switchHref = pathname.replace(/^\/(fr|ar)(?=\/|$)/, `/${other}`);
 
@@ -37,7 +45,7 @@ export default function Header({ lang }: { lang: Locale }) {
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   // Project pages are one dark experience: the bar is dark glass there
-  const dark = /\/projets\/[^/]+$/.test(pathname) && !open;
+  const dark = (/\/projets\/[^/]+$/.test(pathname) || studio) && !open;
 
   return (
     <header
