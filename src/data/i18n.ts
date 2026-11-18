@@ -237,31 +237,6 @@ export const steps = [
   },
 ];
 
-export const pillars = {
-  kicker: { fr: "Notre engagement", ar: "التزامنا" },
-  title: {
-    fr: "Une technologie de pointe, une équipe sur place, une expérience sans faille.",
-    ar: "تقنية متقدمة، وفريق في الموقع، وتجربة بلا أخطاء.",
-  },
-  items: [
-    {
-      t: { fr: "Clé en main", ar: "حل متكامل" },
-      d: { fr: "Casques, contenus, installation et animation : nous prenons tout en charge, du premier échange au dernier visiteur.", ar: "النظارات والمحتوى والتركيب والإدارة: نتكفّل بكل شيء، من أول لقاء إلى آخر زائر." },
-    },
-    {
-      t: { fr: "Équipe locale", ar: "فريق محلي" },
-      d: { fr: "Basés à Nouakchott, nous installons, formons et restons joignables après la livraison.", ar: "مقرّنا نواكشوط: نركّب وندرّب ونبقى قريبين منكم بعد التسليم." },
-    },
-    {
-      t: { fr: "Technologies éprouvées", ar: "تقنيات موثوقة" },
-      d: { fr: "Des solutions de constructeurs reconnus, choisies pour chaque besoin et chaque public.", ar: "حلول من مصنّعين معروفين، نختارها لكل حاجة ولكل جمهور." },
-    },
-    {
-      t: { fr: "Sécurité & hygiène", ar: "السلامة والنظافة" },
-      d: { fr: "Un accompagnateur à chaque poste et des casques nettoyés entre chaque visiteur.", ar: "مرافق عند كل نظارة، وتنظيف النظارات بين كل زائر وآخر." },
-    },
-  ],
-};
 
 export const stats: { v: string; vAr?: string; l: T }[] = [
   { v: "2", l: { fr: "lancements 5G animés en VR", ar: "فعاليتا إطلاق للجيل الخامس" } },

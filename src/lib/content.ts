@@ -1,6 +1,7 @@
 import "server-only";
 import * as local from "@/data/projects";
 import * as i18n from "@/data/i18n";
+import { aboutPage, partnersPage, partnerPoints } from "@/data/pages";
 import type { Project, Org } from "@/data/projects";
 
 /**
@@ -19,6 +20,8 @@ export type Content = {
   services: typeof i18n.services;
   steps: typeof i18n.steps;
   home: HomeSection[];
+  about: typeof aboutPage;
+  partnersPage: typeof partnersPage;
   projects: Project[];
   clients: Org[];
   partners: Org[];
@@ -62,8 +65,6 @@ function toProject(row: ProjectRow): Project {
     // fields the admin does not edit yet come from the code
     story: base?.story ?? { need: row.intro, approach: row.intro, result: row.intro },
     gallery: base?.gallery ?? [],
-    hero: base?.hero,
-    reels: base?.reels,
     placeholders: base?.placeholders,
     ...row,
     facts: row.facts ?? [],
@@ -72,11 +73,11 @@ function toProject(row: ProjectRow): Project {
 }
 
 function toOrg(row: OrgRow): Org {
-  const o: Org & { points?: unknown } = { name: row.name, logo: row.logo, r: Number(row.ratio) || 1 };
+  const o: Org = { name: row.name, logo: row.logo, r: Number(row.ratio) || 1 };
   if (row.url) o.url = row.url;
   if (row.role) o.role = row.role;
   if (row.body) o.text = row.body;
-  if (row.points) o.points = row.points;
+  o.points = Array.isArray(row.points) && row.points.length ? (row.points as Org["points"]) : partnerPoints[row.name];
   return o;
 }
 
@@ -89,7 +90,8 @@ export async function getContent(): Promise<Content> {
     rest<{ key: string; value: unknown }[]>("site_content?select=key,value"),
   ]);
   const get = (k: string) => kv?.find((x) => x.key === k)?.value;
-  const byKind = (k: OrgRow["kind"], fallback: Org[]) => (orgs?.length ? orgs.filter((o) => o.kind === k).map(toOrg) : fallback);
+  const byKind = (k: OrgRow["kind"], fallback: Org[]) =>
+    orgs?.length ? orgs.filter((o) => o.kind === k).map(toOrg) : fallback.map((o) => ({ ...o, points: partnerPoints[o.name] }));
 
   return {
     ui: merge(i18n.ui, get("ui")),
@@ -97,6 +99,8 @@ export async function getContent(): Promise<Content> {
     services: (get("services") as typeof i18n.services) ?? i18n.services,
     steps: (get("steps") as typeof i18n.steps) ?? i18n.steps,
     home: (get("home_sections") as HomeSection[]) ?? DEFAULT_HOME,
+    about: merge(aboutPage, get("about")),
+    partnersPage: merge(partnersPage, get("partners_page")),
     projects: rows?.length ? rows.map(toProject) : local.projects,
     clients: byKind("client", local.clients),
     partners: byKind("partner", local.partners),

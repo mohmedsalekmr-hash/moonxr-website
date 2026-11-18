@@ -1,6 +1,6 @@
 "use server";
 
-import { updateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import { CONTENT_TAG } from "@/lib/content";
 
@@ -18,5 +18,7 @@ export async function publish(token: string): Promise<{ ok: boolean }> {
   const { data } = await sb.from("admins").select("user_id").eq("user_id", u.user.id).maybeSingle();
   if (!data) return { ok: false };
   updateTag(CONTENT_TAG);
+  // also drop cached pages (e.g. a project page that was hidden and is now published)
+  revalidatePath("/", "layout");
   return { ok: true };
 }

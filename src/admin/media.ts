@@ -3,7 +3,9 @@ import { sb } from "./sb";
 
 /** Max size sent to the site: big enough for a 4K screen, small enough to load fast. */
 const MAX_SIDE = 2560;
-export const MAX_VIDEO_MB = 50;
+/** Videos are short highlights only: one key moment, 3–5 seconds. */
+export const MAX_VIDEO_MB = 3;
+export const MAX_VIDEO_SECONDS = 6;
 
 const slug = (s: string) =>
   s.toLowerCase().replace(/\.[a-z0-9]+$/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "media";
@@ -60,7 +62,7 @@ async function videoInfo(file: File) {
     c.width = Math.round(w * s);
     c.height = Math.round(h * s);
     c.getContext("2d")!.drawImage(v, 0, 0, c.width, c.height);
-    return { w, h, poster: await toBlob(c, 0.82) };
+    return { w, h, duration: v.duration, poster: await toBlob(c, 0.82) };
   } finally {
     URL.revokeObjectURL(url);
   }
@@ -78,8 +80,10 @@ export async function uploadMedia(file: File, folder: string, opts: { keepPng?: 
   const base = `${folder}/${Date.now().toString(36)}-${slug(file.name)}`;
   if (file.type.startsWith("video/")) {
     if (file.type !== "video/mp4") throw new Error("الفيديو يجب أن يكون بصيغة MP4");
-    if (file.size > MAX_VIDEO_MB * 1024 * 1024) throw new Error(`حجم الفيديو أكبر من ${MAX_VIDEO_MB} ميغابايت`);
+    if (file.size > MAX_VIDEO_MB * 1024 * 1024) throw new Error(`حجم الفيديو أكبر من ${MAX_VIDEO_MB} ميغابايت. قصّه إلى لقطة من 3 إلى 5 ثوانٍ.`);
     const info = await videoInfo(file);
+    if (info.duration > MAX_VIDEO_SECONDS + 0.5)
+      throw new Error(`الفيديو ${Math.round(info.duration)} ثانية. المسموح لقطة قصيرة حتى ${MAX_VIDEO_SECONDS} ثوانٍ فقط (اللحظة المهمة).`);
     const [src, poster] = await Promise.all([put(file, `${base}.mp4`, "video/mp4"), put(info.poster, `${base}-poster.webp`, "image/webp")]);
     return { type: "video", src, poster, w: info.w, h: info.h };
   }

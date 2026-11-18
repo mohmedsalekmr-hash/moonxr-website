@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ui as defUi } from "@/data/i18n";
+import { aboutPage, partnersPage } from "@/data/pages";
 import { Section } from "./Projects";
 import { SaveBar, TField, type T } from "./ui";
 import { useContentKey } from "./useContent";
@@ -47,10 +48,18 @@ const GROUPS: { id: keyof UI; name: string; fields: Record<string, string> }[] =
   { id: "footer", name: "التذييل", fields: { tag: "السطر التعريفي" } },
 ];
 
+type About = typeof aboutPage;
+type PP = typeof partnersPage;
+
 export default function TextsTab() {
   const c = useContentKey<UI>("ui", defUi, true);
+  const about = useContentKey<About>("about", aboutPage, true);
+  const pp = useContentKey<PP>("partners_page", partnersPage, true);
   const [open, setOpen] = useState<string>("hero");
-  if (!c.value) return <p className="text-black/40">…</p>;
+  const all = [c, about, pp];
+  if (!c.value || !about.value || !pp.value) return <p className="text-black/40">…</p>;
+  const a = about.value;
+  const setA = (v: Partial<About>) => about.setValue({ ...a, ...v } as About);
   const ui = c.value as unknown as Record<string, Record<string, T>>;
   const setField = (g: string, k: string, v: T) => c.setValue({ ...c.value!, [g]: { ...ui[g], [k]: v } } as unknown as UI);
 
@@ -58,7 +67,7 @@ export default function TextsTab() {
     <div>
       <h1 className="text-2xl font-bold">نصوص الموقع</h1>
       <p className="mt-1 text-sm text-black/55">كل النصوص بالعربية والفرنسية. التصميم ثابت، فالنص الطويل جداً قد يبدو مزدحماً.</p>
-      {c.err && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{c.err}</p>}
+      {all.map((x) => x.err).find(Boolean) && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{all.map((x) => x.err).find(Boolean)}</p>}
 
       <div className="mt-6 flex flex-wrap gap-2">
         {GROUPS.map((g) => (
@@ -66,7 +75,53 @@ export default function TextsTab() {
             {g.name}
           </button>
         ))}
+        {[
+          { id: "about", name: "صفحة «من نحن»" },
+          { id: "pp", name: "صفحة «الشركاء»" },
+        ].map((g) => (
+          <button key={g.id} onClick={() => setOpen(g.id)} className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${open === g.id ? "bg-navy text-white" : "bg-white text-black/60 ring-1 ring-black/10 hover:text-black"}`}>
+            {g.name}
+          </button>
+        ))}
       </div>
+
+      {open === "about" && (
+        <Section title="صفحة «من نحن»">
+          <TField label="العنوان" value={a.title} onChange={(v) => setA({ title: v })} />
+          <TField label="الفقرة تحت العنوان" multi value={a.sub} onChange={(v) => setA({ sub: v })} />
+          <TField label="عنوان القطاعات" value={a.sectors} onChange={(v) => setA({ sectors: v })} />
+          <TypesField label="القطاعات" value={a.sectorList} onChange={(v) => setA({ sectorList: v } as Partial<About>)} />
+          <TField label="«أين نعمل» – العنوان" value={a.where} onChange={(v) => setA({ where: v })} />
+          <TField label="«أين نعمل» – النص" multi value={a.whereText} onChange={(v) => setA({ whereText: v })} />
+          <TField label="«التزامنا» – العنوان الصغير" value={a.pillars.kicker} onChange={(v) => setA({ pillars: { ...a.pillars, kicker: v } })} />
+          <TField label="«التزامنا» – العنوان" value={a.pillars.title} onChange={(v) => setA({ pillars: { ...a.pillars, title: v } })} />
+          {a.pillars.items.map((it, i) => (
+            <div key={i} className="grid gap-3 rounded-xl bg-black/[0.025] p-4">
+              <TField label={`الالتزام ${i + 1}`} value={it.t} onChange={(v) => setA({ pillars: { ...a.pillars, items: a.pillars.items.map((x, j) => (j === i ? { ...x, t: v } : x)) } })} />
+              <TField label="الشرح" multi value={it.d} onChange={(v) => setA({ pillars: { ...a.pillars, items: a.pillars.items.map((x, j) => (j === i ? { ...x, d: v } : x)) } })} />
+            </div>
+          ))}
+        </Section>
+      )}
+
+      {open === "pp" && (
+        <Section title="صفحة «الشركاء»" sub="الشعارات ووصف كل شريك في تبويب «العملاء والشركاء».">
+          {(
+            [
+              ["kicker", "العنوان الصغير"],
+              ["title", "العنوان"],
+              ["sub", "الفقرة"],
+              ["clientsTitle", "عنوان قسم العملاء"],
+              ["partnersTitle", "عنوان قسم الشركاء"],
+              ["techTitle", "عنوان قسم التقنيات"],
+              ["techSub", "فقرة قسم التقنيات"],
+              ["view", "«عرض المشروع»"],
+            ] as [keyof PP, string][]
+          ).map(([k, label]) => (
+            <TField key={k} label={label} multi={k === "sub"} value={pp.value![k]} onChange={(v) => pp.setValue({ ...pp.value!, [k]: v } as PP)} />
+          ))}
+        </Section>
+      )}
 
       {GROUPS.filter((g) => g.id === open).map((g) => (
         <Section key={g.id} title={g.name}>
@@ -77,22 +132,27 @@ export default function TextsTab() {
         </Section>
       ))}
 
-      <SaveBar dirty={c.dirty} saving={c.saving} onSave={c.save} onCancel={c.reset} />
+      <SaveBar
+        dirty={all.some((x) => x.dirty)}
+        saving={all.some((x) => x.saving)}
+        onSave={() => all.filter((x) => x.dirty).forEach((x) => x.save())}
+        onCancel={() => all.filter((x) => x.dirty).forEach((x) => x.reset())}
+      />
     </div>
   );
 }
 
 /** The project types offered in the contact form, one per line. */
-function TypesField({ value, onChange }: { value: { fr: string[]; ar: string[] }; onChange: (v: { fr: string[]; ar: string[] }) => void }) {
+function TypesField({ value, onChange, label = "أنواع المشاريع في النموذج" }: { value: { readonly fr: readonly string[]; readonly ar: readonly string[] }; onChange: (v: { fr: string[]; ar: string[] }) => void; label?: string }) {
   const lines = (s: string) => s.split("\n");
   return (
     <div>
       <div className="mb-1.5 text-sm font-semibold">
-        أنواع المشاريع في النموذج <span className="text-xs font-normal text-black/45">نوع في كل سطر</span>
+        {label} <span className="text-xs font-normal text-black/45">نوع في كل سطر</span>
       </div>
       <div className="grid gap-2 md:grid-cols-2">
-        <textarea dir="rtl" rows={4} className="inp" value={value.ar.join("\n")} onChange={(e) => onChange({ ...value, ar: lines(e.target.value) })} />
-        <textarea dir="ltr" rows={4} className="inp" value={value.fr.join("\n")} onChange={(e) => onChange({ ...value, fr: lines(e.target.value) })} />
+        <textarea dir="rtl" rows={4} className="inp" value={value.ar.join("\n")} onChange={(e) => onChange({ fr: [...value.fr], ar: lines(e.target.value) })} />
+        <textarea dir="ltr" rows={4} className="inp" value={value.fr.join("\n")} onChange={(e) => onChange({ ar: [...value.ar], fr: lines(e.target.value) })} />
       </div>
     </div>
   );

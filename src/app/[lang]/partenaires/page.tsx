@@ -1,7 +1,7 @@
 import { getContent } from "@/lib/content";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { hasLocale, type T } from "@/data/i18n";
+import { hasLocale } from "@/data/i18n";
 
 import { Reveal } from "@/components/Media";
 import { ClientCards, PartnerFeatures, TechWall } from "@/components/Ecosystem";
@@ -14,40 +14,12 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/partenaire
   return { title: lang === "ar" ? "شركاؤنا" : "Partenaires" };
 }
 
-const C = {
-  kicker: { fr: "Notre écosystème", ar: "منظومتنا" },
-  title: { fr: "Les bons partenaires, les meilleures technologies.", ar: "الشركاء المناسبون، وأفضل التقنيات." },
-  sub: {
-    fr: "Moon XR réunit des clients de premier plan, des partenaires de confiance et des fournisseurs reconnus pour livrer des expériences qui fonctionnent, sur place.",
-    ar: "يجمع Moon XR عملاء بارزين وشركاء موثوقين ومزوّدين معروفين، لتقديم تجارب تعمل فعلاً في الموقع.",
-  },
-  clientsTitle: { fr: "Ils nous ont fait confiance.", ar: "وثقوا بنا." },
-  partnersTitle: { fr: "Nos partenaires.", ar: "شركاؤنا." },
-  techTitle: { fr: "Les technologies que nous déployons.", ar: "التقنيات التي ننشرها." },
-  techSub: { fr: "Survolez un logo pour découvrir ce que chaque fournisseur apporte.", ar: "مرّر المؤشر على شعار لتعرف ما يقدّمه كل مزوّد." },
-  view: { fr: "Voir le projet", ar: "عرض المشروع" },
-};
 
-const extra: Record<string, { points: T[]; image?: string }> = {
-  Seabery: {
-    points: [
-      { fr: "Soldamatic : le soudage en réalité augmentée", ar: "Soldamatic: اللحام بالواقع المعزز" },
-      { fr: "Installation et prise en main sur site", ar: "التركيب والتدريب على الاستخدام في الموقع" },
-      { fr: "Représentation officielle en Mauritanie", ar: "التمثيل الرسمي في موريتانيا" },
-    ],
-  },
-  MPG: {
-    points: [
-      { fr: "Ateliers et programmes de formation", ar: "ورشات وبرامج تدريب" },
-      { fr: "Projets de R&D communs", ar: "مشاريع بحث وتطوير مشتركة" },
-      { fr: "Présence commune aux salons et événements", ar: "حضور مشترك في المعارض والفعاليات" },
-    ],
-  },
-};
 
 export default async function PartnersPage({ params }: PageProps<"/[lang]/partenaires">) {
   const { lang } = await params;
-  const { ui, clients, partners, suppliers } = await getContent();
+  const { ui, clients, partners, suppliers, partnersPage: C } = await getContent();
+  const extra = Object.fromEntries(partners.map((o) => [o.name, { points: o.points ?? [] }]));
   if (!hasLocale(lang)) notFound();
 
   return (

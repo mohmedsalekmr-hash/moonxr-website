@@ -13,8 +13,6 @@ const sora = Sora({ subsets: ["latin"], variable: "--font-sora", weight: ["400",
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const arabic = IBM_Plex_Sans_Arabic({ subsets: ["arabic"], variable: "--font-arabic", weight: ["400", "500", "600", "700"] });
 
-export const dynamicParams = false;
-
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
 }

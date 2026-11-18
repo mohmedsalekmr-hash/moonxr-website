@@ -1,7 +1,7 @@
 import { getContent } from "@/lib/content";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { hasLocale, pillars } from "@/data/i18n";
+import { hasLocale } from "@/data/i18n";
 import PageHead from "@/components/PageHead";
 import { Reveal } from "@/components/Media";
 import CTA from "@/components/CTA";
@@ -12,30 +12,11 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/a-propos">
   return { title: lang === "ar" ? "من نحن" : "À propos" };
 }
 
-const copy = {
-  title: {
-    fr: "La division technologie immersive de Moon Technology.",
-    ar: "قسم التقنيات التفاعلية في Moon Technology.",
-  },
-  sub: {
-    fr: "Moon XR apporte la réalité virtuelle et augmentée aux entreprises, aux écoles et aux événements en Mauritanie. Nous choisissons la bonne technologie, nous l'installons et nous restons à vos côtés.",
-    ar: "يقدّم Moon XR الواقع الافتراضي والمعزّز للشركات والمدارس والفعاليات في موريتانيا. نختار التقنية المناسبة، ونركّبها، ونبقى إلى جانبكم.",
-  },
-  sectors: { fr: "Secteurs", ar: "القطاعات" },
-  sectorList: {
-    fr: ["Télécoms & marques", "Industrie & sécurité", "Formation professionnelle", "Éducation"],
-    ar: ["الاتصالات والعلامات التجارية", "الصناعة والسلامة", "التكوين المهني", "التعليم"],
-  },
-  where: { fr: "Basés à Nouakchott, présents dans tout le pays", ar: "مقرّنا نواكشوط، ونعمل في كل البلاد" },
-  whereText: {
-    fr: "Notre équipe se déplace pour installer, former et accompagner sur site, partout en Mauritanie.",
-    ar: "ينتقل فريقنا للتركيب والتدريب والمرافقة في الموقع، في كل أنحاء موريتانيا.",
-  },
-};
 
 export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos">) {
   const { lang } = await params;
-  const { ui, services } = await getContent();
+  const { ui, services, about: copy } = await getContent();
+  const pillars = copy.pillars;
   if (!hasLocale(lang)) notFound();
   return (
     <Page>

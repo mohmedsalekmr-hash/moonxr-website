@@ -57,11 +57,6 @@ const p = (src: string, fr: string, ar: string, w = 1080, h = 810): Photo => ({
   w,
   h,
 });
-const reel = (name: string, fr: string, ar: string): Reel => ({
-  src: `/media/video/${name}.mp4`,
-  poster: `/media/photos/${name}-poster.webp`,
-  label: { fr, ar },
-});
 
 
 /** Media keeps its real proportions and size (w × h in pixels); it is never cropped or blown up. */
@@ -74,15 +69,6 @@ const K = {
   live: { fr: "Sur place", ar: "في الموقع" },
 };
 
-export const reels = {
-  entree: reel("reel-entree", "Lancement 5G · Moov Mauritel", "إطلاق الجيل الخامس · موريتل"),
-  officiel: reel("reel-officiel", "Lancement 5G · Moov Mauritel", "إطلاق الجيل الخامس · موريتل"),
-  mBus1: reel("mattel-bus-1", "Lancement 5G · Mattel", "إطلاق الجيل الخامس · ماتل"),
-  mCentrale1: reel("mattel-centrale-1", "Lancement 5G · Mattel", "إطلاق الجيل الخامس · ماتل"),
-  mOfficiel: reel("moov-officiel", "Un officiel découvre la VR", "مسؤول يكتشف الواقع الافتراضي"),
-  mVisiteur: reel("moov-visiteur", "Pilgrim VR : face à la Kaaba", "Pilgrim VR: أمام الكعبة"),
-  mVisiteuse: reel("moov-visiteuse", "Une visiteuse en immersion", "زائرة في قلب التجربة"),
-};
 
 export const projects: Project[] = [
   {
@@ -92,7 +78,6 @@ export const projects: Project[] = [
     short: { fr: "Activation VR · 4 casques, jeux et simulations", ar: "تجربة واقع افتراضي · 4 نظارات، ألعاب ومحاكاة" },
     meta: { fr: "Événement · Novembre 2026", ar: "فعالية · نوفمبر 2026" },
     cover: { ...p("moov-wide", "L'espace Moon x Moov Mauritel, le jour du lancement", "فضاء Moon x موريتل يوم الإطلاق", 1080, 608), pos: "60% 40%" },
-    hero: { video: "/media/video/moov-hero.mp4", poster: "/media/photos/moov-hero-poster.webp", pos: "68% 50%", mobile: "/media/video/moov-officiel.mp4", mobilePoster: "/media/photos/moov-officiel-poster.webp" },
     intro: {
       fr: "Pour le lancement de la 5G de Moov Mauritel, nous avons conçu et animé un espace de réalité virtuelle : jeux, simulations et une équipe Moon à chaque poste.",
       ar: "لإطلاق الجيل الخامس لموريتل، صمّمنا وأدرنا فضاءً للواقع الافتراضي: ألعاب ومحاكاة، وفريق Moon عند كل نظارة.",
@@ -118,9 +103,9 @@ export const projects: Project[] = [
       },
     },
     scenes: [
-      { media: vid("moov-clip-officiel", 480, 848), title: { fr: "Faire vivre la 5G, casque sur la tête.", ar: "أن تعيش الجيل الخامس، والنظارة على رأسك." } },
+      { media: vid("moov-officiel-hl", 480, 848), title: { fr: "Faire vivre la 5G, casque sur la tête.", ar: "أن تعيش الجيل الخامس، والنظارة على رأسك." } },
       {
-        media: vid("moov-s-crowd", 848, 480),
+        media: img("moov-wide", 1080, 608),
         kicker: K.need,
         title: { fr: "Faire vivre la 5G au public, le jour du lancement.", ar: "أن يعيش الجمهور الجيل الخامس يوم الإطلاق." },
         text: { fr: "Une expérience concrète et mémorable pour les officiels comme pour les visiteurs.", ar: "تجربة ملموسة لا تُنسى، للمسؤولين وللزوار على حدّ سواء." },
@@ -138,7 +123,7 @@ export const projects: Project[] = [
         text: { fr: "Il a exploré la Grande Mosquée de La Mecque en réalité virtuelle.", ar: "استكشف المسجد الحرام بالواقع الافتراضي." },
       },
       {
-        media: vid("moov-clip-visiteur", 480, 848),
+        media: img("moov-hq-kaaba", 810, 1080),
         kicker: K.live,
         title: { fr: "Face à la Kaaba, depuis Nouakchott.", ar: "أمام الكعبة، من نواكشوط." },
         text: { fr: "Pilgrim VR, l'une des expériences proposées sur le stand.", ar: "Pilgrim VR، إحدى التجارب المقدَّمة في الجناح." },
@@ -157,7 +142,6 @@ export const projects: Project[] = [
       p("moov-p3", "Immersion au cœur de La Mecque", "انغماس في رحاب مكة", 810, 1080),
       p("moov-vip", "Les officiels découvrent les casques", "المسؤولون يكتشفون النظارات"),
     ],
-    reels: [reels.mOfficiel, reels.mVisiteur, reels.mVisiteuse],
   },
   {
     slug: "mattel",
@@ -204,7 +188,7 @@ export const projects: Project[] = [
         text: { fr: "Installées et animées par notre équipe tout au long de la tournée de lancement.", ar: "يركّبها فريقنا ويديرها طوال جولة الإطلاق." },
       },
       {
-        media: vid("mattel-bus-1", 720, 960),
+        media: vid("mattel-bus-hl", 720, 960),
         kicker: K.live,
         title: { fr: "Chacun vit l'expérience à sa façon.", ar: "كلٌّ يعيش التجربة على طريقته." },
       },
@@ -221,7 +205,6 @@ export const projects: Project[] = [
       p("mattel-p2", "L'expérience VR avec la 5G Mattel", "تجربة الواقع الافتراضي مع الجيل الخامس لماتل", 660, 880),
       p("mattel-p3", "Immersion totale", "انغماس كامل في التجربة", 810, 1080),
     ],
-    reels: [reels.mBus1, reels.mCentrale1],
   },
   {
     slug: "snim",
@@ -480,7 +463,7 @@ export const projects: Project[] = [
 
 export const getProject = (slug: string) => projects.find((x) => x.slug === slug);
 
-export type Org = { name: string; logo: string; r: number; url?: string; role?: T; text?: T };
+export type Org = { name: string; logo: string; r: number; url?: string; role?: T; text?: T; points?: T[] };
 
 export const clients: Org[] = [
   { name: "Moov Mauritel", logo: "/media/logos/moov.png", r: 1.66 },

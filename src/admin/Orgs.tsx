@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { sb } from "./sb";
 import { saveAndPublish } from "./save";
 import { Section } from "./Projects";
-import { Field, MediaBox, moveItem, RowTools, SaveBar, TField, Toggle, type T } from "./ui";
+import { emptyT, Field, MediaBox, moveItem, RowTools, SaveBar, TField, Toggle, type T } from "./ui";
 
 type Kind = "client" | "partner" | "supplier";
 type Org = { id?: string; kind: Kind; name: string; logo: string; ratio: number; url: string | null; role: T | null; body: T | null; points: unknown; position: number; visible: boolean };
@@ -86,6 +86,7 @@ export default function OrgsTab() {
                     <>
                       <TField label="الدور" value={o.role} onChange={(v) => update(k.id, i, { role: v })} />
                       <TField label="الوصف" multi value={o.body} onChange={(v) => update(k.id, i, { body: v })} />
+                      <Points value={(o.points as T[] | null) ?? []} onChange={(v) => update(k.id, i, { points: v })} />
                     </>
                   )}
                   <Toggle on={o.visible} label={o.visible ? "ظاهر" : "مخفي"} onChange={(v) => update(k.id, i, { visible: v })} />
@@ -104,6 +105,26 @@ export default function OrgsTab() {
       })}
 
       <SaveBar dirty={dirty} saving={saving} onSave={save} onCancel={() => setList(JSON.parse(saved))} />
+    </div>
+  );
+}
+
+/** The short bullet points shown under a partner. */
+function Points({ value, onChange }: { value: T[]; onChange: (v: T[]) => void }) {
+  return (
+    <div className="grid gap-3 rounded-lg border border-black/[0.07] bg-white p-3">
+      <div className="text-sm font-semibold">نقاط مختصرة</div>
+      {value.map((p, i) => (
+        <div key={i} className="flex gap-2">
+          <div className="flex-1">
+            <TField label={`النقطة ${i + 1}`} value={p} onChange={(v) => onChange(value.map((x, j) => (j === i ? v : x)))} />
+          </div>
+          <RowTools i={i} n={value.length} move={(a, b) => onChange(moveItem(value, a, b))} remove={() => onChange(value.filter((_, j) => j !== i))} />
+        </div>
+      ))}
+      <button type="button" className="btn btn-light self-start" onClick={() => onChange([...value, emptyT()])}>
+        + نقطة
+      </button>
     </div>
   );
 }

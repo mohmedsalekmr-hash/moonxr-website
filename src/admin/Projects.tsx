@@ -198,6 +198,9 @@ function Editor({ initial, taken, onClose }: { initial: Row; taken: string[]; on
     if (!p.id || !confirm("حذف هذا المشروع نهائياً؟")) return;
     try {
       await saveAndPublish(() => sb.from("projects").delete().eq("id", p.id!));
+      // free the storage used by this project's uploads
+      const { data } = await sb.storage.from("media").list(`projects/${p.slug}`);
+      if (data?.length) await sb.storage.from("media").remove(data.map((f) => `projects/${p.slug}/${f.name}`));
       onClose();
     } catch (e) {
       setErr(e instanceof Error ? e.message : "خطأ");
@@ -288,7 +291,7 @@ function Editor({ initial, taken, onClose }: { initial: Row; taken: string[]; on
         )}
       </Section>
 
-      <Section title="مشاهد القصة" sub="كل مشهد = صورة أو فيديو MP4 مع نص. المشهد الأول يُعرض مع عنوان المشروع والمقدمة، فلا يظهر نصه.">
+      <Section title="مشاهد القصة" sub="كل مشهد = صورة أو فيديو مع نص. الفيديو لقطة قصيرة فقط (3–5 ثوانٍ، MP4، أقل من 3 MB)، وفيديو واحد يكفي لكل مشروع. المشهد الأول يُعرض مع عنوان المشروع والمقدمة، فلا يظهر نصه.">
         {p.scenes.map((s, i) => (
           <div key={i} className="grid gap-4 rounded-xl bg-black/[0.025] p-4 md:grid-cols-[16rem_1fr_auto]">
             <div>

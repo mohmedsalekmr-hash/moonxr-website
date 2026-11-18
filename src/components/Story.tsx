@@ -147,8 +147,6 @@ export type StoryScene = {
  */
 export function ScrollStory({
   scenes,
-  soundLabel,
-  muteLabel,
   opening,
   hint,
 }: {
@@ -164,7 +162,7 @@ export function ScrollStory({
   const videos = useRef<Record<string, HTMLVideoElement | null>>({});
   const [i, setI] = useState(0);
   const [inView, setInView] = useState(false);
-  const [sound, setSound] = useState(false);
+  const sound = false; // clips are silent highlights
   const [idle, setIdle] = useState(true);
   const n = scenes.length;
   const m = scenes[i].media;
@@ -315,32 +313,7 @@ export function ScrollStory({
                         className="h-full w-full object-cover"
                       />
                     )}
-                    {l.type === "video" && on && (
-                      <button
-                        type="button"
-                        onClick={() => setSound((s) => !s)}
-                        className="absolute bottom-3 end-3 grid h-10 w-10 place-items-center rounded-full bg-black/50 text-white backdrop-blur transition-colors hover:bg-sun hover:text-ink"
-                        aria-label={sound ? muteLabel : soundLabel}
-                      >
-                        <svg
-                          viewBox="0 0 24 24"
-                          className="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden
-                        >
-                          <path d="M11 5 6 9H3v6h3l5 4V5z" />
-                          {sound ? (
-                            <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" />
-                          ) : (
-                            <path d="m16 9 5 6M21 9l-5 6" />
-                          )}
-                        </svg>
-                      </button>
-                    )}
+                    {/* highlight clips are silent: no sound button */}
                   </div>
                 </div>
               );
