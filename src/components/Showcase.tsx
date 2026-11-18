@@ -32,7 +32,7 @@ export default function Showcase({ items, head, all, hint }: { items: ShowcaseIt
   };
 
   return (
-    <section className="relative overflow-hidden bg-navy pb-16 pt-4 text-white md:pb-24 md:pt-6">
+    <section className="relative overflow-hidden bg-navy py-20 text-white md:py-28">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_45%_at_20%_45%,rgba(111,138,214,0.16),transparent_70%)]" />
       <div className="wrap relative flex items-end justify-between gap-6">
         <div>{head}</div>

@@ -89,8 +89,6 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     ),
     work: (
       <>
-          {/* the page melts from white into the brand blue: one transition only */}
-          <div aria-hidden className="fade-to-navy h-48 md:h-80" />
           {/* 3 — OUR WORK — a film strip that slides sideways as you scroll */}
           <Showcase
             items={projects.map((p) => ({
