@@ -12,7 +12,7 @@ export const categories: Record<Category, T> = {
 export const projectTag: Record<Category, T> = {
   event: { fr: "Événement", ar: "فعالية" },
   training: { fr: "Projet livré", ar: "مشروع منجَز" },
-  dev: { fr: "Développé par Moon", ar: "من تطوير Moon" },
+  dev: { fr: "En développement", ar: "قيد التطوير" },
 };
 
 export type Photo = { src: string; alt: T; w: number; h: number; pos?: string };
@@ -462,7 +462,6 @@ export type Org = { name: string; logo: string; r: number; url?: string; role?: 
 export const clients: Org[] = [
   { name: "Moov Mauritel", logo: "/media/logos/moov.png", r: 1.66 },
   { name: "Mattel", logo: "/media/logos/mattel-logo.png", r: 2.88 },
-  { name: "MPG", logo: "/media/logos/mpg-logo.png", r: 0.6 },
   { name: "SNIM", logo: "/media/logos/snim.png", r: 1.05 },
 ];
 

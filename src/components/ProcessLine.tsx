@@ -64,7 +64,7 @@ export default function ProcessLine({ steps, lang }: { steps: { title: T; text: 
                     setActive(i);
                     setAuto(false);
                   }}
-                  className={`font-display mt-4 px-1 text-sm font-semibold leading-snug transition-colors md:text-lg ${i === active ? "text-ink" : "text-ink/60 hover:text-ink"}`}
+                  className={`font-display mt-4 hidden px-1 text-sm font-semibold leading-snug transition-colors md:block md:text-lg ${i === active ? "text-ink" : "text-ink/60 hover:text-ink"}`}
                 >
                   {s.title[lang]}
                 </button>
@@ -74,7 +74,8 @@ export default function ProcessLine({ steps, lang }: { steps: { title: T; text: 
         </ol>
       </div>
       <div className="mx-auto mt-8 max-w-xl text-center md:mt-10" aria-live="polite">
-        <p key={active} className="rise text-base leading-relaxed text-ink/75 md:text-lg">
+        <p key={"t" + active} className="rise font-display text-lg font-semibold md:hidden">{steps[active]?.title[lang]}</p>
+        <p key={active} className="rise mt-2 text-base leading-relaxed text-ink/75 md:mt-0 md:text-lg">
           {steps[active]?.text[lang]}
         </p>
       </div>

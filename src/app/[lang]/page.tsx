@@ -35,7 +35,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       <>
           {/* 1 — HERO: the headset */}
           <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pb-14 md:flex-row md:items-center md:pb-0">
-            <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_70%_at_72%_45%,rgba(37,60,128,0.12),transparent_70%),radial-gradient(40%_40%_at_15%_85%,rgba(250,182,45,0.14),transparent_70%),linear-gradient(180deg,#eef1f9,#ffffff)] rtl:bg-[radial-gradient(60%_70%_at_28%_45%,rgba(37,60,128,0.12),transparent_70%),radial-gradient(40%_40%_at_85%_85%,rgba(250,182,45,0.14),transparent_70%),linear-gradient(180deg,#eef1f9,#ffffff)]" />
+            <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_70%_at_72%_45%,rgba(37,60,128,0.12),transparent_70%),linear-gradient(180deg,#eef1f9,#ffffff)] rtl:bg-[radial-gradient(60%_70%_at_28%_45%,rgba(37,60,128,0.12),transparent_70%),linear-gradient(180deg,#eef1f9,#ffffff)]" />
             {/* phone: the headset has its own stage above the text; desktop: full-bleed behind it */}
             <div className="hero-stage relative z-0 mt-16 h-[40svh] min-h-[270px] w-full md:absolute md:inset-0 md:mt-0 md:h-auto">
               <Hero3D rtl={rtl} lang={lang} />
@@ -46,7 +46,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 <h1 className="font-display mt-4 text-[2.35rem] font-bold leading-[1.06] sm:text-6xl md:mt-5 lg:text-7xl">
                   {ui.hero.l1[lang]}
                   <br />
-                  <span className="text-sun-deep">{ui.hero.l2a[lang]}</span> {ui.hero.l2b[lang]}
+                  <span className="text-brand">{ui.hero.l2a[lang]}</span> {ui.hero.l2b[lang]}
                 </h1>
                 <p className="mt-4 max-w-md text-[0.95rem] leading-relaxed text-ink/75 md:mt-6 md:text-lg">{ui.hero.sub[lang]}</p>
                 <div className="mt-6 flex flex-wrap gap-3 md:mt-8">

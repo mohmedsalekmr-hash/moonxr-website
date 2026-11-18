@@ -45,7 +45,7 @@ export default function Header({ lang }: { lang: Locale }) {
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   // Project pages are one dark experience: the bar is dark glass there
-  const dark = (/\/projets\/[^/]+$/.test(pathname) || studio) && !open;
+  const dark = studio && !open;
 
   return (
     <header

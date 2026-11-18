@@ -39,13 +39,6 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
     groups.set(y, [...(groups.get(y) ?? []), p]);
   }
   const years = [...groups.keys()].sort((a, b) => (a === "dev" ? 1 : b === "dev" ? -1 : Number(a) - Number(b)));
-  const first = years.find((y) => y !== "dev");
-  const stats = [
-    { n: String(projects.filter((p) => yearOf(p.meta.fr)).length), l: T.projects[lang] },
-    { n: String(suppliers.length), l: T.suppliers[lang] },
-    { n: String(partners.length), l: T.partners[lang] },
-    ...(first ? [{ n: first, l: T.since[lang] }] : []),
-  ];
   const mosaic = projects.filter((p) => p.cover?.src).slice(0, 3);
 
   return (
@@ -77,24 +70,6 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
               </Link>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* NUMBERS (counted from the site's own data) */}
-      <section className="pb-14 md:pb-24">
-        <div className="wrap">
-          <Reveal>
-            <h2 className="sr-only">{T.numbers[lang]}</h2>
-            <dl className="grid grid-cols-2 overflow-hidden rounded-[var(--radius-lg)] border border-line bg-white md:grid-cols-4">
-              {stats.map((s, i) => (
-                <div key={i} className={`p-6 md:p-8 ${i % 2 ? "border-s border-line" : ""} ${i > 1 ? "border-t border-line md:border-t-0" : ""} ${i === 2 ? "md:border-s" : ""}`}>
-                  <dt className="sr-only">{s.l}</dt>
-                  <dd className="font-display text-4xl font-bold text-brand md:text-5xl">{s.n}</dd>
-                  <dd className="mt-2 text-sm text-ink/60">{s.l}</dd>
-                </div>
-              ))}
-            </dl>
-          </Reveal>
         </div>
       </section>
 

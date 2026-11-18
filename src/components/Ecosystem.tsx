@@ -41,7 +41,7 @@ export function EcoGrid({ partners, suppliers, lang, labels, more }: { partners:
                 </span>
               </div>
               <div>
-                <div className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-sun-deep rtl:text-xs rtl:tracking-normal">{labels.partner}</div>
+                <div className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-brand rtl:text-xs rtl:tracking-normal">{labels.partner}</div>
                 <div className="mt-1 text-[0.8rem] leading-snug text-ink/60 sm:text-sm sm:text-ink/60">{o.role?.[lang]}</div>
               </div>
             </div>

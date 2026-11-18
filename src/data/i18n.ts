@@ -78,7 +78,7 @@ export const ui = {
   },
   work: {
     kicker: { fr: "Nos réalisations", ar: "إنجازاتنا" },
-    title: { fr: "Projets livrés", ar: "مشاريع منفّذة" },
+    title: { fr: "Nos projets", ar: "مشاريعنا" },
     all: { fr: "Tous", ar: "الكل" },
     seeAll: { fr: "Tous les projets", ar: "كل المشاريع" },
     view: { fr: "Voir le projet", ar: "عرض المشروع" },

@@ -1,6 +1,7 @@
 import { getContent } from "@/lib/content";
 import type { Metadata } from "next";
 import Link from "next/link";
+import CTA from "@/components/CTA";
 import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
 import { hasLocale, locales } from "@/data/i18n";
@@ -68,18 +69,18 @@ export default async function ProjectPage({
             hint={{ desktop: L.hintDesk[lang], touch: L.hintTouch[lang] }}
             opening={
               <>
-                <nav className="flex flex-wrap items-center gap-2 text-xs text-white/60" aria-label="Breadcrumb">
-                  <Link href={`/${lang}/projets`} className="hover:text-white">{ui.nav.projects[lang]}</Link>
+                <nav className="flex flex-wrap items-center gap-2 text-xs text-ink/60" aria-label="Breadcrumb">
+                  <Link href={`/${lang}/projets`} className="hover:text-ink">{ui.nav.projects[lang]}</Link>
                   <span>/</span>
-                  <span className="text-sun">{p.meta[lang]}</span>
+                  <span className="text-brand">{p.meta[lang]}</span>
                 </nav>
                 <h1 className="font-display mt-4 text-3xl font-bold leading-[1.08] md:mt-5 md:text-5xl">{p.title[lang]}</h1>
-                <p className="mt-3 text-[0.95rem] leading-relaxed text-white/75 md:mt-5 md:text-lg">{p.intro[lang]}</p>
-                <dl className="mt-5 hidden grid-cols-2 gap-x-6 gap-y-3 border-t border-white/15 pt-4 sm:grid md:mt-7">
+                <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/75 md:mt-5 md:text-lg">{p.intro[lang]}</p>
+                <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 border-t border-line pt-3 md:mt-7 md:gap-y-3 md:pt-4">
                   {p.facts.slice(0, 4).map((f, k) => (
                     <div key={k}>
-                      <dt className="text-[0.7rem] font-medium uppercase tracking-[0.12em] text-white/45 rtl:text-xs rtl:tracking-normal">{f.k[lang]}</dt>
-                      <dd className="mt-0.5 text-sm font-semibold text-white">{f.v[lang]}</dd>
+                      <dt className="text-[0.7rem] font-medium uppercase tracking-[0.12em] text-ink/45 rtl:text-xs rtl:tracking-normal">{f.k[lang]}</dt>
+                      <dd className="mt-0.5 text-xs font-semibold text-ink md:text-sm">{f.v[lang]}</dd>
                     </div>
                   ))}
                 </dl>
@@ -111,7 +112,10 @@ export default async function ProjectPage({
         </section>
       )}
 
-      {/* NEXT PROJECT — takes over the screen */}
+      {/* talk about a similar project */}
+      <CTA lang={lang} />
+
+      {/* NEXT PROJECT */}
       <EndTakeover next={next} lang={lang} />
     </Page>
   );

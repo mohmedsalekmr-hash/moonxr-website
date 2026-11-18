@@ -245,7 +245,7 @@ export function ScrollStory({
   return (
     <section
       ref={root}
-      className="relative bg-navy-deep text-white"
+      className="relative bg-white text-ink"
       style={{ height: `calc(100svh + ${(n - 1) * 60}svh)` }}
     >
       <div className="sticky top-0 h-[100svh] overflow-hidden">
@@ -257,10 +257,10 @@ export function ScrollStory({
             alt=""
             aria-hidden
             className="absolute inset-0 h-full w-full scale-125 object-cover blur-3xl saturate-150 transition-opacity duration-1000"
-            style={{ opacity: l.src === m.src ? 0.75 : 0 }}
+            style={{ opacity: l.src === m.src ? 0.35 : 0 }}
           />
         ))}
-        <div className="absolute inset-0 bg-navy-deep/40" />
+        <div className="absolute inset-0 bg-white/70" />
 
         {/* Two fixed columns: text | media */}
         <div className="wrap relative grid h-full grid-rows-[minmax(0,1fr)_auto] gap-6 pb-10 pt-20 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:grid-rows-1 md:items-center md:gap-14 md:pb-0 md:pt-[72px]">
@@ -281,7 +281,7 @@ export function ScrollStory({
                   }}
                 >
                   <div
-                    className="panel-media relative overflow-hidden rounded-[var(--radius-sm)] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.85)] ring-1 ring-white/10"
+                    className="panel-media relative overflow-hidden rounded-[var(--radius-sm)] shadow-[0_40px_80px_-40px_rgba(20,36,84,0.55)] ring-1 ring-line"
                     style={
                       { "--ar": l.w / l.h, "--nw": `${l.w}px` } as CSSProperties
                     }
@@ -328,11 +328,11 @@ export function ScrollStory({
               ) : (
                 <>
                   <div className="flex items-center gap-3 text-sm font-semibold">
-                    <span className="font-display text-sun">
+                    <span className="font-display text-brand">
                       {String(i + 1).padStart(2, "0")}
                     </span>
-                    <span className="h-px w-10 bg-white/30" />
-                    <span className="uppercase tracking-[0.16em] text-white/60 rtl:tracking-normal">
+                    <span className="h-px w-10 bg-ink/20" />
+                    <span className="uppercase tracking-[0.16em] text-ink/60 rtl:tracking-normal">
                       {scenes[i].kicker}
                     </span>
                   </div>
@@ -340,7 +340,7 @@ export function ScrollStory({
                     {scenes[i].title}
                   </h2>
                   {scenes[i].text && (
-                    <p className="mt-3 text-[0.95rem] leading-relaxed text-white/75 md:mt-5 md:text-lg">
+                    <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/75 md:mt-5 md:text-lg">
                       {scenes[i].text}
                     </p>
                   )}
@@ -358,14 +358,14 @@ export function ScrollStory({
                   aria-label={`${k + 1} / ${n}`}
                 >
                   <span
-                    className={`block h-[3px] rounded-full transition-colors duration-500 ${k <= i ? "bg-sun" : "bg-white/25 group-hover:bg-white/45"}`}
+                    className={`block h-[3px] rounded-full transition-colors duration-500 ${k <= i ? "bg-sun" : "bg-ink/15 group-hover:bg-ink/30"}`}
                   />
                 </button>
               ))}
             </div>
             {/* Gesture hint — sits under the text, never over a photo */}
             <div
-              className={`mt-4 flex items-center gap-2.5 text-sm text-white/75 transition-all duration-500 md:mt-6 ${idle && i < n - 1 && inView ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"}`}
+              className={`mt-4 flex items-center gap-2.5 text-sm text-ink/75 transition-all duration-500 md:mt-6 ${idle && i < n - 1 && inView ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"}`}
               aria-hidden
             >
               <span className="relative grid h-8 w-8 place-items-center">
@@ -379,7 +379,7 @@ export function ScrollStory({
                     cy="18"
                     r="16"
                     fill="none"
-                    stroke="rgba(255,255,255,0.2)"
+                    stroke="rgba(10,15,31,0.12)"
                     strokeWidth="2"
                   />
                   <circle

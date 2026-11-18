@@ -84,7 +84,7 @@ html[dir="rtl"] .font-display {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-sun-deep);
+  color: var(--color-brand);
 }
 html[dir="rtl"] .kicker {
   letter-spacing: 0;
