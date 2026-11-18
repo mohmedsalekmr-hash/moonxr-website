@@ -108,7 +108,7 @@ export function PartnersBody({
       </section>
 
       {/* Partners */}
-      <section className="bg-soft py-20 md:py-28">
+      <section className="py-20 md:py-28">
         <div className="wrap">
           <div className="kicker">{labels.partners}</div>
           <div className="mt-10 grid gap-6 md:grid-cols-2">

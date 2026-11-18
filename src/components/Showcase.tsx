@@ -43,7 +43,7 @@ export default function Showcase({ items, head, all, hint, look = "sheet" }: { i
       {look === "sheet" ? (
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_45%_at_20%_45%,rgba(111,138,214,0.16),transparent_70%)]" />
       ) : (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[calc(50%+1rem)] bg-navy md:top-[calc(50%+1.5rem)]" />
+        null
       )}
       <div className="wrap relative flex items-end justify-between gap-6">
         <div>{head}</div>
@@ -88,13 +88,13 @@ export default function Showcase({ items, head, all, hint, look = "sheet" }: { i
       </div>
 
       <div className="wrap relative mt-6 flex items-center justify-between gap-4">
-        <span className="inline-flex items-center gap-2 text-sm text-white/60">
+        <span className={`inline-flex items-center gap-2 text-sm ${look === "sheet" ? "text-white/60" : "text-ink/60"}`}>
           <svg viewBox="0 0 24 24" className="hint-swipe h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1-6 6h-1a6 6 0 0 1-4.6-2.2L4.6 15a1.5 1.5 0 0 1 2.3-1.9L9 15" />
           </svg>
           {hint}
         </span>
-        <Link href={all.href} className="inline-flex rounded-full border border-white/25 px-5 py-2.5 text-sm font-semibold md:hidden">
+        <Link href={all.href} className={`inline-flex rounded-full border px-5 py-2.5 text-sm font-semibold md:hidden ${look === "sheet" ? "border-white/25" : "border-ink/15"}`}>
           {all.label}
         </Link>
       </div>

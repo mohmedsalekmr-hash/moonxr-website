@@ -31,7 +31,7 @@ export default function ProcessLine({ steps, lang }: { steps: { title: T; text: 
     <div ref={box} className="mt-12 md:mt-16">
       <div className="relative">
         {/* track */}
-        <div className="absolute inset-x-[12.5%] top-[19px] h-[2px] rounded bg-white/12" />
+        <div className="absolute inset-x-[12.5%] top-[19px] h-[2px] rounded bg-ink/10" />
         <div
           className="absolute start-[12.5%] top-[19px] h-[2px] rounded bg-sun transition-[width] duration-700 ease-out"
           style={{ width: seen ? `calc(${fill / 100} * 75%)` : 0 }}
@@ -52,8 +52,8 @@ export default function ProcessLine({ steps, lang }: { steps: { title: T; text: 
                     i === active
                       ? "scale-110 border-sun bg-sun text-ink shadow-[0_0_0_8px_rgba(250,182,45,0.18)]"
                       : on
-                        ? "border-sun bg-navy text-sun"
-                        : "border-white/25 bg-navy text-white/60 hover:border-white/60"
+                        ? "border-sun bg-white text-sun-deep"
+                        : "border-ink/20 bg-white text-ink/60 hover:border-ink/50"
                   }`}
                 >
                   {i + 1}
@@ -64,7 +64,7 @@ export default function ProcessLine({ steps, lang }: { steps: { title: T; text: 
                     setActive(i);
                     setAuto(false);
                   }}
-                  className={`font-display mt-4 px-1 text-sm font-semibold leading-snug transition-colors md:text-lg ${i === active ? "text-white" : "text-white/60 hover:text-white"}`}
+                  className={`font-display mt-4 px-1 text-sm font-semibold leading-snug transition-colors md:text-lg ${i === active ? "text-ink" : "text-ink/60 hover:text-ink"}`}
                 >
                   {s.title[lang]}
                 </button>
@@ -74,7 +74,7 @@ export default function ProcessLine({ steps, lang }: { steps: { title: T; text: 
         </ol>
       </div>
       <div className="mx-auto mt-8 max-w-xl text-center md:mt-10" aria-live="polite">
-        <p key={active} className="rise text-base leading-relaxed text-white/75 md:text-lg">
+        <p key={active} className="rise text-base leading-relaxed text-ink/75 md:text-lg">
           {steps[active]?.text[lang]}
         </p>
       </div>

@@ -46,7 +46,7 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
       </section>
 
       {/* PARTNERS */}
-      <section id="partenaires" className="scroll-mt-20 bg-soft py-14 md:py-24">
+      <section id="partenaires" className="scroll-mt-20 py-14 md:py-24">
         <div className="wrap">
           <Reveal>
             <SectionHeader kicker={ui.partners.kicker[lang]} title={C.partnersTitle[lang]} />

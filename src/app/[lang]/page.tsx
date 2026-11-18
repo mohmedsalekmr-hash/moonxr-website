@@ -119,11 +119,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     process: (
       <>
           {/* 4 — HOW WE WORK: one line, four stops */}
-          <section className="relative bg-navy pb-20 pt-6 text-white md:pb-28 md:pt-10">
+          <section className="relative bg-white pb-12 pt-6 md:pb-16 md:pt-10">
             <div className="wrap">
-              <div className="border-t border-white/10 pt-14 md:pt-20">
+              <div className="border-t border-line pt-14 md:pt-20">
                 <Reveal>
-                  <SectionHeader dark center kicker={h.processKicker[lang]} title={h.processTitle[lang]} />
+                  <SectionHeader center kicker={h.processKicker[lang]} title={h.processTitle[lang]} />
                 </Reveal>
                 <ProcessLine steps={steps} lang={lang} />
               </div>
@@ -135,7 +135,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     ecosystem: (
       <>
           {/* 5 — ECOSYSTEM: partners and technology suppliers */}
-          <section className="bg-soft py-16 md:py-32">
+          <section className="py-16 md:py-32">
             <div className="wrap">
               <Reveal>
                 <SectionHeader
@@ -160,7 +160,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     contact: (
       <>
           {/* 6 — CONTACT */}
-          <CTA lang={lang} fade={false} />
+          <CTA lang={lang} />
       </>
     ),
   };

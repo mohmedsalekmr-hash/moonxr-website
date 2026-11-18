@@ -99,23 +99,23 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
       </section>
 
       {/* TIMELINE built from the projects */}
-      <section className="bg-navy py-16 text-white md:py-28">
+      <section className="py-16 md:py-24">
         <div className="wrap">
           <Reveal>
-            <SectionHeader dark kicker={T.pathK[lang]} title={T.pathT[lang]} action={<Link href={`/${lang}/projets`} className="btn btn-line">{T.all[lang]}</Link>} />
+            <SectionHeader kicker={T.pathK[lang]} title={T.pathT[lang]} action={<Link href={`/${lang}/projets`} className="btn btn-ghost">{T.all[lang]}</Link>} />
           </Reveal>
           <div className="mt-12 space-y-10 md:mt-16">
             {years.map((y) => (
-              <Reveal key={y} className="grid gap-4 border-t border-white/12 pt-6 md:grid-cols-[180px_minmax(0,1fr)] md:gap-10">
-                <div className={`font-display font-bold ${y === "dev" ? "text-xl text-white/60" : "text-4xl text-sun"}`}>{y === "dev" ? T.dev[lang] : y}</div>
+              <Reveal key={y} className="grid gap-4 border-t border-line pt-6 md:grid-cols-[180px_minmax(0,1fr)] md:gap-10">
+                <div className={`font-display font-bold ${y === "dev" ? "text-xl text-ink/60" : "text-4xl text-brand"}`}>{y === "dev" ? T.dev[lang] : y}</div>
                 <ul className="grid gap-3 sm:grid-cols-2">
                   {groups.get(y)!.map((p) => (
                     <li key={p.slug}>
-                      <Link href={`/${lang}/projets/${p.slug}`} className="group flex items-center gap-4 rounded-[var(--radius-sm)] bg-white/[0.06] p-3 ring-1 ring-white/10 transition-colors hover:bg-white/[0.1]">
+                      <Link href={`/${lang}/projets/${p.slug}`} className="group flex items-center gap-4 rounded-[var(--radius-sm)] bg-white p-3 ring-1 ring-line transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-26px_rgba(20,36,84,0.45)]">
                         <img src={p.cover.src} alt="" loading="lazy" style={{ objectPosition: p.cover.pos }} className="h-16 w-20 shrink-0 rounded-[0.6rem] object-cover" />
                         <span className="min-w-0">
                           <span className="block font-semibold leading-snug">{p.title[lang]}</span>
-                          <span className="mt-0.5 block truncate text-xs text-white/60">{p.meta[lang]}</span>
+                          <span className="mt-0.5 block truncate text-xs text-ink/60">{p.meta[lang]}</span>
                         </span>
                       </Link>
                     </li>
@@ -128,7 +128,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
       </section>
 
       {/* COMMITMENT */}
-      <section className="py-16 md:py-28">
+      <section className="py-16 md:py-24">
         <div className="wrap">
           <Reveal>
             <SectionHeader kicker={pillars.kicker[lang]} title={pillars.title[lang]} />

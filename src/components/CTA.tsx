@@ -12,7 +12,7 @@ const ICON = {
 
 /** Closing chapter of every page: one calm, centred invitation and a single quiet line of contacts. */
 export default async function CTA({ lang, fade = true }: { lang: Locale; fade?: boolean }) {
-  const bridge = fade; // on a white page the card bridges the white page and the blue footer
+  const bridge = true; // the one blue block of the site: a card on the white page
   const { ui, contact: CONTACT } = await getContent();
   const fr = lang === "fr";
   const items = [
@@ -22,8 +22,7 @@ export default async function CTA({ lang, fade = true }: { lang: Locale; fade?: 
   ];
   return (
     <>
-    <section className={`relative text-white ${bridge ? "bg-white pt-10 md:pt-16" : "bg-navy"}`}>
-      {bridge && <div aria-hidden className="absolute inset-x-0 bottom-0 top-1/2 bg-navy" />}
+    <section className="relative bg-white pb-16 pt-10 text-white md:pb-24 md:pt-16">
       <div className={bridge ? "wrap relative" : "relative"}>
       <div className={`relative overflow-hidden ${bridge ? "rounded-[var(--radius-lg)] bg-brand shadow-[0_40px_80px_-40px_rgba(10,20,49,0.6)] ring-1 ring-white/10" : ""}`}>
       {bridge && <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_60%_at_50%_0%,rgba(111,138,214,0.35),transparent_70%)]" />}
