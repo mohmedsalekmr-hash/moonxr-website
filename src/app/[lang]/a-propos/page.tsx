@@ -50,7 +50,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
         <div className="wrap grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-16">
           <div>
             <div className="kicker">{ui.nav.about[lang]}</div>
-            <h1 className="font-display mt-5 text-4xl font-bold leading-[1.08] md:text-6xl">{copy.title[lang]}</h1>
+            <h1 className="font-display mt-5 text-[2rem] font-bold leading-[1.1] md:text-6xl md:leading-[1.08]">{copy.title[lang]}</h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink/75">{copy.sub[lang]}</p>
             <div className="mt-7 flex flex-wrap gap-2">
               {copy.sectorList[lang].map((s) => (

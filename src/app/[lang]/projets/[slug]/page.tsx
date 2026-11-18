@@ -74,7 +74,7 @@ export default async function ProjectPage({
                   <span>/</span>
                   <span className="text-brand">{p.meta[lang]}</span>
                 </nav>
-                <h1 className="font-display mt-4 text-3xl font-bold leading-[1.08] md:mt-5 md:text-5xl">{p.title[lang]}</h1>
+                <h1 className="font-display mt-4 text-[1.75rem] font-bold leading-[1.1] md:mt-5 md:text-5xl">{p.title[lang]}</h1>
                 <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/75 md:mt-5 md:text-lg">{p.intro[lang]}</p>
                 <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 border-t border-line pt-3 md:mt-7 md:gap-y-3 md:pt-4">
                   {p.facts.slice(0, 4).map((f, k) => (

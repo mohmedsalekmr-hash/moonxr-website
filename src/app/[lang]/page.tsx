@@ -43,7 +43,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             <div className="hero-copy wrap pointer-events-none relative z-10 pt-2 md:pt-24">
               <div className="pointer-events-auto max-w-xl">
                 <div className="kicker">{ui.hero.kicker[lang]}</div>
-                <h1 className="font-display mt-4 text-[2.35rem] font-bold leading-[1.06] sm:text-6xl md:mt-5 lg:text-7xl">
+                <h1 className="font-display mt-4 text-[2.15rem] font-bold leading-[1.08] sm:text-6xl md:mt-5 lg:text-7xl">
                   {ui.hero.l1[lang]}
                   <br />
                   <span className="text-brand">{ui.hero.l2a[lang]}</span> {ui.hero.l2b[lang]}
@@ -69,7 +69,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             <div className="wrap">
               <Reveal>
                 <div className="kicker">{h.aboutKicker[lang]}</div>
-                <h2 className="section-title !max-w-4xl">
+                <h2 className="statement">
                   {h.statementA[lang]} <span className="text-brand">{h.statementB[lang]}</span> {h.statementC[lang]}
                 </h2>
               </Reveal>

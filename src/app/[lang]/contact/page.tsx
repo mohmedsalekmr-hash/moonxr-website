@@ -33,7 +33,7 @@ export default async function ContactPage({ params }: PageProps<"/[lang]/contact
             <aside className="relative overflow-hidden bg-navy p-7 text-white md:p-10">
               <div className="pointer-events-none absolute -top-24 end-[-6rem] h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(111,138,214,0.35),transparent_70%)]" />
               <div className="kicker relative !text-sun">{ui.nav.contact[lang]}</div>
-              <h1 className="font-display relative mt-4 text-3xl font-bold leading-tight md:text-[2.6rem]">{c.title[lang]}</h1>
+              <h1 className="font-display relative mt-4 text-[1.75rem] font-bold leading-tight md:text-[2.6rem]">{c.title[lang]}</h1>
               <p className="relative mt-4 max-w-md text-white/75">{c.sub[lang]}</p>
 
               {/* phone: big quick actions */}

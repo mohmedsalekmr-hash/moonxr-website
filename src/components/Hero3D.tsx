@@ -34,6 +34,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
     setActive(null);
     setHint(false);
     api.current?.enter();
+    setTour(true); // the guided tour plays by itself; any touch takes over
   }, []);
   const exit = useCallback(() => {
     setExplore(false);
@@ -558,6 +559,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
 
   // guided tour: one part every 5 s, then back to the overview
   const TOUR_MS = 5200;
+  const INTRO_MS = 4200; // the headset settles, then the overview card is read
   useEffect(() => {
     if (!tour) return;
     const t = setTimeout(() => {
@@ -565,7 +567,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
         setTour(false);
         select(null);
       } else move(1);
-    }, idx < 0 ? 400 : TOUR_MS);
+    }, idx < 0 ? INTRO_MS : TOUR_MS);
     return () => clearTimeout(t);
   }, [tour, idx, move, select]);
 
@@ -673,7 +675,12 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
                   </div>
                 )}
 
-                {!step && !tour ? (
+                {!step && tour ? (
+                  <div className="mt-4 flex items-center justify-between gap-3 text-xs text-white/60">
+                    <span>{lang === "fr" ? "Visite guidée…" : "جولة إرشادية…"}</span>
+                    <button type="button" onClick={() => setTour(false)} className="font-semibold hover:text-white">❚❚ {t(explorer.stop)}</button>
+                  </div>
+                ) : !step && !tour ? (
                   <div className="mt-4 md:mt-5">
                     <button type="button" onClick={() => setTour(true)} className="btn btn-sun w-full justify-center">
                       ▶ {t(explorer.tour)}
@@ -704,7 +711,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
                     </button>
                   </div>
                 )}
-                {tour && step && <span key={`bar-${active}`} className="tour-bar" style={{ animationDuration: `${TOUR_MS}ms` }} />}
+                {tour && <span key={`bar-${active ?? "intro"}`} className="tour-bar" style={{ animationDuration: `${step ? TOUR_MS : INTRO_MS}ms` }} />}
               </div>
             </div>
           </div>
