@@ -11,7 +11,8 @@ const ICON = {
 };
 
 /** Closing chapter of every page: one calm, centred invitation and a single quiet line of contacts. */
-export default async function CTA({ lang }: { lang: Locale; fade?: boolean }) {
+export default async function CTA({ lang, fade = true }: { lang: Locale; fade?: boolean }) {
+  const bridge = fade; // on a white page the card bridges the white page and the blue footer
   const { ui, contact: CONTACT } = await getContent();
   const fr = lang === "fr";
   const items = [
@@ -21,10 +22,12 @@ export default async function CTA({ lang }: { lang: Locale; fade?: boolean }) {
   ];
   return (
     <>
-    
-    <section className="relative overflow-hidden bg-navy text-white">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_45%_at_50%_45%,rgba(111,138,214,0.18),transparent_70%)]" />
-      <div className="wrap relative py-20 text-center md:py-24">
+    <section className={`relative text-white ${bridge ? "bg-white pt-10 md:pt-16" : "bg-navy"}`}>
+      {bridge && <div aria-hidden className="absolute inset-x-0 bottom-0 top-1/2 bg-navy" />}
+      <div className={bridge ? "wrap relative" : "relative"}>
+      <div className={`relative overflow-hidden ${bridge ? "rounded-[var(--radius-lg)] bg-brand shadow-[0_40px_80px_-40px_rgba(10,20,49,0.6)] ring-1 ring-white/10" : ""}`}>
+      {bridge && <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_60%_at_50%_0%,rgba(111,138,214,0.35),transparent_70%)]" />}
+      <div className={`relative text-center ${bridge ? "px-6 py-14 md:px-12 md:py-20" : "wrap py-20 md:py-24"}`}>
         <Reveal>
           <SectionHeader dark center kicker={ui.nav.contact[lang]} title={ui.cta.title[lang]} lead={ui.cta.sub[lang]} />
           <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -59,6 +62,8 @@ export default async function CTA({ lang }: { lang: Locale; fade?: boolean }) {
             })}
           </ul>
         </Reveal>
+      </div>
+      </div>
       </div>
     </section>
     </>

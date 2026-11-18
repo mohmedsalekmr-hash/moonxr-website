@@ -20,6 +20,8 @@ import Page from "@/components/Page";
  * Home, told in six chapters:
  * 1. the 3D headset · 2. who we are · 3. our work · 4. how we work · 5. ecosystem · 6. contact
  */
+const LOOK: "sheet" | "bridge" = "bridge";
+
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   const { ui, services, steps, projects, clients, partners, suppliers, home } = await getContent();
@@ -63,7 +65,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     about: (
       <>
           {/* 2 — WHAT WE DO: one sentence, four photo tiles */}
-          <section className="pb-6 pt-16 md:pb-10 md:pt-28">
+          <section className={`pt-16 md:pt-28 ${LOOK === "sheet" ? "pb-20 md:pb-32" : "pb-6 md:pb-10"}`}>
             <div className="wrap">
               <Reveal>
                 <div className="kicker">{h.aboutKicker[lang]}</div>
@@ -101,12 +103,10 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
               short: p.short[lang],
               meta: p.meta[lang],
             }))}
+            look={LOOK}
             head={
               <>
-                <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-sun rtl:text-sm rtl:tracking-normal">
-                  <span className="h-px w-8 bg-sun" />
-                  {ui.work.kicker[lang]}
-                </div>
+                <div className={`kicker ${LOOK === "sheet" ? "!text-sun" : ""}`}>{ui.work.kicker[lang]}</div>
                 <h2 className="section-title">{h.workTitle[lang]}</h2>
               </>
             }

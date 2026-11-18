@@ -9,7 +9,7 @@ export type ShowcaseItem = { slug: string; href: string; image: string; pos?: st
  * Home projects: a horizontal strip, browsed sideways — swipe on a phone or trackpad, drag with the mouse.
  * Scrolling up and down keeps moving the page, never the strip.
  */
-export default function Showcase({ items, head, all, hint }: { items: ShowcaseItem[]; head: React.ReactNode; all: { href: string; label: string }; hint: string }) {
+export default function Showcase({ items, head, all, hint, look = "sheet" }: { items: ShowcaseItem[]; head: React.ReactNode; all: { href: string; label: string }; hint: string; look?: "sheet" | "bridge" }) {
   const track = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
 
@@ -32,11 +32,22 @@ export default function Showcase({ items, head, all, hint }: { items: ShowcaseIt
   };
 
   return (
-    <section className="relative overflow-hidden bg-navy py-20 text-white md:py-28">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_45%_at_20%_45%,rgba(111,138,214,0.16),transparent_70%)]" />
+    <section
+      data-look={look}
+      className={
+        look === "sheet"
+          ? "relative z-10 -mt-10 overflow-hidden rounded-t-[2rem] bg-navy py-20 text-white shadow-[0_-30px_60px_-35px_rgba(20,36,84,0.45)] md:-mt-16 md:rounded-t-[3.5rem] md:py-28"
+          : "relative overflow-hidden bg-white pb-16 pt-4 text-ink md:pb-24 md:pt-8"
+      }
+    >
+      {look === "sheet" ? (
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_45%_at_20%_45%,rgba(111,138,214,0.16),transparent_70%)]" />
+      ) : (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[calc(50%+1rem)] bg-navy md:top-[calc(50%+1.5rem)]" />
+      )}
       <div className="wrap relative flex items-end justify-between gap-6">
         <div>{head}</div>
-        <Link href={all.href} className="hidden shrink-0 rounded-full border border-white/25 px-5 py-2.5 text-sm font-semibold transition-colors hover:border-sun hover:bg-sun hover:text-ink md:inline-flex">
+        <Link href={all.href} className={`hidden shrink-0 rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors hover:border-sun hover:bg-sun hover:text-ink md:inline-flex ${look === "sheet" ? "border-white/25" : "border-ink/15"}`}>
           {all.label}
         </Link>
       </div>
@@ -63,7 +74,7 @@ export default function Showcase({ items, head, all, hint }: { items: ShowcaseIt
               </div>
             </ViewTransition>
             <span className="absolute end-5 top-5 z-[2] tag tag-dark ring-1 ring-white/20">{it.tag}</span>
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] p-6 md:p-7">
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] p-6 text-white md:p-7">
               <div className="text-xs font-medium text-white/60">{it.meta}</div>
               <h3 className="font-display mt-2 text-2xl font-bold leading-tight md:text-[1.7rem]">{it.title}</h3>
               <p className="mt-2 text-sm text-white/75">{it.short}</p>
