@@ -16,6 +16,7 @@ export const ui = {
   nav: {
     home: { fr: "Accueil", ar: "الرئيسية" },
     projects: { fr: "Projets", ar: "أعمالنا" },
+    services: { fr: "Services", ar: "خدماتنا" },
     partners: { fr: "Partenaires", ar: "شركاؤنا" },
     about: { fr: "À propos", ar: "من نحن" },
     contact: { fr: "Nous contacter", ar: "تواصل معنا" },

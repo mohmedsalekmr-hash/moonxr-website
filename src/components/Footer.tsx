@@ -6,6 +6,7 @@ export default async function Footer({ lang }: { lang: Locale }) {
   const { ui, contact: CONTACT } = await getContent();
   const links = [
     { href: `/${lang}/projets`, label: ui.nav.projects[lang] },
+    { href: `/${lang}/services`, label: ui.nav.services[lang] },
     { href: `/${lang}/partenaires`, label: ui.nav.partners[lang] },
     { href: `/${lang}/a-propos`, label: ui.nav.about[lang] },
     { href: `/${lang}/contact`, label: ui.nav.contact[lang] },

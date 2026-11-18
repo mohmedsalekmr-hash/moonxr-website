@@ -39,6 +39,7 @@ export default function Header({ lang }: { lang: Locale }) {
 
   const links = [
     { href: `/${lang}/projets`, label: ui.nav.projects[lang] },
+    { href: `/${lang}/services`, label: ui.nav.services[lang] },
     { href: `/${lang}/partenaires`, label: ui.nav.partners[lang] },
     { href: `/${lang}/a-propos`, label: ui.nav.about[lang] },
   ];

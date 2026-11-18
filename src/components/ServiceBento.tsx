@@ -1,6 +1,7 @@
+import Link from "next/link";
 import type { Locale, T } from "@/data/i18n";
 
-const DEFAULT_IMG = [
+export const SERVICE_IMG = [
   { src: "/media/photos/moov-c.webp", pos: "50% 35%" },
   { src: "/media/photos/eetfp-soldamatic.webp", pos: "50% 40%" },
   { src: "/media/photos/snim-team.webp", pos: "55% 40%" },
@@ -13,11 +14,12 @@ export default function ServiceBento({ services, lang }: { services: { title: T;
   return (
     <div className="no-scrollbar -mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 sm:mx-0 sm:mt-12 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:h-[560px] lg:grid-cols-4 lg:grid-rows-2">
       {services.map((s, i) => {
-        const img = { src: s.image ?? DEFAULT_IMG[i % 4].src, pos: s.pos ?? DEFAULT_IMG[i % 4].pos };
+        const img = { src: s.image ?? SERVICE_IMG[i % 4].src, pos: s.pos ?? SERVICE_IMG[i % 4].pos };
         return (
-          <article
+          <Link
+            href={`/${lang}/services#s${i + 1}`}
             key={i}
-            className={`veil group relative aspect-[4/5] w-[78%] shrink-0 snap-start overflow-hidden rounded-[var(--radius-lg)] bg-navy sm:aspect-[4/3] sm:w-auto lg:aspect-auto ${span[i] ?? ""}`}
+            className={`veil group relative block aspect-[4/5] w-[78%] shrink-0 snap-start overflow-hidden rounded-[var(--radius-lg)] bg-navy sm:aspect-[4/3] sm:w-auto lg:aspect-auto ${span[i] ?? ""}`}
           >
             <img
               src={img.src}
@@ -30,7 +32,7 @@ export default function ServiceBento({ services, lang }: { services: { title: T;
               <h3 className={`font-display font-bold leading-tight ${i === 0 ? "text-2xl md:text-4xl" : "text-xl md:text-2xl"}`}>{s.title[lang]}</h3>
               <p className={`mt-2 line-clamp-2 text-white/75 ${i === 0 ? "max-w-md text-sm md:text-base" : "text-sm"}`}>{s.text[lang]}</p>
             </div>
-          </article>
+          </Link>
         );
       })}
     </div>
