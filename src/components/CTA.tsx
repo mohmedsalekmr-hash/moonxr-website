@@ -1,5 +1,6 @@
+import { getContent } from "@/lib/content";
 import Link from "next/link";
-import { CONTACT, ui, type Locale } from "@/data/i18n";
+import { type Locale } from "@/data/i18n";
 import { Reveal } from "@/components/Media";
 
 const ICON = {
@@ -9,7 +10,8 @@ const ICON = {
 };
 
 /** Closing chapter of every page: one calm, centred invitation and a single quiet line of contacts. */
-export default function CTA({ lang }: { lang: Locale }) {
+export default async function CTA({ lang }: { lang: Locale }) {
+  const { ui, contact: CONTACT } = await getContent();
   const fr = lang === "fr";
   const items = [
     { icon: ICON.mail, value: CONTACT.email, href: `mailto:${CONTACT.email}`, ltr: true },

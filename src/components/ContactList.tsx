@@ -1,4 +1,5 @@
-import { CONTACT, type Locale } from "@/data/i18n";
+import { getContent } from "@/lib/content";
+import { type Locale } from "@/data/i18n";
 
 const I = {
   mail: "M4 6h16v12H4z M4 7l8 6 8-6",
@@ -24,7 +25,8 @@ function Icon({ d }: { d: string }) {
 }
 
 /** Contact details as one consistent list (dark = on navy, light = on white). */
-export default function ContactList({ lang, tone = "dark" }: { lang: Locale; tone?: "dark" | "light" }) {
+export default async function ContactList({ lang, tone = "dark" }: { lang: Locale; tone?: "dark" | "light" }) {
+  const { contact: CONTACT } = await getContent();
   const dark = tone === "dark";
   const rows = [
     { icon: I.mail, label: L.email[lang], value: CONTACT.email, href: `mailto:${CONTACT.email}`, ltr: true },

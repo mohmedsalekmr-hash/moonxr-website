@@ -1,7 +1,8 @@
+import { getContent } from "@/lib/content";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { hasLocale, ui, type T } from "@/data/i18n";
-import { clients, partners, suppliers } from "@/data/projects";
+import { hasLocale, type T } from "@/data/i18n";
+
 import { Reveal } from "@/components/Media";
 import { ClientCards, PartnerFeatures, TechWall } from "@/components/Ecosystem";
 import CTA from "@/components/CTA";
@@ -46,6 +47,7 @@ const extra: Record<string, { points: T[]; image?: string }> = {
 
 export default async function PartnersPage({ params }: PageProps<"/[lang]/partenaires">) {
   const { lang } = await params;
+  const { ui, clients, partners, suppliers } = await getContent();
   if (!hasLocale(lang)) notFound();
 
   return (

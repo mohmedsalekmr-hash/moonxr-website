@@ -1,16 +1,19 @@
+import { getContent } from "@/lib/content";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
-import { hasLocale, locales, ui } from "@/data/i18n";
+import { hasLocale, locales } from "@/data/i18n";
 import { EndTakeover } from "@/components/ProjectEnd";
-import { projects, getProject } from "@/data/projects";
+
 import { ScrollStory } from "@/components/Story";
 import Page from "@/components/Page";
 
-export const dynamicParams = false;
+// new projects added in /admin are rendered on first visit
+export const dynamicParams = true;
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const { projects } = await getContent();
   return locales.flatMap((lang) =>
     projects.map((p) => ({ lang, slug: p.slug })),
   );
@@ -20,7 +23,8 @@ export async function generateMetadata({
   params,
 }: PageProps<"/[lang]/projets/[slug]">): Promise<Metadata> {
   const { lang, slug } = await params;
-  const p = getProject(slug);
+  const { projects } = await getContent();
+  const p = projects.find((x) => x.slug === slug);
   if (!p || !hasLocale(lang)) return {};
   return {
     title: p.title[lang],
@@ -45,8 +49,9 @@ export default async function ProjectPage({
   params,
 }: PageProps<"/[lang]/projets/[slug]">) {
   const { lang, slug } = await params;
+  const { ui, projects } = await getContent();
   if (!hasLocale(lang)) notFound();
-  const p = getProject(slug);
+  const p = projects.find((x) => x.slug === slug);
   if (!p) notFound();
   const idx = projects.indexOf(p);
   const next = projects[(idx + 1) % projects.length];

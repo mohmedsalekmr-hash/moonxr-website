@@ -1,11 +1,13 @@
+import { useShared } from "@/components/ContentProvider";
 import Link from "next/link";
 import { ViewTransition } from "react";
 import type { Project } from "@/data/projects";
 import { projectTag } from "@/data/projects";
-import { ui, type Locale } from "@/data/i18n";
+import { type Locale } from "@/data/i18n";
 
 /** Project card — photo under the navy veil, text on the photo (same look as the home strip and the deck). */
 export default function ProjectCard({ p, lang }: { p: Project; lang: Locale; index?: number }) {
+  const { ui } = useShared();
   return (
     <Link href={`/${lang}/projets/${p.slug}`} className="group relative block" aria-label={`${p.title[lang]} — ${ui.work.view[lang]}`}>
       <ViewTransition name={`project-${p.slug}`} share="morph" default="none">

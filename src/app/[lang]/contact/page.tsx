@@ -1,6 +1,7 @@
+import { getContent } from "@/lib/content";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { hasLocale, ui } from "@/data/i18n";
+import { hasLocale } from "@/data/i18n";
 import PageHead from "@/components/PageHead";
 import Page from "@/components/Page";
 import ContactForm from "@/components/ContactForm";
@@ -13,6 +14,7 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/contact">)
 
 export default async function ContactPage({ params }: PageProps<"/[lang]/contact">) {
   const { lang } = await params;
+  const { ui } = await getContent();
   if (!hasLocale(lang)) notFound();
   const c = ui.contact;
   return (

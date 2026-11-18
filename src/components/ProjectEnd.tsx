@@ -1,12 +1,14 @@
+import { getContent } from "@/lib/content";
 import Link from "next/link";
 import { ViewTransition } from "react";
-import { ui, type Locale } from "@/data/i18n";
+import { type Locale } from "@/data/i18n";
 import type { Project } from "@/data/projects";
 
 type Props = { next: Project; lang: Locale };
 
 /** 1 — Takeover: the next project fills the screen, one huge title, nothing else. */
-export function EndTakeover({ next, lang }: Props) {
+export async function EndTakeover({ next, lang }: Props) {
+  const { ui } = await getContent();
   return (
     <Link href={`/${lang}/projets/${next.slug}`} className="group relative block h-[100svh] min-h-[560px] overflow-hidden bg-[#05070d] text-white">
       <ViewTransition name={`project-${next.slug}`} share="morph" default="none">

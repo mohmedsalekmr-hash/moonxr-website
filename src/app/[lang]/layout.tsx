@@ -6,6 +6,8 @@ import { hasLocale, locales } from "@/data/i18n";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
+import { ContentProvider } from "@/components/ContentProvider";
+import { getContent } from "@/lib/content";
 
 const sora = Sora({ subsets: ["latin"], variable: "--font-sora", weight: ["400", "600", "700", "800"] });
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -40,6 +42,7 @@ export const viewport: Viewport = { themeColor: "#05070d" };
 export default async function RootLayout({ children, params }: LayoutProps<"/[lang]">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
+  const { ui, contact } = await getContent();
   return (
     <html lang={lang} dir={lang === "ar" ? "rtl" : "ltr"} className={`${sora.variable} ${inter.variable} ${arabic.variable}`} suppressHydrationWarning>
       <head>
@@ -51,6 +54,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
         />
       </head>
       <body>
+        <ContentProvider value={{ ui, contact }}>
         <div className="intro" aria-hidden="true">
           <img src="/media/logos/moonxr-l.svg" alt="" width={1920} height={315} className="intro-logo" />
           <span className="intro-bar" />
@@ -59,6 +63,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
         <Header lang={lang} />
         <main>{children}</main>
         <Footer lang={lang} />
+      </ContentProvider>
       </body>
     </html>
   );

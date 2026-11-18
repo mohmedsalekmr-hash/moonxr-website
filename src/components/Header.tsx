@@ -1,11 +1,13 @@
 "use client";
+import { useShared } from "@/components/ContentProvider";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ui, type Locale } from "@/data/i18n";
+import { type Locale } from "@/data/i18n";
 
 export default function Header({ lang }: { lang: Locale }) {
+  const { ui } = useShared();
   const pathname = usePathname() || `/${lang}`;
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);

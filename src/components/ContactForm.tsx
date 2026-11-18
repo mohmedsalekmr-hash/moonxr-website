@@ -1,13 +1,15 @@
 "use client";
+import { useShared } from "@/components/ContentProvider";
 
 import { useState, type FormEvent } from "react";
-import { CONTACT, ui, type Locale } from "@/data/i18n";
+import { type Locale } from "@/data/i18n";
 
 /**
  * Until the back end exists, the form opens the visitor's e-mail app
  * with a pre-filled message to the Moon XR address.
  */
 export default function ContactForm({ lang }: { lang: Locale }) {
+  const { ui, contact: CONTACT } = useShared();
   const c = ui.contact;
   const [sent, setSent] = useState(false);
 

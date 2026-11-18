@@ -1,7 +1,9 @@
+import { getContent } from "@/lib/content";
 import Link from "next/link";
-import { CONTACT, ui, type Locale } from "@/data/i18n";
+import { type Locale } from "@/data/i18n";
 
-export default function Footer({ lang }: { lang: Locale }) {
+export default async function Footer({ lang }: { lang: Locale }) {
+  const { ui, contact: CONTACT } = await getContent();
   const links = [
     { href: `/${lang}/projets`, label: ui.nav.projects[lang] },
     { href: `/${lang}/partenaires`, label: ui.nav.partners[lang] },

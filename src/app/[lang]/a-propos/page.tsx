@@ -1,6 +1,7 @@
+import { getContent } from "@/lib/content";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { hasLocale, ui, services, pillars } from "@/data/i18n";
+import { hasLocale, pillars } from "@/data/i18n";
 import PageHead from "@/components/PageHead";
 import { Reveal } from "@/components/Media";
 import CTA from "@/components/CTA";
@@ -34,6 +35,7 @@ const copy = {
 
 export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos">) {
   const { lang } = await params;
+  const { ui, services } = await getContent();
   if (!hasLocale(lang)) notFound();
   return (
     <Page>

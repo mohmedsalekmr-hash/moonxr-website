@@ -1,11 +1,13 @@
 "use client";
+import { useShared } from "@/components/ContentProvider";
 
 import { useState } from "react";
 import { categories, type Category, type Project } from "@/data/projects";
-import { ui, type Locale } from "@/data/i18n";
+import { type Locale } from "@/data/i18n";
 import ProjectCard from "./ProjectCard";
 
 export default function ProjectFilter({ projects, lang }: { projects: Project[]; lang: Locale }) {
+  const { ui } = useShared();
   const [cat, setCat] = useState<Category | "all">("all");
   const list = cat === "all" ? projects : projects.filter((p) => p.category === cat);
   const tabs: (Category | "all")[] = ["all", "event", "training", "dev"];
