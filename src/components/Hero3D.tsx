@@ -154,15 +154,16 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
         c.side = Math.sign(b.getCenter(new THREE.Vector3()).x - headCenter.x) || 1;
       });
       // the controllers slide in from each side, the second one a beat later, with a little spin
-      let ctrlClock = 0, ctrlGoal = 0;
+      const CTRL_DELAY = 1.3; // the headset settles alone first, then the controllers arrive
+      let ctrlClock = 0, ctrlGoal = 0, staged = false;
       const easeOutBack = (x: number) => 1 + 2.2 * Math.pow(x - 1, 3) + 1.2 * Math.pow(x - 1, 2);
       const applyControllers = () => {
         controllers.forEach(({ node, pos, rotY, side }, i) => {
-          const p = Math.min(1, Math.max(0, (ctrlClock - 0.25 - i * 0.22) / 0.9));
+          const p = Math.min(1, Math.max(0, (ctrlClock - CTRL_DELAY - i * 0.25) / 0.9));
           const e = p >= 1 ? 1 : easeOutBack(p);
           node.visible = p > 0;
           node.scale.setScalar(Math.max(0.001, Math.min(1, p * 2.5)));
-          node.position.set(pos.x + side * 0.42 * (1 - e), pos.y + 0.06 * (1 - e), pos.z - 0.1 * (1 - e));
+          node.position.set(pos.x + side * (0.05 + 0.42 * (1 - e)), pos.y - 0.015 + 0.06 * (1 - e), pos.z - 0.1 * (1 - e));
           node.rotation.y = rotY + side * 1.7 * (1 - e);
         });
       };
@@ -194,7 +195,8 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
       let exploring = false;
       let wiggle = reduce ? 0 : 1; // idle sway, until the first touch
       const idleView = () => ({ target: headCenter.clone(), pos: sph(headCenter, 0.6 * (rtl ? -1 : 1), 0.12, (wide ? 0.62 : 0.78) * fit) });
-      const overview = () => ({ target: allCenter.clone(), pos: sph(allCenter, 0.5, 0.22, 0.86 * fit) });
+      const overview = () => ({ target: allCenter.clone(), pos: sph(allCenter, 0.5, 0.22, 1.02 * fit) });
+      const headView = () => ({ target: headCenter.clone(), pos: sph(headCenter, 0.45, 0.18, 0.72 * fit) });
 
       const resize = () => {
         const w = el.clientWidth, h = el.clientHeight;
@@ -204,7 +206,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
         renderer.setSize(w, h, false);
         camera.aspect = w / h;
         shiftGoalX = exploring ? (wide ? (rtl ? -0.12 : 0.12) * w : 0) : wide ? (rtl ? 0.22 : -0.22) * w : 0;
-        shiftGoalY = exploring ? (wide ? 0 : 0.13 * h) : wide ? 0 : 0.24 * h;
+        shiftGoalY = exploring ? (wide ? -0.035 * h : 0.1 * h) : wide ? 0 : 0.24 * h;
         camera.updateProjectionMatrix();
       };
       resize();
@@ -223,6 +225,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
       const off = new THREE.Vector3();
       const focus = (id: string | null, group?: "headset" | "controller" | null) => {
         controls.autoRotate = false;
+        staged = true;
         // the part in focus stays alone on stage, the rest fades away
         dimGoal.headset = group === "controller" ? 0 : 1;
         dimGoal.controller = group === "headset" ? 0 : 1;
@@ -245,7 +248,8 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
           renderer.domElement.style.touchAction = "none";
           renderer.domElement.style.cursor = "grab";
           resize();
-          anim = overview();
+          anim = headView();
+          staged = false;
         },
         exit: () => {
           exploring = false;
@@ -340,7 +344,12 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
         const w = el.clientWidth, h = el.clientHeight;
         camera.setViewOffset(w, h, shiftX, shiftY, w, h);
 
-        const ctrlEnd = 0.25 + (controllers.length - 1) * 0.22 + 0.9;
+        const ctrlEnd = CTRL_DELAY + (controllers.length - 1) * 0.25 + 0.9;
+        // once the headset has settled, pull back to make room for the controllers
+        if (exploring && !staged && ctrlClock >= CTRL_DELAY - 0.2) {
+          staged = true;
+          anim = overview();
+        }
         if (ctrlGoal && ctrlClock < ctrlEnd) {
           ctrlClock = Math.min(ctrlEnd, ctrlClock + dt);
           applyControllers();
@@ -363,10 +372,14 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
           model.rotation.y = sway * 0.35;
           controls.autoRotate = !reduce && wiggle < 0.05;
           if (hintRef.current) {
-            c2.copy(headCenter).project(camera);
+            c2.set(headCenter.x, headBox.min.y + 0.02, headCenter.z).project(camera);
             hintRef.current.style.transform = `translate(${((c2.x + 1) / 2) * w}px, ${((1 - c2.y) / 2) * h}px)`;
           }
-          if (handRef.current) handRef.current.style.transform = `translateX(${sway * 34}px) rotate(${sway * 10}deg)`;
+          if (handRef.current) {
+            // the fingertip runs along the front of the orbit
+            const hx = sway * 110;
+            handRef.current.style.transform = `translate(${hx}px, ${30 * Math.sqrt(1 - (hx / 140) ** 2)}px) rotate(${sway * -8}deg)`;
+          }
         } else if (model.rotation.y !== 0) model.rotation.y *= 1 - k;
 
         if (anim) {
@@ -499,10 +512,28 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
       {ready && !explore && (
         <div ref={hintRef} className="pointer-events-none absolute left-0 top-0 z-10" aria-hidden={!hint}>
           <div className={`drag-hint ${hint ? "is-on" : ""}`}>
-            <span className="drag-hint-arc" />
+            {/* an orbit under the headset and a pointer that drags along it */}
+            <svg className="drag-hint-orbit" viewBox="0 0 300 80" aria-hidden>
+              <defs>
+                <linearGradient id="mx-orbit" x1="0" x2="1">
+                  <stop offset="0" stopColor="#007aff" stopOpacity="0" />
+                  <stop offset="0.5" stopColor="#007aff" stopOpacity="0.9" />
+                  <stop offset="1" stopColor="#007aff" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <ellipse cx="150" cy="40" rx="140" ry="30" fill="none" stroke="url(#mx-orbit)" strokeWidth="1.5" />
+              <ellipse cx="150" cy="40" rx="140" ry="30" fill="none" stroke="#0b1b3f" strokeOpacity="0.08" strokeWidth="1" strokeDasharray="2 6" />
+            </svg>
             <span ref={handRef} className="drag-hint-hand">
-              <svg viewBox="0 0 24 24" className="h-8 w-8" fill="#fff" stroke="#0b1b3f" strokeWidth="1.3" strokeLinejoin="round" aria-hidden>
-                <path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-.5V4.5a1.5 1.5 0 0 1 3 0V10m0-.5V6a1.5 1.5 0 0 1 3 0v7.5c0 3.6-2.4 6.5-6 6.5h-.6a6 6 0 0 1-4.6-2.2L4.3 14.6a1.5 1.5 0 0 1 2.2-2L9 15V11Z" />
+              <span className="drag-hint-glow" />
+              <svg viewBox="0 0 24 24" className="h-11 w-11" aria-hidden>
+                <path
+                  d="M10 3.5a1.6 1.6 0 0 1 1.6 1.6V11l.4-.1V9.4a1.6 1.6 0 0 1 3.2 0v1.8l.3-.1a1.6 1.6 0 0 1 3 .8v4.4c0 3.4-2.6 6.2-6 6.2h-1.1a5.6 5.6 0 0 1-4.4-2.1l-2.6-3.3a1.5 1.5 0 0 1 2.2-2l1.8 1.6V5.1A1.6 1.6 0 0 1 10 3.5Z"
+                  fill="#fff"
+                  stroke="#0b1b3f"
+                  strokeWidth="1.1"
+                  strokeLinejoin="round"
+                />
               </svg>
             </span>
             <button type="button" onClick={enter} className="drag-hint-cap pointer-events-auto md:hidden" dir={rtl ? "rtl" : "ltr"}>
@@ -539,7 +570,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
             data-dim={step && step.id !== s.id ? "" : undefined}
             data-hide={step && step.group !== s.group ? "" : undefined}
             className="callout pointer-events-none absolute left-0 top-0"
-            style={{ animationDelay: `${0.9 + i * 0.08}s` }}
+            style={{ animationDelay: `${s.group === "headset" ? 0.9 + i * 0.1 : 2.6 + i * 0.1}s` }}
           >
             <span className="callout-line" />
             <button type="button" onClick={() => { setTour(false); select(s.id); }} className={`callout-dot pointer-events-auto ${active === s.id ? "is-active" : ""}`} aria-label={s.title[lang]} />
