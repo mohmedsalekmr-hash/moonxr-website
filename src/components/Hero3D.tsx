@@ -22,7 +22,6 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
   const [tour, setTour] = useState(false);
   const [hint, setHint] = useState(false);
   const hintRef = useRef<HTMLDivElement>(null);
-  const handRef = useRef<HTMLSpanElement>(null);
   const userAct = useRef<() => void>(() => {});
 
   const select = useCallback((id: string | null) => {
@@ -134,37 +133,62 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
         });
       };
 
-      // headset-only framing vs full set (with controllers)
-      const controllers: { node: import("three").Object3D; pos: import("three").Vector3; rotY: number; side: number }[] = [];
-      model.traverse((o) => {
-        if (o.name === PART.controllerLeft || o.name === PART.controllerRight) {
-          const node = o.parent ?? o;
-          controllers.push({ node, pos: node.position.clone(), rotY: node.rotation.y, side: 0 });
-        }
-      });
+      // product-shot layout: the headset in the middle, one controller standing on each side
+      const V = () => new THREE.Vector3();
       const headBox = new THREE.Box3();
+      model.traverse((o) => (o as import("three").Mesh).isMesh && !isCtrl(o) && headBox.expandByObject(o));
+      const headCenter = headBox.getCenter(V());
+      const headSize = headBox.getSize(V());
+      const flatR = (b: import("three").Box3) => { const z = b.getSize(new THREE.Vector3()); return 0.5 * Math.hypot(z.x, z.y, z.z * 0.4); };
+      const headRadius = flatR(headBox);
+      type Ctrl = { node: import("three").Object3D; name: string; side: number; finalW: import("three").Vector3; delta: import("three").Vector3; box: import("three").Box3; rotY: number };
+      const controllers: Ctrl[] = [];
       model.traverse((o) => {
-        const m = o as import("three").Mesh;
-        if (m.isMesh && m.name !== PART.controllerLeft && m.name !== PART.controllerRight) headBox.expandByObject(m);
+        if (o.name !== PART.controllerLeft && o.name !== PART.controllerRight) return;
+        const node = o.parent ?? o;
+        const b = new THREE.Box3().setFromObject(node);
+        const cc = b.getCenter(V()), cs = b.getSize(V());
+        const side = Math.sign(cc.x - headCenter.x) || 1;
+        const want = new THREE.Vector3(headCenter.x + side * (headSize.x / 2 + cs.x / 2 + 0.025), headCenter.y - headSize.y * 0.35, headCenter.z + 0.03);
+        const delta = want.clone().sub(cc);
+        controllers.push({ node, name: o.name, side, finalW: node.getWorldPosition(V()).add(delta), delta, box: b.clone().translate(delta), rotY: node.rotation.y });
       });
-      const headCenter = headBox.getCenter(new THREE.Vector3());
-      const allCenter = new THREE.Box3().setFromObject(model).getCenter(new THREE.Vector3());
-      controllers.forEach((c) => {
-        const b = new THREE.Box3().setFromObject(c.node);
-        c.side = Math.sign(b.getCenter(new THREE.Vector3()).x - headCenter.x) || 1;
-      });
-      // the controllers slide in from each side, the second one a beat later, with a little spin
-      const CTRL_DELAY = 1.3; // the headset settles alone first, then the controllers arrive
+      const layoutBox = headBox.clone();
+      controllers.forEach((c) => layoutBox.union(c.box));
+      const layoutCenter = layoutBox.getCenter(V());
+      const layoutRadius = flatR(layoutBox);
+      // hotspots on the controllers follow them to their new place
+      const ctrlOf = (id: string) => controllers.find((c) => c.name === (id === "trigger" ? PART.controllerRight : PART.controllerLeft));
+      const pointOf = (id: string) => {
+        const p = new THREE.Vector3(...HOTSPOTS[id].point);
+        const c = HOTSPOTS[id] && ["joystick", "buttons", "trigger"].includes(id) ? ctrlOf(id) : undefined;
+        return c ? p.add(c.delta) : p;
+      };
+
+      // the controllers slide in from each side once the headset has settled, the second a beat later
+      const CTRL_DELAY = 1.1;
       let ctrlClock = 0, ctrlGoal = 0, staged = false;
-      const easeOutBack = (x: number) => 1 + 2.2 * Math.pow(x - 1, 3) + 1.2 * Math.pow(x - 1, 2);
+      // when one controller is in focus, the other one steps out too
+      const solo: Record<string, number> = {}, soloGoal: Record<string, number> = {};
+      const easeOut = (x: number) => 1 - Math.pow(1 - x, 3);
+      const tmp = V();
       const applyControllers = () => {
-        controllers.forEach(({ node, pos, rotY, side }, i) => {
-          const p = Math.min(1, Math.max(0, (ctrlClock - CTRL_DELAY - i * 0.25) / 0.9));
-          const e = p >= 1 ? 1 : easeOutBack(p);
-          node.visible = p > 0;
-          node.scale.setScalar(Math.max(0.001, Math.min(1, p * 2.5)));
-          node.position.set(pos.x + side * (0.05 + 0.42 * (1 - e)), pos.y - 0.015 + 0.06 * (1 - e), pos.z - 0.1 * (1 - e));
-          node.rotation.y = rotY + side * 1.7 * (1 - e);
+        controllers.forEach(({ node, name, side, finalW, rotY }, i) => {
+          const so = solo[name] ?? 1;
+          const p = Math.min(1, Math.max(0, (ctrlClock - CTRL_DELAY - i * 0.2) / 0.8));
+          const e = easeOut(p);
+          node.visible = p > 0 && dim.controller * so > 0.02;
+          tmp.copy(finalW).add(new THREE.Vector3(side * 0.3 * (1 - e), 0.02 * (1 - e), 0));
+          node.position.copy(node.parent ? node.parent.worldToLocal(tmp.clone()) : tmp);
+          node.rotation.y = rotY + side * 0.9 * (1 - e);
+          node.traverse((m) => {
+            const mesh = m as import("three").Mesh;
+            if (!mesh.isMesh) return;
+            (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).forEach((mat) => {
+              mat.transparent = e * dim.controller * so < 0.999;
+              mat.opacity = e * dim.controller * so;
+            });
+          });
         });
       };
       applyControllers();
@@ -175,8 +199,8 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
       controls.dampingFactor = 0.08;
       controls.enablePan = false;
       controls.enableZoom = false;
-      controls.minDistance = 0.22;
-      controls.maxDistance = 1.4;
+      controls.minDistance = 0.15;
+      controls.maxDistance = 3;
       controls.rotateSpeed = 0.7;
       controls.autoRotate = !reduce;
       controls.autoRotateSpeed = 0.9;
@@ -193,10 +217,17 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
         new THREE.Vector3(target.x + d * Math.sin(az) * Math.cos(el), target.y + d * Math.sin(el), target.z + d * Math.cos(az) * Math.cos(el));
 
       let exploring = false;
-      let wiggle = reduce ? 0 : 1; // idle sway, until the first touch
+      // while exploring, the 3D set must fit in the area left free by the title (top) and the info card
+      // (right on desktop, bottom on phones): fractions of the canvas
+      const area = () => (wide ? { w: 0.62, h: 0.72 } : { w: 0.92, h: 0.48 });
+      const fitDist = (r: number) => {
+        const a = area();
+        const t = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+        return (r / Math.min(t * a.h, t * camera.aspect * a.w)) * 1.02;
+      };
       const idleView = () => ({ target: headCenter.clone(), pos: sph(headCenter, 0.6 * (rtl ? -1 : 1), 0.12, (wide ? 0.62 : 0.78) * fit) });
-      const overview = () => ({ target: allCenter.clone(), pos: sph(allCenter, 0.5, 0.22, 1.02 * fit) });
-      const headView = () => ({ target: headCenter.clone(), pos: sph(headCenter, 0.45, 0.18, 0.72 * fit) });
+      const overview = () => ({ target: layoutCenter.clone(), pos: sph(layoutCenter, 0.32, 0.14, fitDist(layoutRadius)) });
+      const headView = () => ({ target: headCenter.clone(), pos: sph(headCenter, 0.4, 0.14, fitDist(headRadius)) });
 
       const resize = () => {
         const w = el.clientWidth, h = el.clientHeight;
@@ -205,8 +236,9 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
         fit = Math.max(1, 1.2 / (w / h));
         renderer.setSize(w, h, false);
         camera.aspect = w / h;
-        shiftGoalX = exploring ? (wide ? (rtl ? -0.12 : 0.12) * w : 0) : wide ? (rtl ? 0.22 : -0.22) * w : 0;
-        shiftGoalY = exploring ? (wide ? -0.035 * h : 0.1 * h) : wide ? 0 : 0.24 * h;
+        // centre of the free area: desktop x 4–64 %, y 18–90 %; phone y 10–56 %
+        shiftGoalX = exploring ? (wide ? (rtl ? -0.16 : 0.16) * w : 0) : wide ? (rtl ? 0.22 : -0.22) * w : 0;
+        shiftGoalY = exploring ? (wide ? -0.04 * h : 0.17 * h) : wide ? 0 : 0.24 * h;
         camera.updateProjectionMatrix();
       };
       resize();
@@ -230,18 +262,29 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
         dimGoal.headset = group === "controller" ? 0 : 1;
         dimGoal.controller = group === "headset" ? 0 : 1;
         if (!id || !HOTSPOTS[id]) {
+          controllers.forEach((c) => (soloGoal[c.name] = 1));
           anim = overview();
           return;
         }
         const h = HOTSPOTS[id];
-        const p = new THREE.Vector3(...h.point);
-        anim = { target: p, pos: sph(p, h.view[0], h.view[1], h.view[2] * fit) };
+        const p = pointOf(id);
+        controllers.forEach((c) => (soloGoal[c.name] = 1));
+        if (group === "controller") {
+          const c = ctrlOf(id)!;
+          controllers.forEach((o) => (soloGoal[o.name] = o === c ? 1 : 0));
+          const cc = c.box.getCenter(V());
+          const target = cc.lerp(p, 0.35);
+          anim = { target, pos: sph(target, h.view[0], h.view[1], fitDist(flatR(c.box) * 1.15)) };
+        } else {
+          // keep the whole headset in view, turned towards the part
+          const target = headCenter.clone().lerp(p, 0.3);
+          anim = { target, pos: sph(target, h.view[0], h.view[1], fitDist(headRadius) * 0.92) };
+        }
       };
       api.current = {
         enter: () => {
           exploring = true;
           ctrlGoal = 1;
-          wiggle = 0;
           controls.enabled = true;
           controls.enableZoom = true;
           controls.autoRotate = false;
@@ -255,6 +298,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
           exploring = false;
           ctrlGoal = 0;
           dimGoal.headset = dimGoal.controller = 1;
+          controllers.forEach((c) => (soloGoal[c.name] = 1));
           controls.enableZoom = false;
           controls.autoRotate = !reduce;
           if (touch) {
@@ -282,7 +326,6 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
       const onDown = (e: PointerEvent) => {
         downX = e.clientX;
         downY = e.clientY;
-        wiggle = 0;
         userAct.current();
       };
       const onDbl = () => {
@@ -302,7 +345,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
         const cands = name === PART.controllerLeft ? ["joystick", "buttons"] : name === PART.controllerRight ? ["trigger"] : ["cameras", "lenses", "strap"];
         let best = cands[0], bd = Infinity;
         for (const c of cands) {
-          const d = hit.point.distanceTo(new THREE.Vector3(...HOTSPOTS[c].point));
+          const d = hit.point.distanceTo(pointOf(c));
           if (d < bd) {
             bd = d;
             best = c;
@@ -328,11 +371,11 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
 
       // callouts: dot on the part + label pushed outward from the model's centre
       const ids = Object.keys(HOTSPOTS);
-      const pts = ids.map((id) => new THREE.Vector3(...HOTSPOTS[id].point));
+      const pts = ids.map((id) => pointOf(id));
       const occluded: Record<string, boolean> = {};
       const v = new THREE.Vector3(), c2 = new THREE.Vector3(), dir = new THREE.Vector3();
       const clock = new THREE.Clock();
-      let frameN = 0, raf = 0, t = 0;
+      let frameN = 0, raf = 0;
       const tick = () => {
         raf = requestAnimationFrame(tick);
         if (!visible || document.hidden) return;
@@ -360,27 +403,24 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
         (["headset", "controller"] as const).forEach((g) => {
           if (Math.abs(dim[g] - dimGoal[g]) > 0.002) {
             dim[g] += (dimGoal[g] - dim[g]) * (1 - Math.exp(-dt * 9));
-            applyDim(g);
+            if (Math.abs(dim[g] - dimGoal[g]) <= 0.002) dim[g] = dimGoal[g];
+            if (g === "headset") applyDim(g);
+            else applyControllers();
+          }
+        });
+        controllers.forEach(({ name }) => {
+          const cur = solo[name] ?? 1, goal = soloGoal[name] ?? 1;
+          if (Math.abs(cur - goal) > 0.002) {
+            solo[name] = Math.abs(cur - goal) < 0.01 ? goal : cur + (goal - cur) * (1 - Math.exp(-dt * 9));
+            applyControllers();
           }
         });
 
-        // idle hint: the headset sways with the hand drawn over it
-        t += dt;
-        if (!exploring) {
-          const ph = t % 5; // two swings, then a pause
-          const sway = ph < 2 ? Math.sin(ph * Math.PI) * wiggle : 0;
-          model.rotation.y = sway * 0.35;
-          controls.autoRotate = !reduce && wiggle < 0.05;
-          if (hintRef.current) {
-            c2.set(headCenter.x, headBox.min.y + 0.02, headCenter.z).project(camera);
-            hintRef.current.style.transform = `translate(${((c2.x + 1) / 2) * w}px, ${((1 - c2.y) / 2) * h}px)`;
-          }
-          if (handRef.current) {
-            // the fingertip runs along the front of the orbit
-            const hx = sway * 110;
-            handRef.current.style.transform = `translate(${hx}px, ${30 * Math.sqrt(1 - (hx / 140) ** 2)}px) rotate(${sway * -8}deg)`;
-          }
-        } else if (model.rotation.y !== 0) model.rotation.y *= 1 - k;
+        if (!exploring && hintRef.current) {
+          c2.set(headCenter.x, headBox.min.y, headCenter.z).project(camera);
+          hintRef.current.style.transform = `translate(${((c2.x + 1) / 2) * w}px, ${((1 - c2.y) / 2) * h + 18}px)`;
+        }
+
 
         if (anim) {
           off.copy(camera.position).sub(controls.target);
@@ -400,7 +440,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
 
         if (exploring) {
           frameN++;
-          c2.copy(allCenter).project(camera);
+          c2.copy(layoutCenter).project(camera);
           const cx = ((c2.x + 1) / 2) * w, cy = ((1 - c2.y) / 2) * h;
           ids.forEach((id, i) => {
             const lab = labelRefs.current[id];
@@ -508,55 +548,27 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
 
       <div ref={host} aria-label={explorer.title[lang]} className={`absolute inset-0 transition-opacity duration-1000 ${ready ? "opacity-100" : "opacity-0"}`} />
 
-      {/* idle hint: a hand over the headset, swaying it */}
+      {/* idle hint: a small glass pill under the headset, with a hand that swipes */}
       {ready && !explore && (
-        <div ref={hintRef} className="pointer-events-none absolute left-0 top-0 z-10" aria-hidden={!hint}>
-          <div className={`drag-hint ${hint ? "is-on" : ""}`}>
-            {/* an orbit under the headset and a pointer that drags along it */}
-            <svg className="drag-hint-orbit" viewBox="0 0 300 80" aria-hidden>
-              <defs>
-                <linearGradient id="mx-orbit" x1="0" x2="1">
-                  <stop offset="0" stopColor="#007aff" stopOpacity="0" />
-                  <stop offset="0.5" stopColor="#007aff" stopOpacity="0.9" />
-                  <stop offset="1" stopColor="#007aff" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <ellipse cx="150" cy="40" rx="140" ry="30" fill="none" stroke="url(#mx-orbit)" strokeWidth="1.5" />
-              <ellipse cx="150" cy="40" rx="140" ry="30" fill="none" stroke="#0b1b3f" strokeOpacity="0.08" strokeWidth="1" strokeDasharray="2 6" />
-            </svg>
-            <span ref={handRef} className="drag-hint-hand">
-              <span className="drag-hint-glow" />
-              <svg viewBox="0 0 24 24" className="h-11 w-11" aria-hidden>
-                <path
-                  d="M10 3.5a1.6 1.6 0 0 1 1.6 1.6V11l.4-.1V9.4a1.6 1.6 0 0 1 3.2 0v1.8l.3-.1a1.6 1.6 0 0 1 3 .8v4.4c0 3.4-2.6 6.2-6 6.2h-1.1a5.6 5.6 0 0 1-4.4-2.1l-2.6-3.3a1.5 1.5 0 0 1 2.2-2l1.8 1.6V5.1A1.6 1.6 0 0 1 10 3.5Z"
-                  fill="#fff"
-                  stroke="#0b1b3f"
-                  strokeWidth="1.1"
-                  strokeLinejoin="round"
-                />
+        <div ref={hintRef} className="pointer-events-none absolute left-0 top-0 z-10">
+          <button
+            type="button"
+            onClick={enter}
+            dir={rtl ? "rtl" : "ltr"}
+            className={`drag-pill pointer-events-auto ${hint ? "is-on" : ""}`}
+          >
+            <span className="drag-pill-icon" aria-hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 11V6a2 2 0 0 0-4 0" />
+                <path d="M14 10V4a2 2 0 0 0-4 0v2" />
+                <path d="M10 10.5V6a2 2 0 0 0-4 0v8" />
+                <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
               </svg>
             </span>
-            <button type="button" onClick={enter} className="drag-hint-cap pointer-events-auto md:hidden" dir={rtl ? "rtl" : "ltr"}>
-              {t(explorer.hintTap)}
-            </button>
-          </div>
+            <span className="hidden md:inline">{t(explorer.hintDrag)}</span>
+            <span className="md:hidden">{t(explorer.hintTap)}</span>
+          </button>
         </div>
-      )}
-      {ready && !explore && (
-        <button
-          type="button"
-          onClick={enter}
-          className={`drag-hint-label absolute bottom-24 left-1/2 z-10 -translate-x-1/2 items-center gap-2 rounded-full bg-white/90 px-4 py-2.5 text-sm font-semibold text-ink shadow-lg ring-1 ring-ink/5 backdrop-blur transition hover:bg-white md:bottom-20 md:left-auto md:translate-x-0 ${rtl ? "md:left-[22%]" : "md:right-[22%]"} hidden md:inline-flex`}
-        >
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky opacity-60" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-sky" />
-          </span>
-          <span dir={rtl ? "rtl" : "ltr"}>
-            {t(explorer.hintDrag)}
-
-          </span>
-        </button>
       )}
 
       {/* callouts on the model */}
