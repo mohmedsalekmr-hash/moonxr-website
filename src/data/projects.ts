@@ -85,7 +85,7 @@ export const projects: Project[] = [
     facts: [
       { k: { fr: "Client", ar: "العميل" }, v: { fr: "Moov Mauritel", ar: "موريتل (Moov)" } },
       { k: { fr: "Date", ar: "التاريخ" }, v: { fr: "12 novembre 2026", ar: "12 نوفمبر 2026" } },
-      { k: { fr: "Lieu", ar: "المكان" }, v: { fr: "Moov Expo, Nouakchott", ar: "Moov Expo، نواكشوط" } },
+      { k: { fr: "Lieu", ar: "المكان" }, v: { fr: "Hôtel Sheraton, Nouakchott", ar: "فندق شيراتون، نواكشوط" } },
       { k: { fr: "Dispositif", ar: "التجهيز" }, v: { fr: "4 casques · 4 écrans", ar: "4 نظارات · 4 شاشات" } },
     ],
     story: {
@@ -105,13 +105,13 @@ export const projects: Project[] = [
     scenes: [
       { media: vid("moov-officiel-hl", 480, 848), title: { fr: "Faire vivre la 5G, casque sur la tête.", ar: "أن تعيش الجيل الخامس، والنظارة على رأسك." } },
       {
-        media: img("moov-wide", 1080, 608),
+        media: img("moov-c", 1080, 810),
         kicker: K.need,
         title: { fr: "Faire vivre la 5G au public, le jour du lancement.", ar: "أن يعيش الجمهور الجيل الخامس يوم الإطلاق." },
         text: { fr: "Une expérience concrète et mémorable pour les officiels comme pour les visiteurs.", ar: "تجربة ملموسة لا تُنسى، للمسؤولين وللزوار على حدّ سواء." },
       },
       {
-        media: img("moov-hq-stand", 1080, 810),
+        media: img("moov-stand", 1080, 810),
         kicker: K.approach,
         title: { fr: "Un espace VR de quatre casques et quatre écrans.", ar: "فضاء واقع افتراضي من أربع نظارات وأربع شاشات." },
         text: { fr: "Jeux, Pilgrim VR et Field Ready VR, avec un membre de l'équipe Moon à chaque poste.", ar: "ألعاب وPilgrim VR وField Ready VR، مع فرد من فريق Moon عند كل نظارة." },
@@ -129,7 +129,7 @@ export const projects: Project[] = [
         text: { fr: "Pilgrim VR, l'une des expériences proposées sur le stand.", ar: "Pilgrim VR، إحدى التجارب المقدَّمة في الجناح." },
       },
       {
-        media: img("moov-hq-vip", 1080, 810),
+        media: img("moov-b", 1080, 810),
         kicker: K.result,
         title: { fr: "Officiels et visiteurs, casque sur la tête.", ar: "مسؤولون وزوار، والنظارة على رؤوسهم." },
         text: { fr: "Chacun a découvert la 5G accompagné par notre équipe, du début à la fin.", ar: "اكتشف كلٌّ منهم الجيل الخامس بمرافقة فريقنا، من البداية إلى النهاية." },
