@@ -1,0 +1,335 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { sb } from "./sb";
+import { saveAndPublish } from "./save";
+import { emptyT, Field, MediaBox, moveItem, RowTools, SaveBar, TField, Toggle, type T } from "./ui";
+
+type Category = "event" | "training" | "dev";
+type Media = { type: "image" | "video"; src: string; w: number; h: number; poster?: string; pos?: string };
+type Scene = { media: Media; kicker?: T; title: T; text?: T };
+type Fact = { k: T; v: T };
+type Photo = { src: string; alt: T; w: number; h: number; pos?: string };
+type Row = {
+  id?: string;
+  slug: string;
+  category: Category;
+  position: number;
+  published: boolean;
+  title: T;
+  short: T;
+  meta: T;
+  intro: T;
+  cover: Photo | null;
+  facts: Fact[];
+  scenes: Scene[];
+};
+
+const CATS: { id: Category; label: string }[] = [
+  { id: "event", label: "فعالية" },
+  { id: "training", label: "مشروع منجَز (تدريب)" },
+  { id: "dev", label: "من تطوير Moon" },
+];
+
+const POS = [
+  { v: "", label: "الوسط" },
+  { v: "50% 20%", label: "الأعلى" },
+  { v: "50% 80%", label: "الأسفل" },
+  { v: "25% 50%", label: "اليسار" },
+  { v: "75% 50%", label: "اليمين" },
+];
+
+const blank = (position: number): Row => ({
+  slug: "",
+  category: "event",
+  position,
+  published: false,
+  title: emptyT(),
+  short: emptyT(),
+  meta: emptyT(),
+  intro: emptyT(),
+  cover: null,
+  facts: [],
+  scenes: [],
+});
+
+export default function ProjectsTab() {
+  const [rows, setRows] = useState<Row[] | null>(null);
+  const [edit, setEdit] = useState<Row | null>(null);
+  const [err, setErr] = useState("");
+
+  const [tick, setTick] = useState(0);
+  const load = useCallback(() => setTick((t) => t + 1), []);
+  useEffect(() => {
+    sb.from("projects")
+      .select("*")
+      .order("position")
+      .then(({ data, error }) => {
+        if (error) setErr(error.message);
+        setRows((data as Row[]) ?? []);
+      });
+  }, [tick]);
+
+  const run = async (fn: () => PromiseLike<{ error: { message: string } | null }>) => {
+    setErr("");
+    try {
+      await saveAndPublish(fn);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "خطأ");
+    }
+    load();
+  };
+
+  const reorder = (from: number, to: number) => {
+    if (!rows) return;
+    const next = moveItem(rows, from, to).map((r, i) => ({ ...r, position: i }));
+    setRows(next);
+    run(async () => {
+      const res = await Promise.all(next.map((r) => sb.from("projects").update({ position: r.position }).eq("id", r.id!)));
+      return { error: res.find((x) => x.error)?.error ?? null };
+    });
+  };
+
+  if (edit)
+    return (
+      <Editor
+        initial={edit}
+        taken={(rows ?? []).filter((r) => r.id !== edit.id).map((r) => r.slug)}
+        onClose={() => {
+          setEdit(null);
+          load();
+        }}
+      />
+    );
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">المشاريع</h1>
+          <p className="mt-1 text-sm text-black/55">الترتيب هنا هو ترتيب العرض في الموقع. المشروع المخفي لا يظهر للزوار.</p>
+        </div>
+        <button className="btn btn-dark" onClick={() => setEdit(blank(rows?.length ?? 0))}>
+          + مشروع جديد
+        </button>
+      </div>
+      {err && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{err}</p>}
+      <div className="mt-6 space-y-2">
+        {rows === null && <p className="text-black/40">…</p>}
+        {rows?.map((r, i) => (
+          <div key={r.id} className="card flex items-center gap-4 p-3">
+            <div className="h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-black/5">
+              { }
+              {r.cover?.src && <img src={r.cover.src} alt="" className="h-full w-full object-cover" />}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-semibold">{r.title?.ar || r.title?.fr || "بدون عنوان"}</div>
+              <div className="truncate text-xs text-black/45" dir="ltr">
+                /projets/{r.slug} · {r.scenes?.length ?? 0} scènes
+              </div>
+            </div>
+            <Toggle
+              on={r.published}
+              label={r.published ? "منشور" : "مخفي"}
+              onChange={(v) => {
+                setRows(rows.map((x) => (x.id === r.id ? { ...x, published: v } : x)));
+                run(() => sb.from("projects").update({ published: v }).eq("id", r.id!));
+              }}
+            />
+            <button className="btn btn-light" onClick={() => setEdit(r)}>
+              تعديل
+            </button>
+            <RowTools i={i} n={rows.length} move={reorder} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const slugify = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 50);
+
+function Editor({ initial, taken, onClose }: { initial: Row; taken: string[]; onClose: () => void }) {
+  const [p, setP] = useState<Row>(initial);
+  const [saved, setSaved] = useState(JSON.stringify(initial));
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+  const isNew = !p.id;
+  const dirty = JSON.stringify(p) !== saved;
+  const set = <K extends keyof Row>(k: K, v: Row[K]) => setP((x) => ({ ...x, [k]: v }));
+  const folder = `projects/${p.slug || "new"}`;
+
+  const save = async () => {
+    setErr("");
+    const slug = p.slug.trim();
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) return setErr("الرابط (slug) يجب أن يحتوي على أحرف لاتينية صغيرة وأرقام وشرطات فقط");
+    if (taken.includes(slug)) return setErr("هذا الرابط مستخدم لمشروع آخر");
+    if (!p.title.fr || !p.title.ar) return setErr("العنوان مطلوب باللغتين");
+    if (!p.cover) return setErr("صورة الغلاف مطلوبة");
+    const bad = p.scenes.findIndex((s) => !s.media?.src || !s.title?.fr || !s.title?.ar);
+    if (bad >= 0) return setErr(`المشهد ${bad + 1} يحتاج إلى صورة أو فيديو وعنوان باللغتين`);
+    setSaving(true);
+    try {
+      const { id, ...data } = { ...p, slug, cover: { ...p.cover, alt: p.title } };
+      let newId = id;
+      await saveAndPublish(async () => {
+        if (id) return sb.from("projects").update(data).eq("id", id);
+        const r = await sb.from("projects").insert(data).select("id").single();
+        newId = r.data?.id;
+        return r;
+      });
+      const next = { ...p, id: newId, slug };
+      setP(next);
+      setSaved(JSON.stringify(next));
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "خطأ");
+    }
+    setSaving(false);
+  };
+
+  const remove = async () => {
+    if (!p.id || !confirm("حذف هذا المشروع نهائياً؟")) return;
+    try {
+      await saveAndPublish(() => sb.from("projects").delete().eq("id", p.id!));
+      onClose();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "خطأ");
+    }
+  };
+
+  const setScene = (i: number, s: Scene) => set("scenes", p.scenes.map((x, j) => (j === i ? s : x)));
+  const setFact = (i: number, f: Fact) => set("facts", p.facts.map((x, j) => (j === i ? f : x)));
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center gap-3">
+        <button className="btn btn-light" onClick={() => (!dirty || confirm("الخروج دون حفظ التعديلات؟")) && onClose()}>
+          → كل المشاريع
+        </button>
+        <h1 className="text-2xl font-bold">{isNew ? "مشروع جديد" : p.title.ar || p.title.fr}</h1>
+        <div className="ms-auto flex items-center gap-3">
+          {!isNew && p.published && (
+            <a className="btn btn-light" href={`/ar/projets/${p.slug}`} target="_blank">
+              عرض ↗
+            </a>
+          )}
+          <Toggle on={p.published} onChange={(v) => set("published", v)} label={p.published ? "منشور" : "مخفي"} />
+        </div>
+      </div>
+      {err && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{err}</p>}
+
+      <Section title="المعلومات الأساسية">
+        <TField label="العنوان" value={p.title} onChange={(v) => setP((x) => ({ ...x, title: v, slug: isNew && (!x.slug || x.slug === slugify(x.title.fr)) ? slugify(v.fr) : x.slug }))} />
+        <TField label="وصف قصير" hint="يظهر على بطاقة المشروع" value={p.short} onChange={(v) => set("short", v)} />
+        <TField label="سطر التعريف" hint="مثال: Nouakchott · 2025" value={p.meta} onChange={(v) => set("meta", v)} />
+        <TField label="المقدمة" hint="تظهر في أعلى صفحة المشروع" multi value={p.intro} onChange={(v) => set("intro", v)} />
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold">النوع</span>
+            <select className="inp" value={p.category} onChange={(e) => set("category", e.target.value as Category)}>
+              {CATS.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          {isNew ? (
+            <Field label="الرابط (slug)" hint="بالحروف اللاتينية" value={p.slug} onChange={(v) => set("slug", v.toLowerCase())} placeholder="mon-projet" />
+          ) : (
+            <div>
+              <span className="mb-1.5 block text-sm font-semibold">الرابط</span>
+              <div className="inp bg-black/[0.03] text-black/55" dir="ltr">
+                /projets/{p.slug}
+              </div>
+            </div>
+          )}
+        </div>
+      </Section>
+
+      <Section title="صورة الغلاف" sub="تظهر في الصفحة الرئيسية وقائمة المشاريع. الصور تُضغط تلقائياً.">
+        <div className="grid gap-4 md:grid-cols-[1fr_14rem]">
+          <MediaBox height="h-56" folder={folder} value={p.cover} onChange={(m) => set("cover", { src: m.src, w: m.w, h: m.h, alt: p.title, pos: p.cover?.pos })} />
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold">موضع القصّ</span>
+            <select className="inp" value={p.cover?.pos ?? ""} disabled={!p.cover} onChange={(e) => p.cover && set("cover", { ...p.cover, pos: e.target.value || undefined })}>
+              {POS.map((x) => (
+                <option key={x.v} value={x.v}>
+                  {x.label}
+                </option>
+              ))}
+            </select>
+            <span className="mt-2 block text-xs leading-5 text-black/45">الجزء الذي يبقى ظاهراً عندما تُقصّ الصورة في البطاقات.</span>
+          </label>
+        </div>
+      </Section>
+
+      <Section title="أرقام ومعلومات" sub="حتى 4 معلومات تظهر تحت المقدمة (مثلاً: العميل، التاريخ، المكان، التجهيزات).">
+        {p.facts.map((f, i) => (
+          <div key={i} className="flex gap-3 rounded-xl bg-black/[0.025] p-3">
+            <div className="grid flex-1 gap-3">
+              <TField label="العنوان" value={f.k} onChange={(v) => setFact(i, { ...f, k: v })} />
+              <TField label="القيمة" value={f.v} onChange={(v) => setFact(i, { ...f, v })} />
+            </div>
+            <RowTools i={i} n={p.facts.length} move={(a, b) => set("facts", moveItem(p.facts, a, b))} remove={() => set("facts", p.facts.filter((_, j) => j !== i))} />
+          </div>
+        ))}
+        {p.facts.length < 4 && (
+          <button className="btn btn-light self-start" onClick={() => set("facts", [...p.facts, { k: emptyT(), v: emptyT() }])}>
+            + إضافة معلومة
+          </button>
+        )}
+      </Section>
+
+      <Section title="مشاهد القصة" sub="كل مشهد = صورة أو فيديو MP4 مع نص. المشهد الأول يُعرض مع عنوان المشروع والمقدمة، فلا يظهر نصه.">
+        {p.scenes.map((s, i) => (
+          <div key={i} className="grid gap-4 rounded-xl bg-black/[0.025] p-4 md:grid-cols-[16rem_1fr_auto]">
+            <div>
+              <div className="mb-1.5 text-sm font-semibold">المشهد {i + 1}</div>
+              <MediaBox height="h-44" accept="image/*,video/mp4" folder={folder} value={s.media} onChange={(m) => setScene(i, { ...s, media: { ...m, pos: s.media?.pos } })} />
+            </div>
+            <div className="grid content-start gap-3">
+              <TField label="عنوان صغير" hint="اختياري" value={s.kicker} onChange={(v) => setScene(i, { ...s, kicker: v })} />
+              <TField label="العنوان" value={s.title} onChange={(v) => setScene(i, { ...s, title: v })} />
+              <TField label="النص" hint="اختياري" multi value={s.text} onChange={(v) => setScene(i, { ...s, text: v })} />
+            </div>
+            <RowTools i={i} n={p.scenes.length} move={(a, b) => set("scenes", moveItem(p.scenes, a, b))} remove={() => confirm("حذف هذا المشهد؟") && set("scenes", p.scenes.filter((_, j) => j !== i))} />
+          </div>
+        ))}
+        <button
+          className="btn btn-light self-start"
+          onClick={() => set("scenes", [...p.scenes, { media: { type: "image", src: "", w: 1600, h: 900 }, title: emptyT() }])}
+        >
+          + إضافة مشهد
+        </button>
+      </Section>
+
+      {!isNew && (
+        <div className="mt-10 flex justify-end">
+          <button className="btn btn-danger" onClick={remove}>
+            حذف المشروع
+          </button>
+        </div>
+      )}
+
+      <SaveBar dirty={dirty} saving={saving} onSave={save} onCancel={() => setP(JSON.parse(saved))} />
+    </div>
+  );
+}
+
+export function Section({ title, sub, children }: { title: string; sub?: string; children: React.ReactNode }) {
+  return (
+    <section className="card mt-6 p-6">
+      <h2 className="text-lg font-bold">{title}</h2>
+      {sub && <p className="mt-1 text-sm leading-6 text-black/55">{sub}</p>}
+      <div className="mt-5 flex flex-col gap-5">{children}</div>
+    </section>
+  );
+}
