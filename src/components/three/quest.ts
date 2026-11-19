@@ -55,12 +55,12 @@ export async function loadQuest(): Promise<THREE.Group> {
       });
       if (front) {
         try {
-          // the official Moon logo, with "XR" in place of "TECHNOLOGY"
+          // the Moon XR logo with "TECHNOLOGY" underneath, as in the official Moon Technology logo
           const tex = await new THREE.TextureLoader().loadAsync("/media/logos/moonxr-visor.png");
           tex.colorSpace = THREE.SRGBColorSpace;
           tex.anisotropy = 8;
           const decal = new THREE.Mesh(
-            new DecalGeometry(front, new THREE.Vector3(0, -0.021, 0.125), new THREE.Euler(0, 0, 0), new THREE.Vector3(0.07, 0.0124, 0.04)),
+            new DecalGeometry(front, new THREE.Vector3(0, -0.0238, 0.125), new THREE.Euler(0, 0, 0), new THREE.Vector3(0.07, 0.0181, 0.04)),
             // toneMapped off keeps the exact brand navy and yellow
             new THREE.MeshBasicMaterial({ map: tex, transparent: true, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -4 })
           );

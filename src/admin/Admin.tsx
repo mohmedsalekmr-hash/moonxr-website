@@ -75,7 +75,7 @@ export default function Admin() {
           <img
             src="/media/logos/moonxr-l.svg"
             alt="Moon XR"
-            className="h-6 w-auto"
+            className="h-9 w-auto"
           />
           <span className="rounded-full bg-black/[0.05] px-2.5 py-0.5 text-xs font-semibold text-black/55">
             لوحة التحكم
@@ -186,7 +186,7 @@ function Login() {
         <img
           src="/media/logos/moonxr-l.svg"
           alt="Moon XR"
-          className="h-7 w-auto"
+          className="h-10 w-auto"
         />
         <h1 className="mt-6 text-xl font-bold text-ink">
           {mode === "in" ? "تسجيل الدخول" : "إنشاء حساب المدير"}
