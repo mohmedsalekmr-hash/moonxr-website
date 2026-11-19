@@ -30,6 +30,7 @@ export async function sendRequest(form: FormData): Promise<SendResult> {
       headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json", Prefer: "return=minimal" },
       body: JSON.stringify(row),
       cache: "no-store",
+      signal: AbortSignal.timeout(6000),
     });
     if (res.ok) return { ok: true };
     const body = await res.text();

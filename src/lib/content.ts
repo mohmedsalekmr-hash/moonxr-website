@@ -38,6 +38,8 @@ async function rest<R>(path: string): Promise<R | null> {
     const r = await fetch(`${URL}/rest/v1/${path}`, {
       headers: { apikey: KEY },
       next: { tags: [CONTENT_TAG], revalidate: 3600 },
+      // a slow database never holds a page: after 4 s the local copy of the content is used
+      signal: AbortSignal.timeout(4000),
     });
     if (!r.ok) return null;
     return (await r.json()) as R;
