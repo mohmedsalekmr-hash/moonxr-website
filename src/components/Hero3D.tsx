@@ -590,11 +590,6 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
       {/* dark studio behind the headset while exploring */}
       <div aria-hidden className={`studio pointer-events-none absolute inset-0 transition-opacity duration-700 ${explore ? "opacity-100" : "opacity-0"}`} />
 
-      {/* still picture of the headset, shown at once while the 3D model loads, then cross-faded away */}
-      <picture aria-hidden className={`pointer-events-none absolute inset-0 transition-opacity duration-1000 ${ready ? "opacity-0" : "opacity-100"}`}>
-        <source media="(max-width: 767px)" srcSet="/media/3d/poster-m.webp" />
-        <img src="/media/3d/poster-d.webp" alt="" fetchPriority="high" decoding="async" className="h-full w-full object-contain" />
-      </picture>
       <div ref={host} aria-label={explorer.title[lang]} className={`absolute inset-0 transition-opacity duration-1000 ${ready ? "opacity-100" : "opacity-0"}`} />
 
       {/* idle hint: a small glass pill under the headset, with a hand that swipes */}
