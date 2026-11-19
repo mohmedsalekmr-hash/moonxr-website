@@ -16,7 +16,8 @@ export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const { projects } = await getContent();
-  return locales.flatMap((lang) =>
+  // English project pages live at /en/projects/… (see ../../projects/[slug])
+  return locales.filter((l) => l !== "en").flatMap((lang) =>
     projects.map((p) => ({ lang, slug: p.slug })),
   );
 }
