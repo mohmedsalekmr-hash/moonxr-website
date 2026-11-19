@@ -4,6 +4,7 @@ import { Sora, Inter, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "../globals.css";
 import { hasLocale, locales, LANG } from "@/data/i18n";
 import { alternates } from "@/lib/seo";
+import { DEFAULT_SHARE_IMAGE } from "@/data/seo";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
@@ -22,29 +23,24 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
   const { lang } = await params;
   const l = hasLocale(lang) ? lang : "fr";
   const host = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+  const { seo } = await getContent();
+  const home = seo.home;
+  const image = home.image || DEFAULT_SHARE_IMAGE;
   return {
     metadataBase: new URL(host ? `https://${host}` : "http://localhost:3000"),
-    title: {
-      default: {
-        fr: "Moon XR — La réalité virtuelle en Mauritanie",
-        ar: "Moon XR — الواقع الافتراضي في موريتانيا",
-        en: "Moon XR — Virtual reality in Mauritania",
-      }[l],
-      template: "%s · Moon XR",
-    },
-    description: {
-      fr: "Division technologie immersive de Moon Technology : événements VR, simulateurs de formation et accompagnement sur site, à Nouakchott.",
-      ar: "قسم التقنيات التفاعلية في Moon Technology: فعاليات الواقع الافتراضي، ومحاكيات التدريب، والمرافقة في الموقع.",
-      en: "The immersive technology division of Moon Technology: VR events, training simulators and on-site support, in Nouakchott.",
-    }[l],
+    title: { default: home.title[l], template: "%s · Moon XR" },
+    description: home.desc[l],
     alternates: alternates(l),
     openGraph: {
       type: "website",
       siteName: "Moon XR",
+      title: home.title[l],
+      description: home.desc[l],
       locale: LANG[l].og,
       alternateLocale: locales.filter((x) => x !== l).map((x) => LANG[x].og),
+      images: [{ url: image, width: 1200, height: 630 }],
     },
-    twitter: { card: "summary_large_image" },
+    twitter: { card: "summary_large_image", images: [image] },
   };
 }
 

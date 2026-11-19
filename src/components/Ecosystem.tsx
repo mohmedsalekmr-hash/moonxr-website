@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { rimg } from "@/lib/img";
 import type { Org, Project } from "@/data/projects";
-import { href as pageHref, LANG, type Locale, type T } from "@/data/i18n";
+import { href as pageHref, type Locale, type T } from "@/data/i18n";
 import { Fragment } from "react";
 import type React from "react";
 import { Logo, LogoMarquee } from "@/components/Logos";
@@ -67,31 +67,6 @@ export function EcoGrid({ partners, suppliers, lang, labels, more }: { partners:
           </Link>
         </div>
       )}
-    </div>
-  );
-}
-
-/** Large cards for the clients we delivered for, each opening its project. */
-export function ClientCards({ items, lang, cta }: { items: { org: Org; href: string; image: string; pos?: string; label: T }[]; lang: Locale; cta: string }) {
-  return (
-    <div className="grid gap-5 md:grid-cols-3">
-      {items.map((it, i) => (
-        <Link key={it.org.name} href={it.href} className={`group relative block overflow-hidden rounded-[var(--radius-lg)] ${i === 0 ? "md:col-span-2 md:row-span-2" : ""}`}>
-          <div className={`relative ${i === 0 ? "aspect-[16/10] md:aspect-auto md:h-full" : "aspect-[16/10]"}`}>
-            <img {...rimg(it.image, "(min-width: 768px) 50vw, 100vw")} alt="" loading="lazy" style={{ objectPosition: it.pos }} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-navy-deep/85 via-navy-deep/20 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6">
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60 rtl:text-sm rtl:tracking-normal">{it.org.name}</div>
-                <div className="font-display mt-1 text-xl font-semibold text-white md:text-2xl">{it.label[lang]}</div>
-              </div>
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-ink transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1" aria-label={cta}>
-                <span className="rtl:rotate-180">→</span>
-              </span>
-            </div>
-          </div>
-        </Link>
-      ))}
     </div>
   );
 }
@@ -166,115 +141,6 @@ export function PartnerFeatures({ orgs, lang, extra }: { orgs: Org[]; lang: Loca
           </div>
         </article>
       ))}
-    </div>
-  );
-}
-
-/** Technology suppliers: logo, name and speciality always visible (phones have no hover). */
-export function TechWall({ orgs, lang }: { orgs: Org[]; lang: Locale }) {
-  return (
-    <ul className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-      {orgs.map((o) => (
-        <li key={o.name} className="flex flex-col rounded-[var(--radius-sm)] border border-line bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-28px_rgba(20,36,84,0.45)]">
-          <div className="grid h-16 place-items-center md:h-20">
-            <Logo org={o} area={4200} maxW={150} maxH={52} />
-          </div>
-          <div className="mt-4 border-t border-line pt-3 text-center">
-            <div className="text-sm font-semibold">{o.name}</div>
-            {o.role && <div className="mt-0.5 text-xs text-ink/60">{o.role[lang]}</div>}
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-const GROUPS: { id: string; title: T; text: T }[] = [
-  { id: "industry", title: { fr: "Soudage & industrie", ar: "اللحام والصناعة", en: "Welding & industry" }, text: { fr: "Des simulateurs pour former aux métiers techniques, sans risque.", ar: "محاكيات لتعليم المهن التقنية، بلا مخاطر.", en: "Simulators to train for technical trades, with zero risk." } },
-  { id: "education", title: { fr: "Éducation & santé", ar: "التعليم والصحة", en: "Education & health" }, text: { fr: "Des cours en VR, de la salle de classe à l'anatomie.", ar: "دروس بالواقع الافتراضي، من الفصل إلى التشريح.", en: "VR lessons, from the classroom to anatomy." } },
-  { id: "safety", title: { fr: "Sécurité", ar: "السلامة", en: "Safety" }, text: { fr: "Les bons réflexes, appris en situation simulée.", ar: "ردود الفعل الصحيحة، تُتعلَّم في مواقف محاكاة.", en: "The right reflexes, learned in a simulated situation." } },
-  { id: "platform", title: { fr: "Plateformes", ar: "المنصّات", en: "Platforms" }, text: { fr: "Pour diffuser et gérer les contenus XR.", ar: "لنشر محتوى XR وإدارته.", en: "To distribute and manage XR content." } },
-];
-
-/** Technology suppliers grouped by need: a visitor knows the need before the brand. */
-export function TechGroups({ orgs, partners, lang }: { orgs: Org[]; partners: Org[]; lang: Locale }) {
-  const groups = GROUPS.map((g) => ({ ...g, items: orgs.filter((o) => (o.category ?? "platform") === g.id) })).filter((g) => g.items.length);
-  const official = (name: string) => partners.find((p) => p.name === name)?.role?.[lang];
-  return (
-    <div className="divide-y divide-line border-y border-line">
-      {groups.map((g) => (
-        <section key={g.id} className="grid gap-6 py-10 md:grid-cols-[minmax(0,1fr)_minmax(0,2.2fr)] md:gap-12 md:py-14">
-          <div>
-            <div className="flex items-baseline gap-3">
-              <h3 className="font-display text-2xl font-bold md:text-3xl">{g.title[lang]}</h3>
-              <span className="font-display text-sm font-semibold text-brand">{g.items.length}</span>
-            </div>
-            <p className="mt-2 max-w-xs text-ink/60">{g.text[lang]}</p>
-          </div>
-          <ul className={`grid grid-cols-2 gap-3 md:gap-4 ${g.items.length >= 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
-            {g.items.map((o) => {
-              const badge = official(o.name);
-              return (
-                <li key={o.name} className="group relative flex flex-col rounded-[var(--radius-sm)] border border-line bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:border-brand/20 hover:shadow-[0_24px_50px_-28px_rgba(20,36,84,0.45)] md:p-6">
-                  {badge && <span className="tag absolute start-3 top-3 !bg-sun/20 !text-sun-deep !text-[0.65rem]">{badge}</span>}
-                  <div className={`grid h-20 place-items-center md:h-24 ${badge ? "mt-4" : ""}`}>
-                    <Logo org={o} area={6200} maxW={170} maxH={64} />
-                  </div>
-                  <div className="mt-4 text-center">
-                    <div className="text-sm font-semibold">{o.name}</div>
-                    {o.role && <div className="mt-1 text-xs leading-snug text-ink/60">{o.role[lang]}</div>}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      ))}
-    </div>
-  );
-}
-
-/** Technology suppliers gliding in two rows (opposite directions), like the client logos on the home page. */
-export function TechMarquee({ orgs, partners, lang }: { orgs: Org[]; partners: Org[]; lang: Locale }) {
-  const label = (id?: string) => GROUPS.find((g) => g.id === (id ?? "platform"))?.title[lang];
-  const official = (name: string) => partners.find((p) => p.name === name)?.role?.[lang];
-  const half = Math.ceil(orgs.length / 2);
-  const rows = [orgs.slice(0, half), orgs.slice(half)].filter((r) => r.length);
-  const Card = ({ o, hidden }: { o: Org; hidden: boolean }) => {
-    const badge = official(o.name);
-    return (
-      <li aria-hidden={hidden} className="shrink-0 px-2 md:px-3">
-        <div className="relative flex h-52 w-60 flex-col rounded-[var(--radius-lg)] border border-line bg-white p-5 shadow-[0_18px_40px_-34px_rgba(20,36,84,0.5)] transition-all duration-300 hover:-translate-y-1 hover:border-brand/25 hover:shadow-[0_28px_60px_-34px_rgba(20,36,84,0.55)] md:w-72" dir={LANG[lang].dir}>
-          <div className="flex items-center justify-between gap-2">
-            <span className="tag !text-[0.65rem]">{label(o.category)}</span>
-            {badge && <span className="tag !bg-sun/20 !text-[0.65rem] !text-sun-deep">★</span>}
-          </div>
-          <div className="grid flex-1 place-items-center">
-            <Logo org={o} area={6000} maxW={180} maxH={60} eager />
-          </div>
-          <div className="text-center">
-            <div className="text-sm font-semibold">{o.name}</div>
-            <div className="mt-0.5 truncate text-xs text-ink/60">{badge ?? o.role?.[lang]}</div>
-          </div>
-        </div>
-      </li>
-    );
-  };
-  return (
-    <div className="space-y-4 md:space-y-5">
-      {rows.map((row, r) => {
-        const base = Array.from({ length: Math.max(1, Math.ceil(6 / row.length)) }, () => row).flat();
-        const loop = [...base, ...base];
-        return (
-          <div key={r} className="marquee overflow-hidden py-3" dir="ltr">
-            <ul className={`marquee-track ${r % 2 ? "reverse" : ""}`} style={{ "--speed": `${38 + r * 6}s` } as React.CSSProperties}>
-              {loop.map((o, i) => (
-                <Card key={i} o={o} hidden={i >= row.length} />
-              ))}
-            </ul>
-          </div>
-        );
-      })}
     </div>
   );
 }

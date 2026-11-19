@@ -3,8 +3,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { type Locale, href as pageHref } from "@/data/i18n";
 
+type Txt = { fr: string; ar: string; en: string };
 type Props = {
   lang: Locale;
+  /** the box's small texts, edited in the admin (site texts → contact box) */
+  t: Record<"write" | "wa" | "waSub" | "mailSub" | "copy" | "copied" | "call" | "local" | "hello", Txt>;
   kicker: string;
   title: string;
   lead: string;
@@ -17,17 +20,6 @@ type Props = {
   city: string;
 };
 
-const T = {
-  write: { fr: "Écrire pour", ar: "اكتب لنا عن", en: "Write about" },
-  wa: { fr: "WhatsApp", ar: "واتساب", en: "WhatsApp" },
-  waSub: { fr: "La réponse la plus rapide", ar: "أسرع طريقة للرد", en: "The fastest reply" },
-  mailSub: { fr: "Écrire un e-mail", ar: "راسلنا بالبريد", en: "Send an email" },
-  copy: { fr: "Copier l'adresse", ar: "نسخ العنوان", en: "Copy address" },
-  copied: { fr: "Copié", ar: "تم النسخ", en: "Copied" },
-  call: { fr: "Appeler directement", ar: "اتصل مباشرة", en: "Call directly" },
-  local: { fr: "heure locale", ar: "بالتوقيت المحلي", en: "local time" },
-  hello: { fr: "Bonjour Moon XR, je vous contacte au sujet de :", ar: "مرحباً Moon XR، أتواصل معكم بخصوص:", en: "Hello Moon XR, I am contacting you about:" },
-};
 
 const I = {
   wa: "M3 21l1.65-4.8A8.5 8.5 0 1 1 7.9 19.5z M9 8.5c0 3.5 3 6.5 6.5 6.5l1.2-1.6-2-1-1 .9c-1.2-.5-2.5-1.8-3-3l.9-1-1-2z",
@@ -47,7 +39,7 @@ function Ico({ d, className = "h-5 w-5" }: { d: string; className?: string }) {
 }
 
 /** Live Nouakchott time — rendered after mount so server and browser never disagree. */
-function Clock({ lang }: { lang: Locale }) {
+function Clock({ lang, label }: { lang: Locale; label: string }) {
   const [now, setNow] = useState<string | null>(null);
   useEffect(() => {
     const fmt = new Intl.DateTimeFormat(({ fr: "fr-FR", ar: "ar-MA", en: "en-GB" } as const)[lang], { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Nouakchott", hour12: false });
@@ -63,13 +55,14 @@ function Clock({ lang }: { lang: Locale }) {
         <span className="relative inline-flex h-2 w-2 rounded-full bg-sun" />
       </span>
       <span dir="ltr" className="tabular-nums text-white">{now ?? "--:--"}</span>
-      <span>{T.local[lang]}</span>
+      <span>{label}</span>
     </span>
   );
 }
 
 export default function CTAPanel(p: Props) {
   const { lang } = p;
+  const T = p.t;
   const [pick, setPick] = useState(0);
   const [copied, setCopied] = useState(false);
   const need = p.types[pick] ?? "";
@@ -95,7 +88,7 @@ export default function CTAPanel(p: Props) {
       <div>
         <div className="mb-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/60">
           <span className="font-semibold uppercase tracking-[0.18em] text-sun">{p.kicker}</span>
-          <Clock lang={lang} />
+          <Clock lang={lang} label={T.local[lang]} />
           <span>· {p.city}</span>
         </div>
         <h2 className="font-display text-[1.9rem] font-bold leading-[1.08] tracking-tight text-white md:text-[2.6rem]">{p.title}</h2>

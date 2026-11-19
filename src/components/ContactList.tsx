@@ -7,14 +7,6 @@ const I = {
   pin: "M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z M12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
   clock: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M12 7v5l3 2",
 };
-const L = {
-  email: { fr: "E-mail", ar: "البريد الإلكتروني", en: "Email" },
-  phone: { fr: "Téléphone", ar: "الهاتف", en: "Phone" },
-  place: { fr: "Adresse", ar: "العنوان", en: "Address" },
-  placeV: { fr: "Nouakchott, Mauritanie", ar: "نواكشوط، موريتانيا", en: "Nouakchott, Mauritania" },
-  time: { fr: "Délai de réponse", ar: "مدة الرد", en: "Response time" },
-  timeV: { fr: "Sous 48 heures", ar: "خلال 48 ساعة", en: "Within 48 hours" },
-};
 
 function Icon({ d }: { d: string }) {
   return (
@@ -26,7 +18,8 @@ function Icon({ d }: { d: string }) {
 
 /** Contact details as one consistent list (dark = on navy, light = on white). */
 export default async function ContactList({ lang, tone = "dark" }: { lang: Locale; tone?: "dark" | "light" }) {
-  const { contact: CONTACT } = await getContent();
+  const { contact: CONTACT, ui } = await getContent();
+  const L = ui.contactList;
   const dark = tone === "dark";
   const rows = [
     { icon: I.mail, label: L.email[lang], value: CONTACT.email, href: `mailto:${CONTACT.email}`, ltr: true },

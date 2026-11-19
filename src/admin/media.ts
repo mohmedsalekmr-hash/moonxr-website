@@ -1,4 +1,5 @@
 "use client";
+import { tr } from "./i18n";
 import { sb } from "./sb";
 
 /** Max size sent to the site: big enough for a 4K screen, small enough to load fast. */
@@ -79,11 +80,11 @@ export type Uploaded = { type: "image" | "video"; src: string; w: number; h: num
 export async function uploadMedia(file: File, folder: string, opts: { keepPng?: boolean } = {}): Promise<Uploaded> {
   const base = `${folder}/${Date.now().toString(36)}-${slug(file.name)}`;
   if (file.type.startsWith("video/")) {
-    if (file.type !== "video/mp4") throw new Error("الفيديو يجب أن يكون بصيغة MP4");
-    if (file.size > MAX_VIDEO_MB * 1024 * 1024) throw new Error(`حجم الفيديو أكبر من ${MAX_VIDEO_MB} ميغابايت. قصّه إلى لقطة من 3 إلى 5 ثوانٍ.`);
+    if (file.type !== "video/mp4") throw new Error(tr("الفيديو يجب أن يكون بصيغة MP4"));
+    if (file.size > MAX_VIDEO_MB * 1024 * 1024) throw new Error(tr("حجم الفيديو أكبر من {0} ميغابايت. قصّه إلى لقطة من 3 إلى 5 ثوانٍ.", MAX_VIDEO_MB));
     const info = await videoInfo(file);
     if (info.duration > MAX_VIDEO_SECONDS + 0.5)
-      throw new Error(`الفيديو ${Math.round(info.duration)} ثانية. المسموح لقطة قصيرة حتى ${MAX_VIDEO_SECONDS} ثوانٍ فقط (اللحظة المهمة).`);
+      throw new Error(tr("الفيديو {0} ثانية. المسموح لقطة قصيرة حتى {1} ثوانٍ فقط (اللحظة المهمة).", Math.round(info.duration), MAX_VIDEO_SECONDS));
     const [src, poster] = await Promise.all([put(file, `${base}.mp4`, "video/mp4"), put(info.poster, `${base}-poster.webp`, "image/webp")]);
     return { type: "video", src, poster, w: info.w, h: info.h };
   }
@@ -91,7 +92,28 @@ export async function uploadMedia(file: File, folder: string, opts: { keepPng?: 
     const { w, h } = await imageSize(file);
     return { type: "image", src: await put(file, `${base}.svg`, "image/svg+xml"), w, h };
   }
-  if (!file.type.startsWith("image/")) throw new Error("نوع الملف غير مدعوم");
+  if (!file.type.startsWith("image/")) throw new Error(tr("نوع الملف غير مدعوم"));
   const { blob, w, h } = await compressImage(file, opts.keepPng ? 0.95 : 0.86);
   return { type: "image", src: await put(blob, `${base}.webp`, "image/webp"), w, h };
+}
+
+/**
+ * Share picture for WhatsApp / LinkedIn / Google: cropped to 1200 × 630 around the centre
+ * and saved as JPEG (WebP is not shown by every app).
+ */
+export async function uploadShareImage(file: File): Promise<string> {
+  if (!file.type.startsWith("image/") || file.type === "image/svg+xml") throw new Error(tr("اختر صورة JPG أو PNG أو WebP"));
+  const bmp = await createImageBitmap(file);
+  const W = 1200, H = 630;
+  const s = Math.max(W / bmp.width, H / bmp.height);
+  const c = document.createElement("canvas");
+  c.width = W;
+  c.height = H;
+  const ctx = c.getContext("2d")!;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, W, H);
+  ctx.drawImage(bmp, (W - bmp.width * s) / 2, (H - bmp.height * s) / 2, bmp.width * s, bmp.height * s);
+  bmp.close();
+  const blob = await new Promise<Blob>((ok, ko) => c.toBlob((b) => (b ? ok(b) : ko(new Error("encode"))), "image/jpeg", 0.88));
+  return put(blob, `share/${Date.now().toString(36)}-${slug(file.name)}.jpg`, "image/jpeg");
 }

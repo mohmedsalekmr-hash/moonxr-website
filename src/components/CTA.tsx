@@ -19,12 +19,13 @@ export default async function CTA({ lang }: { lang: Locale; fade?: boolean }) {
               kicker={ui.nav.contact[lang]}
               title={ui.cta.title[lang]}
               lead={ui.cta.sub[lang]}
-              ask={({ fr: "Que préparez-vous ?", ar: "ماذا تحضّرون؟", en: "What are you planning?" } as const)[lang]}
+              ask={ui.ctaBox.ask[lang]}
+              t={ui.ctaBox}
               types={[...ui.contact.types[lang]]}
               email={CONTACT.email}
               phone={CONTACT.phone}
               phoneHref={CONTACT.phoneHref}
-              whatsapp={CONTACT.phoneHref.replace(/[^\d]/g, "")}
+              whatsapp={(CONTACT.whatsapp || CONTACT.phone).replace(/[^\d]/g, "")}
               city={ui.contact.city[lang]}
             />
           </div>

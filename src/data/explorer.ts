@@ -25,6 +25,8 @@ export const explorer = {
   help: { fr: "Glissez pour tourner · molette ou pincement pour zoomer · double-clic pour recentrer", ar: "اسحب للتدوير · العجلة أو الأصابع للتكبير · نقرتان لإعادة الوضع", en: "Drag to rotate · scroll or pinch to zoom · double-click to recenter" },
   or: { fr: "ou touchez un point sur le casque", ar: "أو اضغط على أي نقطة في النظارة", en: "or tap a point on the headset" },
   introSpec: { fr: "Snapdragon XR2 Gen 2 · 8 Go de RAM · sans fil", ar: "Snapdragon XR2 Gen 2 · ذاكرة 8 GB · بلا أسلاك", en: "Snapdragon XR2 Gen 2 · 8 GB RAM · wireless" },
+  close: { fr: "Fermer", ar: "إغلاق", en: "Close" },
+  touring: { fr: "Visite guidée…", ar: "جولة إرشادية…", en: "Guided tour…" },
   groups: {
     headset: { fr: "Casque", ar: "النظارة", en: "Headset" },
     controller: { fr: "Manettes", ar: "يدا التحكم", en: "Controllers" },
@@ -93,3 +95,6 @@ export const steps: Step[] = [
     spec: { fr: "Retour haptique TruTouch : vous sentez ce que vous touchez", ar: "اهتزاز TruTouch: تشعر بما تلمسه", en: "TruTouch haptic feedback: you feel what you touch" },
   },
 ];
+
+/** Everything the headset tour shows; the admin can rewrite every text (not the hotspots' places). */
+export type Explorer = { explorer: typeof explorer; steps: Step[] };

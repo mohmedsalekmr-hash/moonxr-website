@@ -1,5 +1,6 @@
 "use client";
 
+import { tr } from "./i18n";
 import { useEffect, useState, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { sb } from "./sb";
@@ -12,23 +13,41 @@ import HistoryTab from "./History";
 import RequestsTab from "./Requests";
 import BrandTab from "./Brand";
 
-const TABS = [
-  { id: "requests", label: "الطلبات" },
-  { id: "projects", label: "المشاريع" },
-  { id: "home", label: "الصفحة الرئيسية" },
-  { id: "texts", label: "نصوص الموقع" },
-  { id: "orgs", label: "العملاء والشركاء" },
-  { id: "contact", label: "التواصل" },
-  { id: "history", label: "السجل" },
-  { id: "brand", label: "دليل الهوية" },
-] as const;
-type Tab = (typeof TABS)[number]["id"];
+import SeoTab from "./Seo";
+import Overview from "./Overview";
+import { Shell, confirmLeave, NAV, type Tab } from "./Shell";
+
+const TABS = NAV.flatMap((g) => g.items.map((i) => i.id));
+/** The open tab is kept in the address (#projects) so a reload stays on it. */
+const fromHash = (): Tab => {
+  const h = typeof location !== "undefined" ? location.hash.slice(1) : "";
+  return (TABS as string[]).includes(h) ? (h as Tab) : "overview";
+};
 
 export default function Admin() {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<Tab>("requests");
+  const [tab, setTab] = useState<Tab>(fromHash);
+  const [focus, setFocus] = useState<string | undefined>();
+  const [visit, setVisit] = useState(0);
   const [newCount, setNewCount] = useState(0);
+
+  // the badge on «الطلبات» is known from the start, not only once that tab is opened
+  useEffect(() => {
+    if (!session) return;
+    sb.from("contact_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "new")
+      .then(({ count }) => setNewCount(count ?? 0));
+  }, [session, visit]);
+  const go = (t: Tab, f?: string) => {
+    if (!confirmLeave()) return;
+    setTab(t);
+    setFocus(f);
+    setVisit((v) => v + 1); // reopen the tab fresh, even if it is the current one
+    history.replaceState(null, "", `#${t}`);
+    window.scrollTo(0, 0);
+  };
 
   useEffect(() => {
     sb.auth.getSession().then(({ data }) => setSession(data.session));
@@ -52,84 +71,31 @@ export default function Admin() {
     return (
       <Center>
         <div className="card max-w-md p-8 text-center">
-          <h1 className="text-lg font-bold">الحساب جاهز</h1>
-          <p className="mt-3 text-sm leading-7 text-black/60">
-            تم إنشاء حسابك <b dir="ltr">{session.user.email}</b>، لكنه لا يملك
-            صلاحية المدير بعد. اطلب منحه الصلاحية، ثم حدّث هذه الصفحة.
-          </p>
+          <h1 className="text-lg font-bold">{tr("الحساب جاهز")}</h1>
+          <p className="mt-3 text-sm leading-7 text-black/60">{tr("تم إنشاء حسابك")}{" "}<b dir="ltr">{session.user.email}</b>{tr("، لكنه لا يملك صلاحية المدير بعد. اطلب منحه الصلاحية، ثم حدّث هذه الصفحة.")}</p>
           <button
             className="btn btn-light mt-6"
             onClick={() => sb.auth.signOut()}
-          >
-            تسجيل الخروج
-          </button>
+          >{tr("تسجيل الخروج")}</button>
         </div>
       </Center>
     );
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-30 border-b border-black/[0.07] bg-white/85 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center gap-4 px-5 py-3">
-          {}
-          <img
-            src="/media/logos/moonxr-l.svg?v=2"
-            alt="Moon XR"
-            className="h-9 w-auto"
-          />
-          <span className="rounded-full bg-black/[0.05] px-2.5 py-0.5 text-xs font-semibold text-black/55">
-            لوحة التحكم
-          </span>
-          <div className="ms-auto flex items-center gap-2">
-            <a href="/ar" target="_blank" className="btn btn-light">
-              عرض الموقع ↗
-            </a>
-            <button
-              className="btn text-black/55 hover:text-black"
-              onClick={async () => {
-                const p = prompt("كلمة المرور الجديدة (8 أحرف على الأقل):");
-                if (!p) return;
-                if (p.length < 8) return alert("كلمة المرور قصيرة جداً");
-                const { error } = await sb.auth.updateUser({ password: p });
-                alert(error ? error.message : "تم تغيير كلمة المرور");
-              }}
-            >
-              كلمة المرور
-            </button>
-            <button
-              className="btn text-black/55 hover:text-black"
-              onClick={() => sb.auth.signOut()}
-            >
-              خروج
-            </button>
-          </div>
-        </div>
-        <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-5">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-semibold transition ${tab === t.id ? "border-navy text-navy" : "border-transparent text-black/45 hover:text-black"}`}
-            >
-              {t.label}
-              {t.id === "requests" && newCount > 0 && (
-                <span className="ms-1.5 rounded-full bg-sun px-1.5 py-0.5 text-[0.7rem] text-ink">{newCount}</span>
-              )}
-            </button>
-          ))}
-        </nav>
-      </header>
-      <main className="mx-auto max-w-6xl px-5 py-8">
-        {tab === "projects" && <ProjectsTab />}
+    <Shell tab={tab} go={go} email={session.user.email ?? ""} newCount={newCount}>
+      <div key={visit}>
+        {tab === "overview" && <Overview go={go} email={session.user.email ?? ""} />}
+        {tab === "projects" && <ProjectsTab focus={focus === "new" ? undefined : focus} isNew={focus === "new"} />}
         {tab === "home" && <HomeTab />}
-        {tab === "texts" && <TextsTab />}
+        {tab === "texts" && <TextsTab focus={focus} />}
         {tab === "orgs" && <OrgsTab />}
+        {tab === "seo" && <SeoTab />}
         {tab === "contact" && <ContactTab />}
         {tab === "history" && <HistoryTab />}
         {tab === "brand" && <BrandTab />}
         {tab === "requests" && <RequestsTab onCount={setNewCount} />}
-      </main>
-    </div>
+      </div>
+    </Shell>
   );
 }
 
@@ -160,8 +126,8 @@ function Login() {
           ok: false,
           text:
             error.code === "email_not_confirmed"
-              ? "الحساب لم يُفعَّل بعد"
-              : "البريد أو كلمة المرور غير صحيحة",
+              ? tr("الحساب لم يُفعَّل بعد")
+              : tr("البريد أو كلمة المرور غير صحيحة"),
         });
     } else {
       const { data, error } = await sb.auth.signUp({
@@ -173,7 +139,7 @@ function Login() {
       else if (!data.session)
         setMsg({
           ok: true,
-          text: "تم إنشاء الحساب. أخبرنا ليتم تفعيله ومنحه صلاحية المدير، ثم سجّل الدخول.",
+          text: tr("تم إنشاء الحساب. أخبرنا ليتم تفعيله ومنحه صلاحية المدير، ثم سجّل الدخول."),
         });
     }
     setBusy(false);
@@ -189,13 +155,11 @@ function Login() {
           className="h-10 w-auto"
         />
         <h1 className="mt-6 text-xl font-bold text-ink">
-          {mode === "in" ? "تسجيل الدخول" : "إنشاء حساب المدير"}
+          {mode === "in" ? tr("تسجيل الدخول") : tr("إنشاء حساب المدير")}
         </h1>
         <div className="mt-6 space-y-4">
           <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold text-ink">
-              البريد الإلكتروني
-            </span>
+            <span className="mb-1.5 block text-sm font-semibold text-ink">{tr("البريد الإلكتروني")}</span>
             <input
               dir="ltr"
               type="email"
@@ -207,9 +171,7 @@ function Login() {
             />
           </label>
           <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold text-ink">
-              كلمة المرور
-            </span>
+            <span className="mb-1.5 block text-sm font-semibold text-ink">{tr("كلمة المرور")}</span>
             <div className="relative">
               <input
                 dir="ltr"
@@ -228,7 +190,7 @@ function Login() {
                 onClick={() => setShow(!show)}
                 className="absolute end-2 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-black/50 hover:text-black"
               >
-                {show ? "إخفاء" : "إظهار"}
+                {show ? tr("إخفاء") : tr("إظهار")}
               </button>
             </div>
           </label>
@@ -244,14 +206,14 @@ function Login() {
           className="btn btn-dark mt-6 w-full justify-center py-2.5"
           disabled={busy}
         >
-          {busy ? "…" : mode === "in" ? "دخول" : "إنشاء الحساب"}
+          {busy ? "…" : mode === "in" ? tr("دخول") : tr("إنشاء الحساب")}
         </button>
         <button
           type="button"
           className="mt-4 w-full text-center text-sm text-black/50 hover:text-black"
           onClick={() => setMode(mode === "in" ? "up" : "in")}
         >
-          {mode === "in" ? "أول مرة؟ أنشئ حسابك" : "لديك حساب؟ سجّل الدخول"}
+          {mode === "in" ? tr("أول مرة؟ أنشئ حسابك") : tr("لديك حساب؟ سجّل الدخول")}
         </button>
       </form>
     </Center>

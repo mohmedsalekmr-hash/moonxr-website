@@ -2,6 +2,8 @@ import "server-only";
 import * as local from "@/data/projects";
 import * as i18n from "@/data/i18n";
 import { aboutPage, partnersPage, partnerPoints } from "@/data/pages";
+import { explorer as defExplorer, steps as defSteps, type Explorer, type Step } from "@/data/explorer";
+import { seo as defSeo, type Seo } from "@/data/seo";
 import type { Project, Org } from "@/data/projects";
 
 /**
@@ -17,7 +19,9 @@ export type UI = typeof i18n.ui;
 export type Content = {
   ui: UI;
   contact: Contact;
-  services: typeof i18n.services;
+  services: i18n.Service[];
+  explorer: Explorer;
+  seo: Seo;
   steps: typeof i18n.steps;
   home: HomeSection[];
   about: typeof aboutPage;
@@ -102,6 +106,18 @@ function fillEnglish<V>(v: V): V {
   return out as V;
 }
 
+/** The headset tour: texts from the admin, hotspots (ids, groups, order) always from the code. */
+function toExplorer(v: unknown): Explorer {
+  const db = (v ?? {}) as Partial<{ explorer: unknown; steps: Partial<Step>[] }>;
+  return {
+    explorer: merge(defExplorer, db.explorer),
+    steps: defSteps.map((s) => {
+      const o = db.steps?.find((x) => x.id === s.id);
+      return o ? { ...s, title: o.title ?? s.title, text: o.text ?? s.text, spec: o.spec ?? s.spec } : s;
+    }),
+  };
+}
+
 const DEFAULT_HOME: HomeSection[] = ["hero", "about", "work", "process", "ecosystem", "contact"].map((id) => ({ id, visible: true }));
 
 export async function getContent(): Promise<Content> {
@@ -117,7 +133,9 @@ export async function getContent(): Promise<Content> {
   return fillEnglish({
     ui: merge(i18n.ui, get("ui")),
     contact: merge(i18n.CONTACT, get("contact")),
-    services: (get("services") as typeof i18n.services) ?? i18n.services,
+    services: (get("services") as i18n.Service[]) ?? i18n.services,
+    explorer: toExplorer(get("explorer")),
+    seo: merge(defSeo, get("seo")),
     steps: (get("steps") as typeof i18n.steps) ?? i18n.steps,
     home: (get("home_sections") as HomeSection[]) ?? DEFAULT_HOME,
     about: merge(aboutPage, get("about")),

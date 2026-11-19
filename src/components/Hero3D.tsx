@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Locale } from "@/data/i18n";
-import { explorer, steps } from "@/data/explorer";
+import { explorer as defExplorer, steps as defSteps, type Explorer } from "@/data/explorer";
 
 type Api = { enter: () => void; exit: () => void; focus: (id: string | null, group?: "headset" | "controller" | null) => void };
 
@@ -12,7 +12,10 @@ type Api = { enter: () => void; exit: () => void; focus: (id: string | null, gro
  * the headset comes to the centre, the controllers fly in, callouts appear on each part,
  * and the visitor can rotate, zoom (wheel / pinch) and read what every part does.
  */
-export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Locale }) {
+export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lang: Locale; data?: Explorer }) {
+  // texts of the headset tour, edited in the admin (site texts → 3D headset)
+  const explorer = data?.explorer ?? defExplorer;
+  const steps = data?.steps ?? defSteps;
   const host = useRef<HTMLDivElement>(null);
   const labelRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const api = useRef<Api | null>(null);
@@ -651,7 +654,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
                 <div className="mt-1 hidden text-sm text-white/60 md:block">{t(explorer.help)}</div>
               </div>
               <button type="button" onClick={exit} className="pointer-events-auto btn btn-line btn-sm">
-                ✕ {({ fr: "Fermer", ar: "إغلاق", en: "Close" } as const)[lang]}
+                ✕ {t(explorer.close)}
               </button>
             </div>
           </div>
@@ -677,7 +680,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
 
                 {!step && tour ? (
                   <div className="mt-4 flex items-center justify-between gap-3 text-xs text-white/60">
-                    <span>{({ fr: "Visite guidée…", ar: "جولة إرشادية…", en: "Guided tour…" } as const)[lang]}</span>
+                    <span>{t(explorer.touring)}</span>
                     <button type="button" onClick={() => setTour(false)} className="font-semibold hover:text-white">❚❚ {t(explorer.stop)}</button>
                   </div>
                 ) : !step && !tour ? (

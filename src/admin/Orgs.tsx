@@ -1,5 +1,6 @@
 "use client";
 
+import { tr } from "./i18n";
 import { useEffect, useState } from "react";
 import { sb } from "./sb";
 import { saveAndPublish } from "./save";
@@ -10,9 +11,9 @@ type Kind = "client" | "partner" | "supplier";
 type Org = { id?: string; kind: Kind; name: string; logo: string; ratio: number; url: string | null; role: T | null; body: T | null; points: unknown; position: number; visible: boolean; category?: string | null };
 
 const KINDS: { id: Kind; name: string; sub: string }[] = [
-  { id: "client", name: "العملاء", sub: "الشعارات في شريط «وثقوا بنا» وصفحة الشركاء." },
-  { id: "partner", name: "الشركاء", sub: "الشريكان الكبيران مع وصف لكل منهما." },
-  { id: "supplier", name: "الموردون التقنيون", sub: "شعارات التقنيات في الشريط المتحرك." },
+  { id: "client", name: tr("العملاء"), sub: tr("الشعارات في شريط «وثقوا بنا» وصفحة الشركاء.") },
+  { id: "partner", name: tr("الشركاء"), sub: tr("الشريكان الكبيران مع وصف لكل منهما.") },
+  { id: "supplier", name: tr("الموردون التقنيون"), sub: tr("شعارات التقنيات في الشريط المتحرك.") },
 ];
 
 export default function OrgsTab() {
@@ -42,7 +43,7 @@ export default function OrgsTab() {
 
   const save = async () => {
     const bad = list.find((o) => !o.name.trim() || !o.logo);
-    if (bad) return setErr("كل شعار يحتاج إلى اسم وصورة");
+    if (bad) return setErr(tr("كل شعار يحتاج إلى اسم وصورة"));
     setSaving(true);
     setErr("");
     try {
@@ -59,15 +60,15 @@ export default function OrgsTab() {
       });
       setTick((t) => t + 1);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "خطأ");
+      setErr(e instanceof Error ? e.message : tr("خطأ"));
     }
     setSaving(false);
   };
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">العملاء والشركاء</h1>
-      <p className="mt-1 text-sm text-black/55">الشعارات بخلفية شفافة (PNG أو SVG) تعطي أفضل نتيجة. يُحسب حجم الشعار تلقائياً.</p>
+      <h1 className="text-2xl font-bold">{tr("العملاء والشركاء")}</h1>
+      <p className="mt-1 text-sm text-black/55">{tr("الشعارات بخلفية شفافة (PNG أو SVG) تعطي أفضل نتيجة. يُحسب حجم الشعار تلقائياً.")}</p>
       {err && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{err}</p>}
       <MissingEn n={countMissingEn(list)} />
 
@@ -80,41 +81,39 @@ export default function OrgsTab() {
                 <MediaBox height="h-24" contain keepPng accept="image/png,image/svg+xml,image/webp,image/jpeg" folder="logos" value={o.logo ? { src: o.logo } : null} onChange={(m) => update(k.id, i, { logo: m.src, ratio: Math.round((m.w / m.h) * 100) / 100 })} />
                 <div className="grid content-start gap-3">
                   <div className="grid gap-3 md:grid-cols-2">
-                    <Field label="الاسم" value={o.name} onChange={(v) => update(k.id, i, { name: v })} />
-                    <Field label="الموقع الإلكتروني" hint="اختياري" value={o.url} placeholder="https://" onChange={(v) => update(k.id, i, { url: v || null })} />
+                    <Field label={tr("الاسم")} value={o.name} onChange={(v) => update(k.id, i, { name: v })} />
+                    <Field label={tr("الموقع الإلكتروني")} hint={tr("اختياري")} value={o.url} placeholder="https://" onChange={(v) => update(k.id, i, { url: v || null })} />
                   </div>
                   {k.id === "supplier" && (
                     <div className="grid gap-3 md:grid-cols-[1fr_14rem]">
-                      <TField label="التخصص (سطر قصير)" value={o.role} onChange={(v) => update(k.id, i, { role: v })} />
+                      <TField label={tr("التخصص (سطر قصير)")} value={o.role} onChange={(v) => update(k.id, i, { role: v })} />
                       <label className="block text-sm">
-                        <span className="text-black/60">المجموعة في صفحة الشركاء</span>
+                        <span className="text-black/60">{tr("المجموعة في صفحة الشركاء")}</span>
                         <select className="inp mt-1" value={o.category ?? "platform"} onChange={(e) => update(k.id, i, { category: e.target.value })}>
-                          <option value="industry">اللحام والصناعة</option>
-                          <option value="education">التعليم والصحة</option>
-                          <option value="safety">السلامة</option>
-                          <option value="platform">المنصّات</option>
+                          <option value="industry">{tr("اللحام والصناعة")}</option>
+                          <option value="education">{tr("التعليم والصحة")}</option>
+                          <option value="safety">{tr("السلامة")}</option>
+                          <option value="platform">{tr("المنصّات")}</option>
                         </select>
                       </label>
                     </div>
                   )}
                   {k.id === "partner" && (
                     <>
-                      <TField label="الدور" value={o.role} onChange={(v) => update(k.id, i, { role: v })} />
-                      <TField label="الوصف" multi value={o.body} onChange={(v) => update(k.id, i, { body: v })} />
+                      <TField label={tr("الدور")} value={o.role} onChange={(v) => update(k.id, i, { role: v })} />
+                      <TField label={tr("الوصف")} multi value={o.body} onChange={(v) => update(k.id, i, { body: v })} />
                       <Points value={(o.points as T[] | null) ?? []} onChange={(v) => update(k.id, i, { points: v })} />
                     </>
                   )}
-                  <Toggle on={o.visible} label={o.visible ? "ظاهر" : "مخفي"} onChange={(v) => update(k.id, i, { visible: v })} />
+                  <Toggle on={o.visible} label={o.visible ? tr("ظاهر") : tr("مخفي")} onChange={(v) => update(k.id, i, { visible: v })} />
                 </div>
-                <RowTools i={i} n={items.length} move={(a, b) => setKind(k.id, moveItem(items, a, b))} remove={() => confirm(`حذف ${o.name || "هذا الشعار"}؟`) && setKind(k.id, items.filter((_, j) => j !== i))} />
+                <RowTools i={i} n={items.length} move={(a, b) => setKind(k.id, moveItem(items, a, b))} remove={() => confirm(tr("حذف {0}؟", o.name || tr("هذا الشعار"))) && setKind(k.id, items.filter((_, j) => j !== i))} />
               </div>
             ))}
             <button
               className="btn btn-light self-start"
               onClick={() => setKind(k.id, [...items, { kind: k.id, name: "", logo: "", ratio: 1, url: null, role: null, body: null, points: null, position: items.length, visible: true, category: k.id === "supplier" ? "platform" : null }])}
-            >
-              + إضافة
-            </button>
+            >{tr("+ إضافة")}</button>
           </Section>
         );
       })}
@@ -128,18 +127,16 @@ export default function OrgsTab() {
 function Points({ value, onChange }: { value: T[]; onChange: (v: T[]) => void }) {
   return (
     <div className="grid gap-3 rounded-lg border border-black/[0.07] bg-white p-3">
-      <div className="text-sm font-semibold">نقاط مختصرة</div>
+      <div className="text-sm font-semibold">{tr("نقاط مختصرة")}</div>
       {value.map((p, i) => (
         <div key={i} className="flex gap-2">
           <div className="flex-1">
-            <TField label={`النقطة ${i + 1}`} value={p} onChange={(v) => onChange(value.map((x, j) => (j === i ? v : x)))} />
+            <TField label={tr("النقطة {0}", i + 1)} value={p} onChange={(v) => onChange(value.map((x, j) => (j === i ? v : x)))} />
           </div>
           <RowTools i={i} n={value.length} move={(a, b) => onChange(moveItem(value, a, b))} remove={() => onChange(value.filter((_, j) => j !== i))} />
         </div>
       ))}
-      <button type="button" className="btn btn-light self-start" onClick={() => onChange([...value, emptyT()])}>
-        + نقطة
-      </button>
+      <button type="button" className="btn btn-light self-start" onClick={() => onChange([...value, emptyT()])}>{tr("+ نقطة")}</button>
     </div>
   );
 }

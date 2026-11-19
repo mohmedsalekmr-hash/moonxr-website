@@ -1,4 +1,5 @@
 "use client";
+import { tr } from "./i18n";
 import { useCallback, useEffect, useState } from "react";
 import { sb } from "./sb";
 import { saveAndPublish } from "./save";
@@ -40,7 +41,7 @@ export function useContentKey<V>(key: string, fallback: V, deep = false) {
       await saveAndPublish(() => sb.from("site_content").upsert({ key, value }));
       setSaved(JSON.stringify(value));
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "خطأ");
+      setErr(e instanceof Error ? e.message : tr("خطأ"));
     }
     setSaving(false);
   }, [key, value]);

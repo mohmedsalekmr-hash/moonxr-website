@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLocale, tr } from "./i18n";
 import { useEffect, useState } from "react";
 import { sb } from "./sb";
 
@@ -18,7 +19,7 @@ type Req = {
 };
 
 const when = (d: string) =>
-  new Date(d).toLocaleString("ar", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  new Date(d).toLocaleString(adminLocale(), { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
 /** Requests sent from the website contact form. */
 export default function RequestsTab({ onCount }: { onCount?: (n: number) => void }) {
@@ -47,7 +48,7 @@ export default function RequestsTab({ onCount }: { onCount?: (n: number) => void
     setTick((t) => t + 1);
   };
   const remove = async (r: Req) => {
-    if (!confirm(`حذف طلب «${r.name}» نهائياً؟ لا يمكن التراجع.`)) return;
+    if (!confirm(tr("حذف طلب «{0}» نهائياً؟ لا يمكن التراجع.", r.name))) return;
     const { error } = await sb.from("contact_requests").delete().eq("id", r.id);
     if (error) setErr(error.message);
     setTick((t) => t + 1);
@@ -58,33 +59,29 @@ export default function RequestsTab({ onCount }: { onCount?: (n: number) => void
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">الطلبات</h1>
-      <p className="mt-1 text-sm text-black/55">
-        كل رسالة يرسلها زائر من صفحة «تواصل معنا» تصل هنا. بعد الرد عليها اضغط «تم الرد» لتنتقل إلى الأرشيف.
-      </p>
+      <h1 className="text-2xl font-bold">{tr("الطلبات")}</h1>
+      <p className="mt-1 text-sm text-black/55">{tr("كل رسالة يرسلها زائر من صفحة «تواصل معنا» تصل هنا. بعد الرد عليها اضغط «تم الرد» لتنتقل إلى الأرشيف.")}</p>
       {err && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{err}</p>}
 
       <div className="mt-5 flex gap-2">
         {(
           [
-            ["new", `جديدة (${count("new")})`],
-            ["done", `تم الرد (${count("done")})`],
-            ["all", "الكل"],
+            ["new", tr("جديدة ({0})", count("new"))],
+            ["done", tr("تم الرد ({0})", count("done"))],
+            ["all", tr("الكل")],
           ] as const
         ).map(([id, label]) => (
           <button key={id} className={`btn ${filter === id ? "btn-dark" : "btn-light"}`} onClick={() => setFilter(id)}>
             {label}
           </button>
         ))}
-        <button className="btn btn-light ms-auto" onClick={() => setTick((t) => t + 1)}>
-          تحديث ↻
-        </button>
+        <button className="btn btn-light ms-auto" onClick={() => setTick((t) => t + 1)}>{tr("تحديث ↻")}</button>
       </div>
 
       <div className="card mt-4 divide-y divide-black/[0.06]">
         {list === null && <p className="p-5 text-black/40">…</p>}
         {list && shown.length === 0 && (
-          <p className="p-5 text-sm text-black/45">{filter === "new" ? "لا توجد طلبات جديدة." : "لا شيء هنا."}</p>
+          <p className="p-5 text-sm text-black/45">{filter === "new" ? tr("لا توجد طلبات جديدة.") : tr("لا شيء هنا.")}</p>
         )}
         {shown.map((r) => {
           const isOpen = open === r.id;
@@ -99,7 +96,7 @@ export default function RequestsTab({ onCount }: { onCount?: (n: number) => void
                     {r.org ? <span className="font-normal text-black/50"> · {r.org}</span> : null}
                   </div>
                   <div className="truncate text-xs text-black/45">
-                    {when(r.created_at)} · {r.kind ?? "—"} · {r.lang === "ar" ? "عربي" : r.lang === "en" ? "إنجليزي" : "فرنسي"}
+                    {when(r.created_at)} · {r.kind ?? "—"} · {r.lang === "ar" ? tr("عربي") : r.lang === "en" ? tr("إنجليزي") : tr("فرنسي")}
                   </div>
                 </div>
                 <span className="text-black/35">{isOpen ? "▴" : "▾"}</span>
@@ -113,9 +110,7 @@ export default function RequestsTab({ onCount }: { onCount?: (n: number) => void
                     <a className="text-navy underline" href={`mailto:${r.email}`}>{r.email}</a>
                     {r.phone && <a className="text-navy underline" href={`tel:${r.phone.replace(/\s/g, "")}`}>{r.phone}</a>}
                   </div>
-                  <label className="block text-xs text-black/55">
-                    ملاحظة داخلية (لا يراها الزائر)
-                    <textarea
+                  <label className="block text-xs text-black/55">{tr("ملاحظة داخلية (لا يراها الزائر)")}<textarea
                       className="inp mt-1"
                       rows={2}
                       defaultValue={r.note ?? ""}
@@ -123,18 +118,16 @@ export default function RequestsTab({ onCount }: { onCount?: (n: number) => void
                     />
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    <a className="btn btn-dark" href={reply}>الرد بالبريد</a>
+                    <a className="btn btn-dark" href={reply}>{tr("الرد بالبريد")}</a>
                     {r.phone && (
-                      <a className="btn btn-light" href={`https://wa.me/${r.phone.replace(/[^\d]/g, "")}`} target="_blank" rel="noreferrer">
-                        واتساب
-                      </a>
+                      <a className="btn btn-light" href={`https://wa.me/${r.phone.replace(/[^\d]/g, "")}`} target="_blank" rel="noreferrer">{tr("واتساب")}</a>
                     )}
                     {r.status === "new" ? (
-                      <button className="btn btn-light" onClick={() => update(r.id, { status: "done" })}>تم الرد ✓</button>
+                      <button className="btn btn-light" onClick={() => update(r.id, { status: "done" })}>{tr("تم الرد ✓")}</button>
                     ) : (
-                      <button className="btn btn-light" onClick={() => update(r.id, { status: "new" })}>إرجاع إلى الجديدة</button>
+                      <button className="btn btn-light" onClick={() => update(r.id, { status: "new" })}>{tr("إرجاع إلى الجديدة")}</button>
                     )}
-                    <button className="btn btn-danger ms-auto" onClick={() => remove(r)}>حذف</button>
+                    <button className="btn btn-danger ms-auto" onClick={() => remove(r)}>{tr("حذف")}</button>
                   </div>
                 </div>
               )}

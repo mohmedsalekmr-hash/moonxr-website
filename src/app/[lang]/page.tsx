@@ -24,7 +24,7 @@ const LOOK: "sheet" | "bridge" = "bridge";
 
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
-  const { ui, services, steps, projects, clients, partners, suppliers, home } = await getContent();
+  const { ui, services, steps, projects, clients, partners, suppliers, home, explorer } = await getContent();
   if (!hasLocale(lang)) notFound();
   const rtl = lang === "ar";
   const h = ui.home;
@@ -38,7 +38,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_70%_at_72%_45%,rgba(37,60,128,0.12),transparent_70%),linear-gradient(180deg,#eef1f9,#ffffff)] rtl:bg-[radial-gradient(60%_70%_at_28%_45%,rgba(37,60,128,0.12),transparent_70%),linear-gradient(180deg,#eef1f9,#ffffff)]" />
             {/* phone: the headset has its own stage above the text; desktop: full-bleed behind it */}
             <div className="hero-stage relative z-0 mt-16 h-[40svh] min-h-[270px] w-full md:absolute md:inset-0 md:mt-0 md:h-auto">
-              <Hero3D rtl={rtl} lang={lang} />
+              <Hero3D rtl={rtl} lang={lang} data={explorer} />
             </div>
             <div className="hero-copy wrap pointer-events-none relative z-10 pt-2 md:pt-24">
               <div className="pointer-events-auto max-w-xl">
@@ -111,7 +111,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
               </>
             }
             all={{ href: `${pageHref(lang, "projets")}`, label: ui.work.seeAll[lang] }}
-            hint={({ ar: "اسحب يميناً أو يساراً لتصفّح المشاريع", fr: "Glissez vers la gauche ou la droite pour parcourir", en: "Swipe left or right to browse" } as const)[lang]}
+            hint={ui.home.swipeHint[lang]}
           />
 
       </>
@@ -150,7 +150,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 />
               </Reveal>
               <Reveal className="mt-8 md:mt-12">
-                <EcoGrid partners={partners} suppliers={suppliers} lang={lang} labels={{ partner: ({ ar: "شريك", fr: "Partenaire", en: "Partner" } as const)[lang], supplier: ui.partners.suppliers[lang] }} more={{ href: `${pageHref(lang, "partenaires")}#technologies`, label: ({ ar: "كل التقنيات", fr: "Toutes nos technologies", en: "All our technologies" } as const)[lang] }} />
+                <EcoGrid partners={partners} suppliers={suppliers} lang={lang} labels={{ partner: ui.home.partnerLabel[lang], supplier: ui.partners.suppliers[lang] }} more={{ href: `${pageHref(lang, "partenaires")}#technologies`, label: ui.home.allTech[lang] }} />
               </Reveal>
             </div>
           </section>

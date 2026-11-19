@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { tr } from "./i18n";
+import { useEffect, useRef, useState } from "react";
 import { uploadMedia, type Uploaded } from "./media";
 
 export type T = { fr: string; ar: string; en: string };
@@ -30,8 +31,7 @@ export function MissingEn({ n }: { n: number }) {
   if (!n) return null;
   return (
     <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 ring-1 ring-amber-200">
-      {n === 1 ? "نص واحد" : `${n} نصوص`} بدون ترجمة إنجليزية (الخانات البرتقالية). يظهر مكانها النص الفرنسي في النسخة الإنجليزية من الموقع إلى أن تكتبها.
-    </p>
+      {n === 1 ? tr("نص واحد") : tr("{0} نصوص", n)} {tr("بدون ترجمة إنجليزية (الخانات البرتقالية). يظهر مكانها النص الفرنسي في النسخة الإنجليزية من الموقع إلى أن تكتبها.")}</p>
   );
 }
 
@@ -52,7 +52,7 @@ export function TField({ label, value, onChange, multi, hint }: { label: string;
             <label key={l.k} className="block">
               <span className={`mb-1 flex items-center gap-1.5 text-[0.7rem] font-semibold ${empty ? "text-amber-700" : "text-black/40"}`}>
                 {l.name}
-                {empty && <span className="rounded-full bg-amber-100 px-1.5 py-px text-[0.65rem]">ناقص — يظهر بالفرنسية</span>}
+                {empty && <span className="rounded-full bg-amber-100 px-1.5 py-px text-[0.65rem]">{tr("ناقص — يظهر بالفرنسية")}</span>}
               </span>
               <Tag
                 dir={l.dir}
@@ -96,10 +96,10 @@ export function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boo
 export function RowTools({ i, n, move, remove }: { i: number; n: number; move: (from: number, to: number) => void; remove?: () => void }) {
   return (
     <div className="flex shrink-0 gap-1">
-      <button type="button" className="icon-btn" disabled={i === 0} onClick={() => move(i, i - 1)} title="إلى الأعلى">↑</button>
-      <button type="button" className="icon-btn" disabled={i === n - 1} onClick={() => move(i, i + 1)} title="إلى الأسفل">↓</button>
+      <button type="button" className="icon-btn" disabled={i === 0} onClick={() => move(i, i - 1)} title={tr("إلى الأعلى")}>↑</button>
+      <button type="button" className="icon-btn" disabled={i === n - 1} onClick={() => move(i, i + 1)} title={tr("إلى الأسفل")}>↓</button>
       {remove && (
-        <button type="button" className="icon-btn text-red-700" onClick={remove} title="حذف">✕</button>
+        <button type="button" className="icon-btn text-red-700" onClick={remove} title={tr("حذف")}>✕</button>
       )}
     </div>
   );
@@ -140,7 +140,7 @@ export function MediaBox({
     try {
       onChange(await uploadMedia(f, folder, { keepPng }));
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "فشل الرفع");
+      setErr(e instanceof Error ? e.message : tr("فشل الرفع"));
     } finally {
       setBusy(false);
       if (input.current) input.current.value = "";
@@ -167,10 +167,10 @@ export function MediaBox({
             <img src={value.src} alt="" className={`h-full w-full ${contain ? "object-contain p-4" : "object-cover"}`} />
           )
         ) : (
-          <span className="grid h-full place-items-center text-sm text-black/45">اسحب ملفاً هنا أو اضغط للاختيار</span>
+          <span className="grid h-full place-items-center text-sm text-black/45">{tr("اسحب ملفاً هنا أو اضغط للاختيار")}</span>
         )}
         <span className={`absolute inset-0 grid place-items-center bg-navy/70 text-sm font-semibold text-white transition ${busy ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
-          {busy ? "جارٍ الضغط والرفع…" : value?.src ? "استبدال" : "رفع ملف"}
+          {busy ? tr("جارٍ الضغط والرفع…") : value?.src ? tr("استبدال") : tr("رفع ملف")}
         </span>
       </button>
       <input ref={input} type="file" accept={accept} hidden onChange={(e) => pick(e.target.files?.[0])} />
@@ -179,19 +179,27 @@ export function MediaBox({
   );
 }
 
+/** True while any editor on screen has changes that are not saved yet (read by the admin shell). */
+const pending = new Set<symbol>();
+export const hasUnsaved = () => pending.size > 0;
+
 export function SaveBar({ dirty, saving, onSave, onCancel }: { dirty: boolean; saving: boolean; onSave: () => void; onCancel?: () => void }) {
+  const [id] = useState(() => Symbol("savebar"));
+  useEffect(() => {
+    if (dirty) pending.add(id);
+    else pending.delete(id);
+    return () => {
+      pending.delete(id);
+    };
+  }, [dirty, id]);
   return (
     <div className={`sticky bottom-4 z-20 mt-8 flex items-center justify-between gap-3 rounded-2xl bg-navy px-5 py-3 text-white shadow-xl transition ${dirty || saving ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"}`}>
-      <span className="text-sm">{saving ? "جارٍ الحفظ والنشر…" : "لديك تعديلات غير محفوظة"}</span>
+      <span className="text-sm">{saving ? tr("جارٍ الحفظ والنشر…") : tr("لديك تعديلات غير محفوظة")}</span>
       <div className="flex gap-2">
         {onCancel && (
-          <button type="button" className="btn text-white/80 hover:text-white" onClick={onCancel} disabled={saving}>
-            تراجع
-          </button>
+          <button type="button" className="btn text-white/80 hover:text-white" onClick={onCancel} disabled={saving}>{tr("تراجع")}</button>
         )}
-        <button type="button" className="btn bg-sun text-ink hover:brightness-105" onClick={onSave} disabled={saving}>
-          حفظ ونشر
-        </button>
+        <button type="button" className="btn bg-sun text-ink hover:brightness-105" onClick={onSave} disabled={saving}>{tr("حفظ ونشر")}</button>
       </div>
     </div>
   );

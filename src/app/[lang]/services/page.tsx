@@ -1,4 +1,4 @@
-import { alternates } from "@/lib/seo";
+import { pageMeta } from "@/lib/seo";
 import type { Locale } from "@/data/i18n";
 import { getContent } from "@/lib/content";
 import { rimg } from "@/lib/img";
@@ -17,18 +17,9 @@ import Page from "@/components/Page";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/services">): Promise<Metadata> {
   const { lang } = await params;
-  return { title: ({ ar: "خدماتنا", fr: "Services", en: "Services" } as const)[lang as "fr"], alternates: alternates(lang as Locale, "services") };
+  return pageMeta(lang as Locale, "services");
 }
 
-const T = {
-  title: { fr: "Ce que nous faisons pour vous.", ar: "ما نقدّمه لكم.", en: "What we do for you." },
-  sub: {
-    fr: "Quatre services, du premier échange jusqu'au suivi sur place.",
-    ar: "أربع خدمات، من أول لقاء حتى المتابعة في الموقع.", en: "Four services, from the first conversation to on-site follow-up.",
-  },
-  seen: { fr: "Dans nos projets", ar: "في مشاريعنا", en: "In our projects" },
-  soon: { fr: "En développement", ar: "قيد التطوير", en: "In development" },
-};
 
 /** Which projects show each service (by order of the four services). */
 const SHOWN_IN: Category[][] = [["event"], ["training"], ["training"], ["dev"]];
@@ -36,6 +27,7 @@ const SHOWN_IN: Category[][] = [["event"], ["training"], ["training"], ["dev"]];
 export default async function ServicesPage({ params }: PageProps<"/[lang]/services">) {
   const { lang } = await params;
   const { ui, services, steps, projects } = await getContent();
+  const T = ui.servicesPage;
   if (!hasLocale(lang)) notFound();
   const h = ui.home;
 
@@ -56,7 +48,8 @@ export default async function ServicesPage({ params }: PageProps<"/[lang]/servic
         <div className="wrap space-y-14 md:space-y-24">
           {services.map((s, i) => {
             const img = SERVICE_IMG[i % SERVICE_IMG.length];
-            const related = projects.filter((p) => (SHOWN_IN[i] ?? []).includes(p.category));
+            const picked = s.projects?.length ? projects.filter((p) => s.projects!.includes(p.slug)) : null;
+            const related = picked ?? projects.filter((p) => (SHOWN_IN[i] ?? []).includes(p.category));
             return (
               <Reveal key={i} className={i === 0 ? "!opacity-100 !transform-none" : ""}>
                 <article id={`s${i + 1}`} className="grid scroll-mt-24 items-center gap-6 md:grid-cols-2 md:gap-14">

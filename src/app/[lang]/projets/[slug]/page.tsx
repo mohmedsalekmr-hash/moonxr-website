@@ -37,12 +37,6 @@ export async function generateMetadata({
   };
 }
 
-const L = {
-  sound: { fr: "Activer le son", ar: "تشغيل الصوت", en: "Turn sound on" },
-  mute: { fr: "Couper le son", ar: "كتم الصوت", en: "Mute" },
-  hintDesk: { fr: "Faites défiler pour la suite", ar: "انزل لمشاهدة البقية", en: "Scroll to continue" },
-  hintTouch: { fr: "Glissez vers le haut", ar: "اسحب للأعلى", en: "Swipe up" },
-};
 
 /**
  * One template for every project, light like the rest of the site:
@@ -54,6 +48,7 @@ export default async function ProjectPage({
 }: PageProps<"/[lang]/projets/[slug]">) {
   const { lang, slug } = await params;
   const { ui, projects } = await getContent();
+  const L = ui.story;
   if (!hasLocale(lang)) notFound();
   const p = projects.find((x) => x.slug === slug);
   if (!p) notFound();

@@ -1,4 +1,4 @@
-import { alternates } from "@/lib/seo";
+import { pageMeta } from "@/lib/seo";
 import type { Locale } from "@/data/i18n";
 import { getContent } from "@/lib/content";
 import { rimg } from "@/lib/img";
@@ -13,24 +13,14 @@ import Page from "@/components/Page";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/a-propos">): Promise<Metadata> {
   const { lang } = await params;
-  return { title: ({ ar: "من نحن", fr: "À propos", en: "About" } as const)[lang as "fr"], alternates: alternates(lang as Locale, "a-propos") };
+  return pageMeta(lang as Locale, "a-propos");
 }
 
-const T = {
-  numbers: { fr: "Moon XR en bref", ar: "Moon XR باختصار", en: "Moon XR at a glance" },
-  projects: { fr: "projets livrés", ar: "مشاريع منفّذة", en: "projects delivered" },
-  suppliers: { fr: "fournisseurs technologiques", ar: "مزوّدي تقنيات", en: "technology suppliers" },
-  partners: { fr: "partenaires", ar: "شركاء", en: "partners" },
-  since: { fr: "premiers projets", ar: "أولى المشاريع", en: "first projects" },
-  pathK: { fr: "Notre parcours", ar: "مسيرتنا", en: "Our journey" },
-  pathT: { fr: "Chaque projet, une étape.", ar: "كل مشروع خطوة.", en: "Every project, a milestone." },
-  dev: { fr: "En développement", ar: "قيد التطوير", en: "In development" },
-  all: { fr: "Tous les projets", ar: "كل المشاريع", en: "All projects" },
-};
 
 export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos">) {
   const { lang } = await params;
   const { ui, about: copy, projects, partners, suppliers } = await getContent();
+  const T = ui.aboutPage;
   const pillars = copy.pillars;
   if (!hasLocale(lang)) notFound();
 
