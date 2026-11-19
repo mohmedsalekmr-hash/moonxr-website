@@ -8,6 +8,17 @@ import { DecalGeometry } from "three/examples/jsm/geometries/DecalGeometry.js";
  * Credited in the site footer. Coordinates below are in the model's own space (metres).
  */
 export const QUEST_URL = "/media/3d/quest3.glb";
+/** Lighter copy for phones and small screens: half the triangles, 512 px textures (0.75 MB instead of 1.85 MB). */
+export const QUEST_URL_LIGHT = "/media/3d/quest3-m.glb";
+/** Phones, tablets and small screens get the light model; a ?model=full|light query forces one (for checks). */
+export function questUrl() {
+  if (typeof window === "undefined") return QUEST_URL;
+  const force = new URLSearchParams(window.location.search).get("model");
+  if (force === "full") return QUEST_URL;
+  if (force === "light") return QUEST_URL_LIGHT;
+  const small = window.matchMedia("(max-width: 900px), (pointer: coarse)").matches;
+  return small ? QUEST_URL_LIGHT : QUEST_URL;
+}
 
 export const PART = {
   headset: "Object_7",
@@ -33,7 +44,7 @@ let cache: Promise<THREE.Group> | null = null;
 export async function loadQuest(): Promise<THREE.Group> {
   if (!cache) {
     cache = (async () => {
-      const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(QUEST_URL);
+      const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(questUrl());
       const root = new THREE.Group();
       root.add(gltf.scene);
       root.updateMatrixWorld(true);

@@ -460,16 +460,16 @@ export const getProject = (slug: string) => projects.find((x) => x.slug === slug
 export type Org = { name: string; logo: string; r: number; url?: string; role?: T; text?: T; points?: T[]; category?: string };
 
 export const clients: Org[] = [
-  { name: "Moov Mauritel", logo: "/media/logos/moov.png", r: 1.66 },
-  { name: "Mattel", logo: "/media/logos/mattel-logo.png", r: 2.88 },
-  { name: "MPG", logo: "/media/logos/mpg-logo.png", r: 0.6 },
-  { name: "SNIM", logo: "/media/logos/snim.png", r: 1.05 },
+  { name: "Moov Mauritel", logo: "/media/logos/moov.webp", r: 1.66 },
+  { name: "Mattel", logo: "/media/logos/mattel-logo.webp", r: 2.88 },
+  { name: "MPG", logo: "/media/logos/mpg-logo.webp", r: 0.6 },
+  { name: "SNIM", logo: "/media/logos/snim.webp", r: 1.05 },
 ];
 
 export const partners: Org[] = [
   {
     name: "Seabery",
-    logo: "/media/logos/seabery.png",
+    logo: "/media/logos/seabery.webp",
     r: 4.88,
     url: "https://seabery.com",
     role: { fr: "Représentant officiel en Mauritanie", ar: "الممثل الرسمي في موريتانيا" },
@@ -480,7 +480,7 @@ export const partners: Org[] = [
   },
   {
     name: "MPG",
-    logo: "/media/logos/mpg-logo.png",
+    logo: "/media/logos/mpg-logo.webp",
     r: 0.6,
     role: { fr: "Partenaire institutionnel", ar: "شريك مؤسسي" },
     text: {
@@ -491,12 +491,12 @@ export const partners: Org[] = [
 ];
 
 export const suppliers: Org[] = [
-  { name: "Seabery", logo: "/media/logos/seabery.png", r: 4.88, role: { fr: "Soudage en RA", ar: "لحام بالواقع المعزز" }, category: "industry" },
-  { name: "Skillveri", logo: "/media/logos/skillveri.png", r: 3.35, role: { fr: "Soudage & peinture en VR", ar: "لحام وطلاء بالواقع الافتراضي" }, category: "industry" },
-  { name: "Mimbus", logo: "/media/logos/mimbus.png", r: 2.67, role: { fr: "Simulateurs de formation", ar: "محاكيات تدريب" }, category: "industry" },
-  { name: "3D Organon", logo: "/media/logos/3d-organon.png", r: 2.83, role: { fr: "Anatomie en VR", ar: "التشريح بالواقع الافتراضي" }, category: "education" },
-  { name: "Avantis · ClassVR", logo: "/media/logos/classvr.png", r: 5.08, role: { fr: "VR pour l'éducation", ar: "الواقع الافتراضي للتعليم" }, category: "education" },
-  { name: "PIXO VR", logo: "/media/logos/pixo-vr.png", r: 3.73, role: { fr: "Formation sécurité", ar: "تدريب السلامة" }, category: "safety" },
-  { name: "Luminous XR", logo: "/media/logos/luminous-xr.png", r: 6.44, role: { fr: "Plateforme XR", ar: "منصة XR" }, category: "platform" },
-  { name: "GW Pro", logo: "/media/logos/gw-pro.png", r: 2.12, role: { fr: "Simulateurs : soudage, BTP, sécurité", ar: "محاكيات: اللحام والبناء والسلامة" }, category: "industry" },
+  { name: "Seabery", logo: "/media/logos/seabery.webp", r: 4.88, role: { fr: "Soudage en RA", ar: "لحام بالواقع المعزز" }, category: "industry" },
+  { name: "Skillveri", logo: "/media/logos/skillveri.webp", r: 3.35, role: { fr: "Soudage & peinture en VR", ar: "لحام وطلاء بالواقع الافتراضي" }, category: "industry" },
+  { name: "Mimbus", logo: "/media/logos/mimbus.webp", r: 2.67, role: { fr: "Simulateurs de formation", ar: "محاكيات تدريب" }, category: "industry" },
+  { name: "3D Organon", logo: "/media/logos/3d-organon.webp", r: 2.83, role: { fr: "Anatomie en VR", ar: "التشريح بالواقع الافتراضي" }, category: "education" },
+  { name: "Avantis · ClassVR", logo: "/media/logos/classvr.webp", r: 5.08, role: { fr: "VR pour l'éducation", ar: "الواقع الافتراضي للتعليم" }, category: "education" },
+  { name: "PIXO VR", logo: "/media/logos/pixo-vr.webp", r: 3.73, role: { fr: "Formation sécurité", ar: "تدريب السلامة" }, category: "safety" },
+  { name: "Luminous XR", logo: "/media/logos/luminous-xr.webp", r: 6.44, role: { fr: "Plateforme XR", ar: "منصة XR" }, category: "platform" },
+  { name: "GW Pro", logo: "/media/logos/gw-pro.webp", r: 2.12, role: { fr: "Simulateurs : soudage, BTP, sécurité", ar: "محاكيات: اللحام والبناء والسلامة" }, category: "industry" },
 ];
