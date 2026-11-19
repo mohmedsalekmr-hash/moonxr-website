@@ -23,6 +23,13 @@ export default function ContactForm({ lang, bare = false }: { lang: Locale; bare
   useEffect(() => {
     started.current = Date.now();
   }, [state]);
+  // the need picked in the blue contact card arrives as ?type=<index>
+  const typeRef = useRef<HTMLSelectElement>(null);
+  useEffect(() => {
+    const i = Number(new URLSearchParams(window.location.search).get("type"));
+    const opts = c.types[lang];
+    if (typeRef.current && Number.isInteger(i) && i >= 0 && i < opts.length) typeRef.current.value = opts[i];
+  }, [c.types, lang]);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -70,7 +77,7 @@ export default function ContactForm({ lang, bare = false }: { lang: Locale; bare
       </label>
       <label className="text-sm text-ink/75 md:col-span-2">
         {c.type[lang]}
-        <select name="type" className={field} defaultValue={c.types[lang][0]}>
+        <select ref={typeRef} name="type" className={field} defaultValue={c.types[lang][0]}>
           {c.types[lang].map((o) => (
             <option key={o} value={o} className="bg-white">
               {o}
