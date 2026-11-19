@@ -65,8 +65,8 @@ export default function BrandTab() {
       <h2 className="mt-10 text-lg font-bold">الشعار</h2>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         {[
-          { src: "/media/logos/moonxr-l.svg", bg: "#ffffff", label: "على خلفية فاتحة" },
-          { src: "/media/logos/moonxr-d.svg", bg: "#142454", label: "على خلفية داكنة" },
+          { src: "/media/logos/moonxr-l.svg?v=2", bg: "#ffffff", label: "على خلفية فاتحة" },
+          { src: "/media/logos/moonxr-d.svg?v=2", bg: "#142454", label: "على خلفية داكنة" },
         ].map((l) => (
           <div key={l.src} className="card overflow-hidden">
             <div className="grid h-36 place-items-center" style={{ background: l.bg }}>

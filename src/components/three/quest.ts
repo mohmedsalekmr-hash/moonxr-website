@@ -56,7 +56,7 @@ export async function loadQuest(): Promise<THREE.Group> {
       if (front) {
         try {
           // the Moon XR logo with "TECHNOLOGY" underneath, as in the official Moon Technology logo
-          const tex = await new THREE.TextureLoader().loadAsync("/media/logos/moonxr-visor.png");
+          const tex = await new THREE.TextureLoader().loadAsync("/media/logos/moonxr-visor.png?v=2");
           tex.colorSpace = THREE.SRGBColorSpace;
           tex.anisotropy = 8;
           const decal = new THREE.Mesh(

@@ -56,7 +56,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
       <body>
         <ContentProvider value={{ ui, contact }}>
         <div className="intro" aria-hidden="true">
-          <img src="/media/logos/moonxr-l.svg" alt="" width={1920} height={467} className="intro-logo" />
+          <img src="/media/logos/moonxr-l.svg?v=2" alt="" width={1920} height={467} className="intro-logo" />
           <span className="intro-bar" />
         </div>
         <SmoothScroll />

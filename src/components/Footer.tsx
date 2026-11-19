@@ -17,7 +17,7 @@ export default async function Footer({ lang }: { lang: Locale }) {
         <div className="flex flex-col gap-8 border-t border-line py-10 md:flex-row md:items-center md:justify-between">
           <div>
             <Link href={`/${lang}`} aria-label="Moon XR">
-              <img src="/media/logos/moonxr-l.svg" alt="Moon XR" width={1920} height={467} className="h-10 w-auto" loading="lazy" />
+              <img src="/media/logos/moonxr-l.svg?v=2" alt="Moon XR" width={1920} height={467} className="h-10 w-auto" loading="lazy" />
             </Link>
             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink/60">
               <a href={`mailto:${CONTACT.email}`} dir="ltr" className="hover:text-ink">{CONTACT.email}</a>

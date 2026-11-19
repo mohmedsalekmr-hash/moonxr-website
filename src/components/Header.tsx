@@ -60,7 +60,7 @@ export default function Header({ lang }: { lang: Locale }) {
     >
       <div className="wrap flex h-16 items-center justify-between gap-6 md:h-[72px]">
         <Link href={`/${lang}`} className="shrink-0" aria-label="Moon XR">
-          <img src={dark ? "/media/logos/moonxr-d.svg" : "/media/logos/moonxr-l.svg"} alt="Moon XR" width={1920} height={467} className="h-[34px] w-auto md:h-10" />
+          <img src={dark ? "/media/logos/moonxr-d.svg?v=2" : "/media/logos/moonxr-l.svg?v=2"} alt="Moon XR" width={1920} height={467} className="h-[34px] w-auto md:h-10" />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Navigation">

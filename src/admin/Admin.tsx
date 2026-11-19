@@ -73,7 +73,7 @@ export default function Admin() {
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-5 py-3">
           {}
           <img
-            src="/media/logos/moonxr-l.svg"
+            src="/media/logos/moonxr-l.svg?v=2"
             alt="Moon XR"
             className="h-9 w-auto"
           />
@@ -184,7 +184,7 @@ function Login() {
       <form onSubmit={submit} className="card w-full max-w-sm p-8">
         {}
         <img
-          src="/media/logos/moonxr-l.svg"
+          src="/media/logos/moonxr-l.svg?v=2"
           alt="Moon XR"
           className="h-10 w-auto"
         />
