@@ -1,0 +1,32 @@
+name: Uptime check
+
+# Every hour: opens the main pages of the live site. If one does not answer correctly,
+# the run fails and GitHub e-mails the repository owner.
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Pages answer
+        run: |
+          set -u
+          SITE="https://moonxr-site.vercel.app"
+          fail=0
+          for p in /fr /ar /fr/projets /fr/services /fr/partenaires /fr/contact /api/keepalive; do
+            for try in 1 2 3; do
+              code=$(curl -s -o /tmp/body -w '%{http_code}' --max-time 20 "$SITE$p") && [ "$code" = "200" ] && break
+              sleep 15
+            done
+            echo "$p -> $code"
+            [ "$code" = "200" ] || fail=1
+          done
+          # the database must answer too (keepalive reads one row)
+          grep -q '"ok":true' /tmp/body || { echo "database did not answer"; fail=1; }
+          exit $fail
