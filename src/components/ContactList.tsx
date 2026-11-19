@@ -8,12 +8,12 @@ const I = {
   clock: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M12 7v5l3 2",
 };
 const L = {
-  email: { fr: "E-mail", ar: "البريد الإلكتروني" },
-  phone: { fr: "Téléphone", ar: "الهاتف" },
-  place: { fr: "Adresse", ar: "العنوان" },
-  placeV: { fr: "Nouakchott, Mauritanie", ar: "نواكشوط، موريتانيا" },
-  time: { fr: "Délai de réponse", ar: "مدة الرد" },
-  timeV: { fr: "Sous 48 heures", ar: "خلال 48 ساعة" },
+  email: { fr: "E-mail", ar: "البريد الإلكتروني", en: "Email" },
+  phone: { fr: "Téléphone", ar: "الهاتف", en: "Phone" },
+  place: { fr: "Adresse", ar: "العنوان", en: "Address" },
+  placeV: { fr: "Nouakchott, Mauritanie", ar: "نواكشوط، موريتانيا", en: "Nouakchott, Mauritania" },
+  time: { fr: "Délai de réponse", ar: "مدة الرد", en: "Response time" },
+  timeV: { fr: "Sous 48 heures", ar: "خلال 48 ساعة", en: "Within 48 hours" },
 };
 
 function Icon({ d }: { d: string }) {

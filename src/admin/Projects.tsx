@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { sb } from "./sb";
 import { saveAndPublish } from "./save";
-import { emptyT, Field, MediaBox, moveItem, RowTools, SaveBar, TField, Toggle, type T } from "./ui";
+import { countMissingEn, emptyT, Field, MediaBox, MissingEn, moveItem, RowTools, SaveBar, TField, Toggle, type T } from "./ui";
 
 type Category = "event" | "training" | "dev";
 type Media = { type: "image" | "video"; src: string; w: number; h: number; poster?: string; pos?: string };
@@ -123,7 +123,10 @@ export default function ProjectsTab() {
               {r.cover?.src && <img src={r.cover.src} alt="" className="h-full w-full object-cover" />}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="truncate font-semibold">{r.title?.ar || r.title?.fr || "بدون عنوان"}</div>
+              <div className="flex items-center gap-2 truncate font-semibold">
+                {r.title?.ar || r.title?.fr || "بدون عنوان"}
+                {countMissingEn(r) > 0 && <span className="shrink-0 rounded-full bg-amber-100 px-2 py-px text-[0.7rem] font-semibold text-amber-800">EN ناقص</span>}
+              </div>
               <div className="truncate text-xs text-black/45" dir="ltr">
                 /projets/{r.slug} · {r.scenes?.length ?? 0} scènes
               </div>
@@ -171,10 +174,10 @@ function Editor({ initial, taken, onClose }: { initial: Row; taken: string[]; on
     const slug = p.slug.trim();
     if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) return setErr("الرابط (slug) يجب أن يحتوي على أحرف لاتينية صغيرة وأرقام وشرطات فقط");
     if (taken.includes(slug)) return setErr("هذا الرابط مستخدم لمشروع آخر");
-    if (!p.title.fr || !p.title.ar) return setErr("العنوان مطلوب باللغتين");
+    if (!p.title.fr || !p.title.ar) return setErr("العنوان مطلوب بالعربية والفرنسية");
     if (!p.cover) return setErr("صورة الغلاف مطلوبة");
     const bad = p.scenes.findIndex((s) => !s.media?.src || !s.title?.fr || !s.title?.ar);
-    if (bad >= 0) return setErr(`المشهد ${bad + 1} يحتاج إلى صورة أو فيديو وعنوان باللغتين`);
+    if (bad >= 0) return setErr(`المشهد ${bad + 1} يحتاج إلى صورة أو فيديو وعنوان بالعربية والفرنسية`);
     setSaving(true);
     try {
       const { id, ...data } = { ...p, slug, cover: { ...p.cover, alt: p.title } };
@@ -227,6 +230,7 @@ function Editor({ initial, taken, onClose }: { initial: Row; taken: string[]; on
         </div>
       </div>
       {err && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{err}</p>}
+      <MissingEn n={countMissingEn(p)} />
 
       <Section title="المعلومات الأساسية">
         <TField label="العنوان" value={p.title} onChange={(v) => setP((x) => ({ ...x, title: v, slug: isNew && (!x.slug || x.slug === slugify(x.title.fr)) ? slugify(v.fr) : x.slug }))} />

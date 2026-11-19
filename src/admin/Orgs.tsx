@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { sb } from "./sb";
 import { saveAndPublish } from "./save";
 import { Section } from "./Projects";
-import { emptyT, Field, MediaBox, moveItem, RowTools, SaveBar, TField, Toggle, type T } from "./ui";
+import { countMissingEn, emptyT, Field, MissingEn, MediaBox, moveItem, RowTools, SaveBar, TField, Toggle, type T } from "./ui";
 
 type Kind = "client" | "partner" | "supplier";
 type Org = { id?: string; kind: Kind; name: string; logo: string; ratio: number; url: string | null; role: T | null; body: T | null; points: unknown; position: number; visible: boolean; category?: string | null };
@@ -69,6 +69,7 @@ export default function OrgsTab() {
       <h1 className="text-2xl font-bold">العملاء والشركاء</h1>
       <p className="mt-1 text-sm text-black/55">الشعارات بخلفية شفافة (PNG أو SVG) تعطي أفضل نتيجة. يُحسب حجم الشعار تلقائياً.</p>
       {err && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{err}</p>}
+      <MissingEn n={countMissingEn(list)} />
 
       {KINDS.map((k) => {
         const items = ofKind(k.id);

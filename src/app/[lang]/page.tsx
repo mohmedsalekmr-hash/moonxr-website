@@ -3,7 +3,7 @@ import { getContent } from "@/lib/content";
 import SectionHeader from "@/components/SectionHeader";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { hasLocale } from "@/data/i18n";
+import { hasLocale, href as pageHref } from "@/data/i18n";
 import { projectTag } from "@/data/projects";
 import Hero3D from "@/components/Hero3D";
 import { Reveal } from "@/components/Media";
@@ -50,7 +50,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 </h1>
                 <p className="mt-4 max-w-md text-[0.95rem] leading-relaxed text-ink/75 md:mt-6 md:text-lg">{ui.hero.sub[lang]}</p>
                 <div className="mt-6 flex flex-wrap gap-3 md:mt-8">
-                  <Link href={`/${lang}/projets`} className="btn btn-sun">
+                  <Link href={`${pageHref(lang, "projets")}`} className="btn btn-sun">
                     {ui.hero.cta1[lang]}
                   </Link>
                   <ExploreButton label={h.explore[lang]} />
@@ -95,7 +95,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           <Showcase
             items={projects.map((p) => ({
               slug: p.slug,
-              href: `/${lang}/projets/${p.slug}`,
+              href: `${pageHref(lang, "projets")}/${p.slug}`,
               image: p.cover.src,
               pos: p.cover.pos,
               tag: projectTag[p.category][lang],
@@ -110,8 +110,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 <h2 className="section-title">{h.workTitle[lang]}</h2>
               </>
             }
-            all={{ href: `/${lang}/projets`, label: ui.work.seeAll[lang] }}
-            hint={lang === "ar" ? "اسحب يميناً أو يساراً لتصفّح المشاريع" : "Glissez vers la gauche ou la droite pour parcourir"}
+            all={{ href: `${pageHref(lang, "projets")}`, label: ui.work.seeAll[lang] }}
+            hint={({ ar: "اسحب يميناً أو يساراً لتصفّح المشاريع", fr: "Glissez vers la gauche ou la droite pour parcourir", en: "Swipe left or right to browse" } as const)[lang]}
           />
 
       </>
@@ -143,14 +143,14 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                   title={h.ecoTitle[lang]}
                   lead={h.ecoSub[lang]}
                   action={
-                    <Link href={`/${lang}/partenaires`} className="btn btn-ghost">
+                    <Link href={`${pageHref(lang, "partenaires")}`} className="btn btn-ghost">
                       {h.ecoCta[lang]}
                     </Link>
                   }
                 />
               </Reveal>
               <Reveal className="mt-8 md:mt-12">
-                <EcoGrid partners={partners} suppliers={suppliers} lang={lang} labels={{ partner: lang === "ar" ? "شريك" : "Partenaire", supplier: ui.partners.suppliers[lang] }} more={{ href: `/${lang}/partenaires#technologies`, label: lang === "ar" ? "كل التقنيات" : "Toutes nos technologies" }} />
+                <EcoGrid partners={partners} suppliers={suppliers} lang={lang} labels={{ partner: ({ ar: "شريك", fr: "Partenaire", en: "Partner" } as const)[lang], supplier: ui.partners.suppliers[lang] }} more={{ href: `${pageHref(lang, "partenaires")}#technologies`, label: ({ ar: "كل التقنيات", fr: "Toutes nos technologies", en: "All our technologies" } as const)[lang] }} />
               </Reveal>
             </div>
           </section>

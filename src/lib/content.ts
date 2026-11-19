@@ -84,6 +84,24 @@ function toOrg(row: OrgRow): Org {
   return o;
 }
 
+/**
+ * Every text the site shows is { fr, ar, en }. Content saved before English existed
+ * (or not translated yet) has no `en`: it is shown in French until the admin fills it in.
+ */
+function fillEnglish<V>(v: V): V {
+  if (Array.isArray(v)) return v.map(fillEnglish) as V;
+  if (!v || typeof v !== "object") return v;
+  const o = v as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const [k, x] of Object.entries(o)) out[k] = fillEnglish(x);
+  if ("fr" in o && "ar" in o) {
+    const en = o.en;
+    const empty = en === undefined || en === null || (typeof en === "string" && !en.trim()) || (Array.isArray(en) && !en.join("").trim());
+    if (empty) out.en = o.fr;
+  }
+  return out as V;
+}
+
 const DEFAULT_HOME: HomeSection[] = ["hero", "about", "work", "process", "ecosystem", "contact"].map((id) => ({ id, visible: true }));
 
 export async function getContent(): Promise<Content> {
@@ -96,7 +114,7 @@ export async function getContent(): Promise<Content> {
   const byKind = (k: OrgRow["kind"], fallback: Org[]) =>
     orgs?.length ? orgs.filter((o) => o.kind === k).map(toOrg) : fallback.map((o) => ({ ...o, points: partnerPoints[o.name] }));
 
-  return {
+  return fillEnglish({
     ui: merge(i18n.ui, get("ui")),
     contact: merge(i18n.CONTACT, get("contact")),
     services: (get("services") as typeof i18n.services) ?? i18n.services,
@@ -108,7 +126,7 @@ export async function getContent(): Promise<Content> {
     clients: byKind("client", local.clients),
     partners: byKind("partner", local.partners),
     suppliers: byKind("supplier", local.suppliers),
-  };
+  });
 }
 
 /** What client components need (kept small: it is sent to the browser). */

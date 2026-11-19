@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { rimg } from "@/lib/img";
 import type { Org, Project } from "@/data/projects";
-import type { Locale, T } from "@/data/i18n";
+import { href as pageHref, LANG, type Locale, type T } from "@/data/i18n";
 import { Fragment } from "react";
 import type React from "react";
 import { Logo, LogoMarquee } from "@/components/Logos";
@@ -109,7 +109,7 @@ export function ClientIndex({ projects, orgs, lang, cta }: { projects: Project[]
         return (
           <li key={p.slug}>
             <Link
-              href={`/${lang}/projets/${p.slug}`}
+              href={`${pageHref(lang, "projets")}/${p.slug}`}
               className="group grid h-full items-center gap-4 overflow-hidden rounded-[var(--radius-sm)] border border-line bg-white p-4 transition-colors lg:grid-cols-[220px_minmax(0,1fr)_200px_auto] lg:gap-8 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-2 lg:py-6 lg:hover:bg-soft"
             >
               <div className="flex h-14 items-center">
@@ -190,10 +190,10 @@ export function TechWall({ orgs, lang }: { orgs: Org[]; lang: Locale }) {
 }
 
 const GROUPS: { id: string; title: T; text: T }[] = [
-  { id: "industry", title: { fr: "Soudage & industrie", ar: "اللحام والصناعة" }, text: { fr: "Des simulateurs pour former aux métiers techniques, sans risque.", ar: "محاكيات لتعليم المهن التقنية، بلا مخاطر." } },
-  { id: "education", title: { fr: "Éducation & santé", ar: "التعليم والصحة" }, text: { fr: "Des cours en VR, de la salle de classe à l'anatomie.", ar: "دروس بالواقع الافتراضي، من الفصل إلى التشريح." } },
-  { id: "safety", title: { fr: "Sécurité", ar: "السلامة" }, text: { fr: "Les bons réflexes, appris en situation simulée.", ar: "ردود الفعل الصحيحة، تُتعلَّم في مواقف محاكاة." } },
-  { id: "platform", title: { fr: "Plateformes", ar: "المنصّات" }, text: { fr: "Pour diffuser et gérer les contenus XR.", ar: "لنشر محتوى XR وإدارته." } },
+  { id: "industry", title: { fr: "Soudage & industrie", ar: "اللحام والصناعة", en: "Welding & industry" }, text: { fr: "Des simulateurs pour former aux métiers techniques, sans risque.", ar: "محاكيات لتعليم المهن التقنية، بلا مخاطر.", en: "Simulators to train for technical trades, with zero risk." } },
+  { id: "education", title: { fr: "Éducation & santé", ar: "التعليم والصحة", en: "Education & health" }, text: { fr: "Des cours en VR, de la salle de classe à l'anatomie.", ar: "دروس بالواقع الافتراضي، من الفصل إلى التشريح.", en: "VR lessons, from the classroom to anatomy." } },
+  { id: "safety", title: { fr: "Sécurité", ar: "السلامة", en: "Safety" }, text: { fr: "Les bons réflexes, appris en situation simulée.", ar: "ردود الفعل الصحيحة، تُتعلَّم في مواقف محاكاة.", en: "The right reflexes, learned in a simulated situation." } },
+  { id: "platform", title: { fr: "Plateformes", ar: "المنصّات", en: "Platforms" }, text: { fr: "Pour diffuser et gérer les contenus XR.", ar: "لنشر محتوى XR وإدارته.", en: "To distribute and manage XR content." } },
 ];
 
 /** Technology suppliers grouped by need: a visitor knows the need before the brand. */
@@ -244,7 +244,7 @@ export function TechMarquee({ orgs, partners, lang }: { orgs: Org[]; partners: O
     const badge = official(o.name);
     return (
       <li aria-hidden={hidden} className="shrink-0 px-2 md:px-3">
-        <div className="relative flex h-52 w-60 flex-col rounded-[var(--radius-lg)] border border-line bg-white p-5 shadow-[0_18px_40px_-34px_rgba(20,36,84,0.5)] transition-all duration-300 hover:-translate-y-1 hover:border-brand/25 hover:shadow-[0_28px_60px_-34px_rgba(20,36,84,0.55)] md:w-72" dir={lang === "ar" ? "rtl" : "ltr"}>
+        <div className="relative flex h-52 w-60 flex-col rounded-[var(--radius-lg)] border border-line bg-white p-5 shadow-[0_18px_40px_-34px_rgba(20,36,84,0.5)] transition-all duration-300 hover:-translate-y-1 hover:border-brand/25 hover:shadow-[0_28px_60px_-34px_rgba(20,36,84,0.55)] md:w-72" dir={LANG[lang].dir}>
           <div className="flex items-center justify-between gap-2">
             <span className="tag !text-[0.65rem]">{label(o.category)}</span>
             {badge && <span className="tag !bg-sun/20 !text-[0.65rem] !text-sun-deep">★</span>}

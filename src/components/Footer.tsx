@@ -1,15 +1,15 @@
 import { getContent } from "@/lib/content";
 import Link from "next/link";
-import { type Locale } from "@/data/i18n";
+import { type Locale, href as pageHref, locales, LANG } from "@/data/i18n";
 
 export default async function Footer({ lang }: { lang: Locale }) {
   const { ui, contact: CONTACT } = await getContent();
   const links = [
-    { href: `/${lang}/projets`, label: ui.nav.projects[lang] },
-    { href: `/${lang}/services`, label: ui.nav.services[lang] },
-    { href: `/${lang}/partenaires`, label: ui.nav.partners[lang] },
-    { href: `/${lang}/a-propos`, label: ui.nav.about[lang] },
-    { href: `/${lang}/contact`, label: ui.nav.contact[lang] },
+    { href: `${pageHref(lang, "projets")}`, label: ui.nav.projects[lang] },
+    { href: `${pageHref(lang, "services")}`, label: ui.nav.services[lang] },
+    { href: `${pageHref(lang, "partenaires")}`, label: ui.nav.partners[lang] },
+    { href: `${pageHref(lang, "a-propos")}`, label: ui.nav.about[lang] },
+    { href: `${pageHref(lang, "contact")}`, label: ui.nav.contact[lang] },
   ];
   return (
     <footer className="bg-white text-ink">
@@ -31,9 +31,13 @@ export default async function Footer({ lang }: { lang: Locale }) {
               </Link>
             ))}
           </nav>
-          <Link href={lang === "fr" ? "/ar" : "/fr"} hrefLang={lang === "fr" ? "ar" : "fr"} className="w-fit rounded-full border border-ink/15 px-4 py-2 text-sm text-ink/75 hover:border-ink/40 hover:text-ink">
-            {lang === "fr" ? "العربية" : "Français"}
-          </Link>
+          <div className="flex w-fit gap-2">
+            {locales.filter((l) => l !== lang).map((l) => (
+              <Link key={l} href={pageHref(l)} hrefLang={l} lang={l} className="rounded-full border border-ink/15 px-4 py-2 text-sm text-ink/75 hover:border-ink/40 hover:text-ink">
+                {LANG[l].name}
+              </Link>
+            ))}
+          </div>
         </div>
         <div className="flex flex-col gap-2 border-t border-line py-6 text-xs text-ink/45 md:flex-row md:justify-between">
           <span>© 2026 Moon Technology · {ui.footer.tag[lang]}</span>

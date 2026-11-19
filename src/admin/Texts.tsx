@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ui as defUi } from "@/data/i18n";
 import { aboutPage, partnersPage } from "@/data/pages";
 import { Section } from "./Projects";
-import { SaveBar, TField, type T } from "./ui";
+import { ADMIN_LANGS, countMissingEn, MissingEn, SaveBar, TField, type T } from "./ui";
 import { useContentKey } from "./useContent";
 
 type UI = typeof defUi;
@@ -66,7 +66,8 @@ export default function TextsTab() {
   return (
     <div>
       <h1 className="text-2xl font-bold">نصوص الموقع</h1>
-      <p className="mt-1 text-sm text-black/55">كل النصوص بالعربية والفرنسية. التصميم ثابت، فالنص الطويل جداً قد يبدو مزدحماً.</p>
+      <p className="mt-1 text-sm text-black/55">كل النصوص بالعربية والفرنسية والإنجليزية. الخانة الإنجليزية الفارغة تظهر بالبرتقالي، ويعرض الموقع مكانها النص الفرنسي. التصميم ثابت، فالنص الطويل جداً قد يبدو مزدحماً.</p>
+      <MissingEn n={countMissingEn([c.value, about.value, pp.value])} />
       {all.map((x) => x.err).find(Boolean) && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{all.map((x) => x.err).find(Boolean)}</p>}
 
       <div className="mt-6 flex flex-wrap gap-2">
@@ -128,7 +129,7 @@ export default function TextsTab() {
           {Object.entries(g.fields).map(([k, label]) =>
             ui[g.id]?.[k] ? <TField key={k} label={label} multi={(ui[g.id][k].fr ?? "").length > 70} value={ui[g.id][k]} onChange={(v) => setField(g.id, k, v)} /> : null,
           )}
-          {g.id === "contact" && <TypesField value={ui.contact.types as unknown as { fr: string[]; ar: string[] }} onChange={(v) => c.setValue({ ...c.value!, contact: { ...c.value!.contact, types: v } } as unknown as UI)} />}
+          {g.id === "contact" && <TypesField value={ui.contact.types as unknown as Lines} onChange={(v) => c.setValue({ ...c.value!, contact: { ...c.value!.contact, types: v } } as unknown as UI)} />}
         </Section>
       ))}
 
@@ -143,16 +144,25 @@ export default function TextsTab() {
 }
 
 /** The project types offered in the contact form, one per line. */
-function TypesField({ value, onChange, label = "أنواع المشاريع في النموذج" }: { value: { readonly fr: readonly string[]; readonly ar: readonly string[] }; onChange: (v: { fr: string[]; ar: string[] }) => void; label?: string }) {
+type Lines = { fr: string[]; ar: string[]; en: string[] };
+function TypesField({ value, onChange, label = "أنواع المشاريع في النموذج" }: { value: { readonly fr: readonly string[]; readonly ar: readonly string[]; readonly en?: readonly string[] }; onChange: (v: Lines) => void; label?: string }) {
   const lines = (s: string) => s.split("\n");
+  const cur: Lines = { fr: [...value.fr], ar: [...value.ar], en: [...(value.en ?? [])] };
   return (
     <div>
       <div className="mb-1.5 text-sm font-semibold">
         {label} <span className="text-xs font-normal text-black/45">نوع في كل سطر</span>
       </div>
-      <div className="grid gap-2 md:grid-cols-2">
-        <textarea dir="rtl" rows={4} className="inp" value={value.ar.join("\n")} onChange={(e) => onChange({ fr: [...value.fr], ar: lines(e.target.value) })} />
-        <textarea dir="ltr" rows={4} className="inp" value={value.fr.join("\n")} onChange={(e) => onChange({ ar: [...value.ar], fr: lines(e.target.value) })} />
+      <div className="grid gap-2 md:grid-cols-3">
+        {ADMIN_LANGS.map((l) => {
+          const empty = l.k === "en" && cur.en.join("").trim() === "";
+          return (
+            <label key={l.k} className="block">
+              <span className={`mb-1 block text-[0.7rem] font-semibold ${empty ? "text-amber-700" : "text-black/40"}`}>{l.name}{empty && " — ناقص"}</span>
+              <textarea dir={l.dir} rows={4} className={`inp ${empty ? "!border-amber-400 !bg-amber-50/60" : ""}`} value={cur[l.k].join("\n")} onChange={(e) => onChange({ ...cur, [l.k]: lines(e.target.value) })} />
+            </label>
+          );
+        })}
       </div>
     </div>
   );

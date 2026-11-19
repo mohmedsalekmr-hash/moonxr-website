@@ -19,7 +19,7 @@ export default async function CTA({ lang }: { lang: Locale; fade?: boolean }) {
               kicker={ui.nav.contact[lang]}
               title={ui.cta.title[lang]}
               lead={ui.cta.sub[lang]}
-              ask={lang === "fr" ? "Que préparez-vous ?" : "ماذا تحضّرون؟"}
+              ask={({ fr: "Que préparez-vous ?", ar: "ماذا تحضّرون؟", en: "What are you planning?" } as const)[lang]}
               types={[...ui.contact.types[lang]]}
               email={CONTACT.email}
               phone={CONTACT.phone}

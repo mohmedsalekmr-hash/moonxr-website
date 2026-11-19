@@ -2,7 +2,7 @@
 
 import { services as defServices, steps as defSteps } from "@/data/i18n";
 import { Section } from "./Projects";
-import { moveItem, RowTools, SaveBar, TField, Toggle } from "./ui";
+import { countMissingEn, MissingEn, moveItem, RowTools, SaveBar, TField, Toggle } from "./ui";
 import { useContentKey } from "./useContent";
 
 const LABELS: Record<string, { name: string; sub: string }> = {
@@ -36,6 +36,7 @@ export default function HomeTab() {
       <h1 className="text-2xl font-bold">الصفحة الرئيسية</h1>
       <p className="mt-1 text-sm text-black/55">رتّب الأقسام، أو أخفِ ما لا تريده، وعدّل الخدمات والخطوات. نصوص العناوين في تبويب «نصوص الموقع».</p>
       {err && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{err}</p>}
+      <MissingEn n={countMissingEn([sv, st])} />
 
       <Section title="ترتيب الأقسام">
         <div className="space-y-2">

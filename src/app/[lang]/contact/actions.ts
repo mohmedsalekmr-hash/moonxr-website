@@ -19,7 +19,7 @@ export async function sendRequest(form: FormData): Promise<SendResult> {
     phone: cut(form.get("phone"), 40) || null,
     kind: cut(form.get("type"), 120) || null,
     message: cut(form.get("message"), 5000),
-    lang: form.get("lang") === "ar" ? "ar" : "fr",
+    lang: ["ar", "en"].includes(String(form.get("lang"))) ? String(form.get("lang")) : "fr",
   };
   if (row.name.length < 2 || row.message.length < 5 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(row.email)) {
     return { ok: false, reason: "invalid" };

@@ -1,9 +1,11 @@
+import { alternates } from "@/lib/seo";
+import type { Locale } from "@/data/i18n";
 import { getContent } from "@/lib/content";
 import { rimg } from "@/lib/img";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { hasLocale } from "@/data/i18n";
+import { hasLocale, href } from "@/data/i18n";
 import type { Category } from "@/data/projects";
 import PageHead from "@/components/PageHead";
 import SectionHeader from "@/components/SectionHeader";
@@ -15,17 +17,17 @@ import Page from "@/components/Page";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/services">): Promise<Metadata> {
   const { lang } = await params;
-  return { title: lang === "ar" ? "خدماتنا" : "Services" };
+  return { title: ({ ar: "خدماتنا", fr: "Services", en: "Services" } as const)[lang as "fr"], alternates: alternates(lang as Locale, "services") };
 }
 
 const T = {
-  title: { fr: "Ce que nous faisons pour vous.", ar: "ما نقدّمه لكم." },
+  title: { fr: "Ce que nous faisons pour vous.", ar: "ما نقدّمه لكم.", en: "What we do for you." },
   sub: {
     fr: "Quatre services, du premier échange jusqu'au suivi sur place.",
-    ar: "أربع خدمات، من أول لقاء حتى المتابعة في الموقع.",
+    ar: "أربع خدمات، من أول لقاء حتى المتابعة في الموقع.", en: "Four services, from the first conversation to on-site follow-up.",
   },
-  seen: { fr: "Dans nos projets", ar: "في مشاريعنا" },
-  soon: { fr: "En développement", ar: "قيد التطوير" },
+  seen: { fr: "Dans nos projets", ar: "في مشاريعنا", en: "In our projects" },
+  soon: { fr: "En développement", ar: "قيد التطوير", en: "In development" },
 };
 
 /** Which projects show each service (by order of the four services). */
@@ -71,7 +73,7 @@ export default async function ServicesPage({ params }: PageProps<"/[lang]/servic
                         <ul className="mt-3 flex flex-wrap gap-2">
                           {related.map((p) => (
                             <li key={p.slug}>
-                              <Link href={`/${lang}/projets/${p.slug}`} className="group inline-flex items-center gap-2 rounded-full border border-line bg-white py-1.5 pe-3 ps-1.5 text-sm transition-colors hover:border-brand/30 hover:bg-brand-soft">
+                              <Link href={`${href(lang, "projets")}/${p.slug}`} className="group inline-flex items-center gap-2 rounded-full border border-line bg-white py-1.5 pe-3 ps-1.5 text-sm transition-colors hover:border-brand/30 hover:bg-brand-soft">
                                 <img {...rimg(p.cover.src, "60px")} alt="" loading="lazy" style={{ objectPosition: p.cover.pos }} className="h-7 w-7 rounded-full object-cover" />
                                 {p.title[lang]}
                                 <span className="text-ink/40 transition-transform group-hover:translate-x-0.5 rtl:rotate-180">→</span>

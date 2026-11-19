@@ -3,10 +3,39 @@
 import { useRef, useState } from "react";
 import { uploadMedia, type Uploaded } from "./media";
 
-export type T = { fr: string; ar: string };
-export const emptyT = (): T => ({ fr: "", ar: "" });
+export type T = { fr: string; ar: string; en: string };
+export const emptyT = (): T => ({ fr: "", ar: "", en: "" });
 
-/** A French + Arabic text pair, side by side. */
+/** The admin edits every text in the site's three languages, in this order. */
+export const ADMIN_LANGS = [
+  { k: "ar", name: "العربية", dir: "rtl" },
+  { k: "fr", name: "Français", dir: "ltr" },
+  { k: "en", name: "English", dir: "ltr" },
+] as const;
+
+/** True when a text has Arabic or French but no English yet. */
+export const missingEn = (v?: Partial<T> | null) => !!v && !!(v.fr || v.ar) && !(v.en ?? "").trim();
+
+/** How many texts inside a project / list / page still have no English. */
+export function countMissingEn(v: unknown): number {
+  if (Array.isArray(v)) return v.reduce((n: number, x) => n + countMissingEn(x), 0);
+  if (!v || typeof v !== "object") return 0;
+  const o = v as Record<string, unknown>;
+  const self = typeof o.fr === "string" && typeof o.ar === "string" && missingEn(o as Partial<T>) ? 1 : 0;
+  return self + Object.values(o).reduce((n: number, x) => n + countMissingEn(x), 0);
+}
+
+/** Amber notice listing the texts still missing in English (they show in French meanwhile). */
+export function MissingEn({ n }: { n: number }) {
+  if (!n) return null;
+  return (
+    <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 ring-1 ring-amber-200">
+      {n === 1 ? "نص واحد" : `${n} نصوص`} بدون ترجمة إنجليزية (الخانات البرتقالية). يظهر مكانها النص الفرنسي في النسخة الإنجليزية من الموقع إلى أن تكتبها.
+    </p>
+  );
+}
+
+/** One text in Arabic, French and English, side by side. An empty English box is marked. */
 export function TField({ label, value, onChange, multi, hint }: { label: string; value?: T | null; onChange: (v: T) => void; multi?: boolean; hint?: string }) {
   const v = value ?? emptyT();
   const Tag = multi ? "textarea" : "input";
@@ -16,15 +45,25 @@ export function TField({ label, value, onChange, multi, hint }: { label: string;
         {label}
         {hint && <span className="text-xs font-normal text-black/45">{hint}</span>}
       </div>
-      <div className="grid gap-2 md:grid-cols-2">
-        <label className="block">
-          <span className="mb-1 block text-[0.7rem] font-semibold text-black/40">العربية</span>
-          <Tag dir="rtl" rows={multi ? 3 : undefined} className="inp" value={v.ar} onChange={(e) => onChange({ ...v, ar: e.target.value })} />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-[0.7rem] font-semibold text-black/40">Français</span>
-          <Tag dir="ltr" rows={multi ? 3 : undefined} className="inp" value={v.fr} onChange={(e) => onChange({ ...v, fr: e.target.value })} />
-        </label>
+      <div className="grid gap-2 md:grid-cols-3">
+        {ADMIN_LANGS.map((l) => {
+          const empty = l.k === "en" && missingEn(v);
+          return (
+            <label key={l.k} className="block">
+              <span className={`mb-1 flex items-center gap-1.5 text-[0.7rem] font-semibold ${empty ? "text-amber-700" : "text-black/40"}`}>
+                {l.name}
+                {empty && <span className="rounded-full bg-amber-100 px-1.5 py-px text-[0.65rem]">ناقص — يظهر بالفرنسية</span>}
+              </span>
+              <Tag
+                dir={l.dir}
+                rows={multi ? 4 : undefined}
+                className={`inp ${empty ? "!border-amber-400 !bg-amber-50/60" : ""}`}
+                value={v[l.k] ?? ""}
+                onChange={(e) => onChange({ ...emptyT(), ...v, [l.k]: e.target.value })}
+              />
+            </label>
+          );
+        })}
       </div>
     </div>
   );

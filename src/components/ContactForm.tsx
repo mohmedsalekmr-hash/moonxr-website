@@ -5,13 +5,13 @@ import { type Locale } from "@/data/i18n";
 import { sendRequest } from "@/app/[lang]/contact/actions";
 
 const T = {
-  sending: { fr: "Envoi…", ar: "جارٍ الإرسال…" },
-  done: { fr: "Merci, votre demande est bien reçue.", ar: "شكراً، وصلنا طلبكم." },
-  doneSub: { fr: "Nous vous répondons sous 48 h.", ar: "سنرد عليكم خلال 48 ساعة." },
-  again: { fr: "Envoyer une autre demande", ar: "إرسال طلب آخر" },
-  invalid: { fr: "Vérifiez le nom, l'e-mail et le message.", ar: "تأكدوا من الاسم والبريد والرسالة." },
-  flood: { fr: "Trop d'envois en peu de temps. Réessayez plus tard ou écrivez-nous directement.", ar: "طلبات كثيرة في وقت قصير. حاولوا لاحقاً أو راسلونا مباشرة." },
-  server: { fr: "L'envoi n'a pas abouti. Écrivez-nous directement :", ar: "لم يكتمل الإرسال. راسلونا مباشرة:" },
+  sending: { fr: "Envoi…", ar: "جارٍ الإرسال…", en: "Sending…" },
+  done: { fr: "Merci, votre demande est bien reçue.", ar: "شكراً، وصلنا طلبكم.", en: "Thank you, we have received your request." },
+  doneSub: { fr: "Nous vous répondons sous 48 h.", ar: "سنرد عليكم خلال 48 ساعة.", en: "We will get back to you within 48 hours." },
+  again: { fr: "Envoyer une autre demande", ar: "إرسال طلب آخر", en: "Send another request" },
+  invalid: { fr: "Vérifiez le nom, l'e-mail et le message.", ar: "تأكدوا من الاسم والبريد والرسالة.", en: "Please check your name, email and message." },
+  flood: { fr: "Trop d'envois en peu de temps. Réessayez plus tard ou écrivez-nous directement.", ar: "طلبات كثيرة في وقت قصير. حاولوا لاحقاً أو راسلونا مباشرة.", en: "Too many requests in a short time. Try again later or write to us directly." },
+  server: { fr: "L'envoi n'a pas abouti. Écrivez-nous directement :", ar: "لم يكتمل الإرسال. راسلونا مباشرة:", en: "Your message could not be sent. Write to us directly:" },
 };
 
 /** Contact form: the request is saved in the Moon XR back office (tab «الطلبات»). */

@@ -1,3 +1,5 @@
+import { alternates } from "@/lib/seo";
+import type { Locale } from "@/data/i18n";
 import { getContent } from "@/lib/content";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -8,14 +10,14 @@ import ContactList from "@/components/ContactList";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/contact">): Promise<Metadata> {
   const { lang } = await params;
-  return { title: lang === "ar" ? "تواصل معنا" : "Contact" };
+  return { title: ({ ar: "تواصل معنا", fr: "Contact", en: "Contact" } as const)[lang as "fr"], alternates: alternates(lang as Locale, "contact") };
 }
 
 const T = {
-  next: { fr: "Comment ça se passe", ar: "كيف نعمل معكم" },
-  call: { fr: "Appeler", ar: "اتصال" },
-  mail: { fr: "E-mail", ar: "البريد" },
-  form: { fr: "Votre demande", ar: "طلبكم" },
+  next: { fr: "Comment ça se passe", ar: "كيف نعمل معكم", en: "How it works" },
+  call: { fr: "Appeler", ar: "اتصال", en: "Call" },
+  mail: { fr: "E-mail", ar: "البريد", en: "Email" },
+  form: { fr: "Votre demande", ar: "طلبكم", en: "Your request" },
 };
 
 export default async function ContactPage({ params }: PageProps<"/[lang]/contact">) {

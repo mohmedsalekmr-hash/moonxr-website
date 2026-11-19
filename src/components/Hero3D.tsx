@@ -583,7 +583,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
     return () => window.removeEventListener("keydown", onKey);
   }, [explore, move, rtl]);
 
-  const t = (v: { fr: string; ar: string }) => v[lang];
+  const t = (v: { fr: string; ar: string; en?: string }) => v[lang] ?? v.fr;
 
   return (
     <div className="absolute inset-0" dir="ltr">
@@ -651,7 +651,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
                 <div className="mt-1 hidden text-sm text-white/60 md:block">{t(explorer.help)}</div>
               </div>
               <button type="button" onClick={exit} className="pointer-events-auto btn btn-line btn-sm">
-                ✕ {lang === "fr" ? "Fermer" : "إغلاق"}
+                ✕ {({ fr: "Fermer", ar: "إغلاق", en: "Close" } as const)[lang]}
               </button>
             </div>
           </div>
@@ -677,7 +677,7 @@ export default function Hero3D({ rtl = false, lang }: { rtl?: boolean; lang: Loc
 
                 {!step && tour ? (
                   <div className="mt-4 flex items-center justify-between gap-3 text-xs text-white/60">
-                    <span>{lang === "fr" ? "Visite guidée…" : "جولة إرشادية…"}</span>
+                    <span>{({ fr: "Visite guidée…", ar: "جولة إرشادية…", en: "Guided tour…" } as const)[lang]}</span>
                     <button type="button" onClick={() => setTour(false)} className="font-semibold hover:text-white">❚❚ {t(explorer.stop)}</button>
                   </div>
                 ) : !step && !tour ? (

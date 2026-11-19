@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { type Locale } from "@/data/i18n";
+import { type Locale, href as pageHref } from "@/data/i18n";
 
 type Props = {
   lang: Locale;
@@ -18,15 +18,15 @@ type Props = {
 };
 
 const T = {
-  write: { fr: "Écrire pour", ar: "اكتب لنا عن" },
-  wa: { fr: "WhatsApp", ar: "واتساب" },
-  waSub: { fr: "La réponse la plus rapide", ar: "أسرع طريقة للرد" },
-  mailSub: { fr: "Écrire un e-mail", ar: "راسلنا بالبريد" },
-  copy: { fr: "Copier l'adresse", ar: "نسخ العنوان" },
-  copied: { fr: "Copié", ar: "تم النسخ" },
-  call: { fr: "Appeler directement", ar: "اتصل مباشرة" },
-  local: { fr: "heure locale", ar: "بالتوقيت المحلي" },
-  hello: { fr: "Bonjour Moon XR, je vous contacte au sujet de :", ar: "مرحباً Moon XR، أتواصل معكم بخصوص:" },
+  write: { fr: "Écrire pour", ar: "اكتب لنا عن", en: "Write about" },
+  wa: { fr: "WhatsApp", ar: "واتساب", en: "WhatsApp" },
+  waSub: { fr: "La réponse la plus rapide", ar: "أسرع طريقة للرد", en: "The fastest reply" },
+  mailSub: { fr: "Écrire un e-mail", ar: "راسلنا بالبريد", en: "Send an email" },
+  copy: { fr: "Copier l'adresse", ar: "نسخ العنوان", en: "Copy address" },
+  copied: { fr: "Copié", ar: "تم النسخ", en: "Copied" },
+  call: { fr: "Appeler directement", ar: "اتصل مباشرة", en: "Call directly" },
+  local: { fr: "heure locale", ar: "بالتوقيت المحلي", en: "local time" },
+  hello: { fr: "Bonjour Moon XR, je vous contacte au sujet de :", ar: "مرحباً Moon XR، أتواصل معكم بخصوص:", en: "Hello Moon XR, I am contacting you about:" },
 };
 
 const I = {
@@ -50,7 +50,7 @@ function Ico({ d, className = "h-5 w-5" }: { d: string; className?: string }) {
 function Clock({ lang }: { lang: Locale }) {
   const [now, setNow] = useState<string | null>(null);
   useEffect(() => {
-    const fmt = new Intl.DateTimeFormat(lang === "fr" ? "fr-FR" : "ar-MA", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Nouakchott", hour12: false });
+    const fmt = new Intl.DateTimeFormat(({ fr: "fr-FR", ar: "ar-MA", en: "en-GB" } as const)[lang], { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Nouakchott", hour12: false });
     const tick = () => setNow(fmt.format(new Date()));
     tick();
     const id = setInterval(tick, 15000);
@@ -118,7 +118,7 @@ export default function CTAPanel(p: Props) {
             </button>
           ))}
         </div>
-        <Link href={`/${lang}/contact?type=${pick}`} className="btn btn-sun mt-6 inline-flex items-center gap-2">
+        <Link href={`${pageHref(lang, "contact")}?type=${pick}`} className="btn btn-sun mt-6 inline-flex items-center gap-2">
           <span>
             {T.write[lang]}{lang === "fr" ? " : " : ": "}<span className="font-bold">{need}</span>
           </span>

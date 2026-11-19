@@ -1,10 +1,11 @@
+import { alternates } from "@/lib/seo";
 import { getContent } from "@/lib/content";
 import type { Metadata } from "next";
 import Link from "next/link";
 import CTA from "@/components/CTA";
 import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
-import { hasLocale, locales } from "@/data/i18n";
+import { hasLocale, locales, href } from "@/data/i18n";
 import { EndTakeover } from "@/components/ProjectEnd";
 
 import { ScrollStory } from "@/components/Story";
@@ -30,15 +31,16 @@ export async function generateMetadata({
   return {
     title: p.title[lang],
     description: p.intro[lang],
+    alternates: alternates(lang, "projets", slug),
     openGraph: { images: [p.cover.src] },
   };
 }
 
 const L = {
-  sound: { fr: "Activer le son", ar: "تشغيل الصوت" },
-  mute: { fr: "Couper le son", ar: "كتم الصوت" },
-  hintDesk: { fr: "Faites défiler pour la suite", ar: "انزل لمشاهدة البقية" },
-  hintTouch: { fr: "Glissez vers le haut", ar: "اسحب للأعلى" },
+  sound: { fr: "Activer le son", ar: "تشغيل الصوت", en: "Turn sound on" },
+  mute: { fr: "Couper le son", ar: "كتم الصوت", en: "Mute" },
+  hintDesk: { fr: "Faites défiler pour la suite", ar: "انزل لمشاهدة البقية", en: "Scroll to continue" },
+  hintTouch: { fr: "Glissez vers le haut", ar: "اسحب للأعلى", en: "Swipe up" },
 };
 
 /**
@@ -70,7 +72,7 @@ export default async function ProjectPage({
             opening={
               <>
                 <nav className="flex flex-wrap items-center gap-2 text-xs text-ink/60" aria-label="Breadcrumb">
-                  <Link href={`/${lang}/projets`} className="hover:text-ink">{ui.nav.projects[lang]}</Link>
+                  <Link href={`${href(lang, "projets")}`} className="hover:text-ink">{ui.nav.projects[lang]}</Link>
                   <span>/</span>
                   <span className="text-brand">{p.meta[lang]}</span>
                 </nav>

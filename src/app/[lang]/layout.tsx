@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Sora, Inter, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "../globals.css";
-import { hasLocale, locales } from "@/data/i18n";
+import { hasLocale, locales, LANG } from "@/data/i18n";
+import { alternates } from "@/lib/seo";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
@@ -19,18 +20,30 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Promise<Metadata> {
   const { lang } = await params;
-  const ar = lang === "ar";
+  const l = hasLocale(lang) ? lang : "fr";
   const host = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
   return {
     metadataBase: new URL(host ? `https://${host}` : "http://localhost:3000"),
     title: {
-      default: ar ? "Moon XR — الواقع الافتراضي في موريتانيا" : "Moon XR — La réalité virtuelle en Mauritanie",
+      default: {
+        fr: "Moon XR — La réalité virtuelle en Mauritanie",
+        ar: "Moon XR — الواقع الافتراضي في موريتانيا",
+        en: "Moon XR — Virtual reality in Mauritania",
+      }[l],
       template: "%s · Moon XR",
     },
-    description: ar
-      ? "قسم التقنيات التفاعلية في Moon Technology: فعاليات الواقع الافتراضي، ومحاكيات التدريب، والمرافقة في الموقع."
-      : "Division technologie immersive de Moon Technology : événements VR, simulateurs de formation et accompagnement sur site, à Nouakchott.",
-    openGraph: { type: "website", siteName: "Moon XR", locale: ar ? "ar_MR" : "fr_MR" },
+    description: {
+      fr: "Division technologie immersive de Moon Technology : événements VR, simulateurs de formation et accompagnement sur site, à Nouakchott.",
+      ar: "قسم التقنيات التفاعلية في Moon Technology: فعاليات الواقع الافتراضي، ومحاكيات التدريب، والمرافقة في الموقع.",
+      en: "The immersive technology division of Moon Technology: VR events, training simulators and on-site support, in Nouakchott.",
+    }[l],
+    alternates: alternates(l),
+    openGraph: {
+      type: "website",
+      siteName: "Moon XR",
+      locale: LANG[l].og,
+      alternateLocale: locales.filter((x) => x !== l).map((x) => LANG[x].og),
+    },
     twitter: { card: "summary_large_image" },
   };
 }
@@ -42,9 +55,9 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   if (!hasLocale(lang)) notFound();
   const { ui, contact } = await getContent();
   return (
-    <html lang={lang} dir={lang === "ar" ? "rtl" : "ltr"} translate="no" className={`${sora.variable} ${inter.variable} ${arabic.variable}`} suppressHydrationWarning>
+    <html lang={LANG[lang].html} dir={LANG[lang].dir} translate="no" className={`${sora.variable} ${inter.variable} ${arabic.variable}`} suppressHydrationWarning>
       <head>
-        {/* the site is already in French and Arabic: no "Translate this page?" prompt from the browser */}
+        {/* the site is already in French, Arabic and English: no "Translate this page?" prompt from the browser */}
         <meta name="google" content="notranslate" />
         {/* the intro animation plays once per visit */}
         <script

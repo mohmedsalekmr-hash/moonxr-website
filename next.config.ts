@@ -29,6 +29,13 @@ const SECURITY_HEADERS = [
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
 ];
 
+/** French folder name → English address. Keep in step with SLUGS in src/data/i18n.ts. */
+const EN_PAGES = [
+  ["projets", "projects"],
+  ["partenaires", "partners"],
+  ["a-propos", "about"],
+] as const;
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   turbopack: {
@@ -40,7 +47,15 @@ const nextConfig: NextConfig = {
     },
   },
   async redirects() {
-    return [{ source: "/", destination: "/fr", permanent: false }];
+    return [
+      { source: "/", destination: "/fr", permanent: false },
+      // English visitors always see English addresses (/en/projects, not /en/projets)
+      ...EN_PAGES.map(([fr, en]) => ({ source: `/en/${fr}/:rest*`, destination: `/en/${en}/:rest*`, permanent: true })),
+    ];
+  },
+  async rewrites() {
+    // the English addresses are served by the same pages as French and Arabic
+    return EN_PAGES.map(([fr, en]) => ({ source: `/en/${en}/:rest*`, destination: `/en/${fr}/:rest*` }));
   },
   async headers() {
     return [

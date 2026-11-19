@@ -4,7 +4,8 @@ import { useShared } from "@/components/ContentProvider";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { type Locale } from "@/data/i18n";
+import LangSwitch from "@/components/LangSwitch";
+import { type Locale, href as pageHref } from "@/data/i18n";
 
 export default function Header({ lang }: { lang: Locale }) {
   const { ui } = useShared();
@@ -34,14 +35,11 @@ export default function Header({ lang }: { lang: Locale }) {
     return () => window.removeEventListener("mx-studio", on);
   }, []);
 
-  const other: Locale = lang === "fr" ? "ar" : "fr";
-  const switchHref = pathname.replace(/^\/(fr|ar)(?=\/|$)/, `/${other}`);
-
   const links = [
-    { href: `/${lang}/projets`, label: ui.nav.projects[lang] },
-    { href: `/${lang}/services`, label: ui.nav.services[lang] },
-    { href: `/${lang}/partenaires`, label: ui.nav.partners[lang] },
-    { href: `/${lang}/a-propos`, label: ui.nav.about[lang] },
+    { href: `${pageHref(lang, "projets")}`, label: ui.nav.projects[lang] },
+    { href: `${pageHref(lang, "services")}`, label: ui.nav.services[lang] },
+    { href: `${pageHref(lang, "partenaires")}`, label: ui.nav.partners[lang] },
+    { href: `${pageHref(lang, "a-propos")}`, label: ui.nav.about[lang] },
   ];
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
@@ -78,15 +76,8 @@ export default function Header({ lang }: { lang: Locale }) {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link
-            href={switchHref}
-            hrefLang={other}
-            className="rounded-full border border-ink/15 px-3 py-1.5 text-sm font-semibold text-ink/75 hover:border-ink/40 hover:text-ink"
-            aria-label={other === "ar" ? "العربية" : "Français"}
-          >
-            {other === "ar" ? "عربي" : "FR"}
-          </Link>
-          <Link href={`/${lang}/contact`} className="btn btn-sun hidden !py-2.5 md:inline-flex">
+          <LangSwitch lang={lang} />
+          <Link href={`${pageHref(lang, "contact")}`} className="btn btn-sun hidden !py-2.5 md:inline-flex">
             {ui.nav.contact[lang]}
           </Link>
           <button
@@ -119,7 +110,7 @@ export default function Header({ lang }: { lang: Locale }) {
               {l.label}
             </Link>
           ))}
-          <Link href={`/${lang}/contact`} onClick={() => setOpen(false)} className="btn btn-sun mt-3 justify-center">
+          <Link href={`${pageHref(lang, "contact")}`} onClick={() => setOpen(false)} className="btn btn-sun mt-3 justify-center">
             {ui.nav.contact[lang]}
           </Link>
         </nav>

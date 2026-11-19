@@ -1,3 +1,5 @@
+import { alternates } from "@/lib/seo";
+import type { Locale } from "@/data/i18n";
 import { getContent } from "@/lib/content";
 import type { Metadata } from "next";
 import SectionHeader from "@/components/SectionHeader";
@@ -12,7 +14,7 @@ import PageHead from "@/components/PageHead";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/partenaires">): Promise<Metadata> {
   const { lang } = await params;
-  return { title: lang === "ar" ? "شركاؤنا" : "Partenaires" };
+  return { title: ({ ar: "شركاؤنا", fr: "Partenaires", en: "Partners" } as const)[lang as "fr"], alternates: alternates(lang as Locale, "partenaires") };
 }
 
 

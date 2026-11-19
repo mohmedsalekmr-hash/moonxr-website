@@ -1,29 +1,31 @@
+import { alternates } from "@/lib/seo";
+import type { Locale } from "@/data/i18n";
 import { getContent } from "@/lib/content";
 import { rimg } from "@/lib/img";
 import type { Metadata } from "next";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
 import { notFound } from "next/navigation";
-import { hasLocale } from "@/data/i18n";
+import { hasLocale, href } from "@/data/i18n";
 import { Reveal } from "@/components/Media";
 import CTA from "@/components/CTA";
 import Page from "@/components/Page";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/a-propos">): Promise<Metadata> {
   const { lang } = await params;
-  return { title: lang === "ar" ? "من نحن" : "À propos" };
+  return { title: ({ ar: "من نحن", fr: "À propos", en: "About" } as const)[lang as "fr"], alternates: alternates(lang as Locale, "a-propos") };
 }
 
 const T = {
-  numbers: { fr: "Moon XR en bref", ar: "Moon XR باختصار" },
-  projects: { fr: "projets livrés", ar: "مشاريع منفّذة" },
-  suppliers: { fr: "fournisseurs technologiques", ar: "مزوّدي تقنيات" },
-  partners: { fr: "partenaires", ar: "شركاء" },
-  since: { fr: "premiers projets", ar: "أولى المشاريع" },
-  pathK: { fr: "Notre parcours", ar: "مسيرتنا" },
-  pathT: { fr: "Chaque projet, une étape.", ar: "كل مشروع خطوة." },
-  dev: { fr: "En développement", ar: "قيد التطوير" },
-  all: { fr: "Tous les projets", ar: "كل المشاريع" },
+  numbers: { fr: "Moon XR en bref", ar: "Moon XR باختصار", en: "Moon XR at a glance" },
+  projects: { fr: "projets livrés", ar: "مشاريع منفّذة", en: "projects delivered" },
+  suppliers: { fr: "fournisseurs technologiques", ar: "مزوّدي تقنيات", en: "technology suppliers" },
+  partners: { fr: "partenaires", ar: "شركاء", en: "partners" },
+  since: { fr: "premiers projets", ar: "أولى المشاريع", en: "first projects" },
+  pathK: { fr: "Notre parcours", ar: "مسيرتنا", en: "Our journey" },
+  pathT: { fr: "Chaque projet, une étape.", ar: "كل مشروع خطوة.", en: "Every project, a milestone." },
+  dev: { fr: "En développement", ar: "قيد التطوير", en: "In development" },
+  all: { fr: "Tous les projets", ar: "كل المشاريع", en: "All projects" },
 };
 
 export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos">) {
@@ -62,7 +64,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
             {mosaic.map((p, i) => (
               <Link
                 key={p.slug}
-                href={`/${lang}/projets/${p.slug}`}
+                href={`${href(lang, "projets")}/${p.slug}`}
                 className={`group relative overflow-hidden rounded-[var(--radius-lg)] bg-navy ${i === 0 ? "row-span-2" : ""}`}
               >
                 <img {...rimg(p.cover.src, i === 0 ? "(min-width: 1024px) 30vw, 50vw" : "(min-width: 1024px) 25vw, 50vw")} alt={p.cover.alt[lang]} loading={i === 0 ? "eager" : "lazy"} style={{ objectPosition: p.cover.pos }} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -78,7 +80,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
       <section className="py-16 md:py-24">
         <div className="wrap">
           <Reveal>
-            <SectionHeader kicker={T.pathK[lang]} title={T.pathT[lang]} action={<Link href={`/${lang}/projets`} className="btn btn-ghost">{T.all[lang]}</Link>} />
+            <SectionHeader kicker={T.pathK[lang]} title={T.pathT[lang]} action={<Link href={`${href(lang, "projets")}`} className="btn btn-ghost">{T.all[lang]}</Link>} />
           </Reveal>
           <div className="mt-12 space-y-10 md:mt-16">
             {years.map((y) => (
@@ -87,7 +89,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
                 <ul className="grid gap-3 sm:grid-cols-2">
                   {groups.get(y)!.map((p) => (
                     <li key={p.slug}>
-                      <Link href={`/${lang}/projets/${p.slug}`} className="group flex items-center gap-4 rounded-[var(--radius-sm)] bg-white p-3 ring-1 ring-line transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-26px_rgba(20,36,84,0.45)]">
+                      <Link href={`${href(lang, "projets")}/${p.slug}`} className="group flex items-center gap-4 rounded-[var(--radius-sm)] bg-white p-3 ring-1 ring-line transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-26px_rgba(20,36,84,0.45)]">
                         <img {...rimg(p.cover.src, "120px")} alt="" loading="lazy" style={{ objectPosition: p.cover.pos }} className="h-16 w-20 shrink-0 rounded-[0.6rem] object-cover" />
                         <span className="min-w-0">
                           <span className="block font-semibold leading-snug">{p.title[lang]}</span>

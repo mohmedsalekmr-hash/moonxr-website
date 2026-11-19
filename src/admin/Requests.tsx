@@ -12,7 +12,7 @@ type Req = {
   phone: string | null;
   kind: string | null;
   message: string;
-  lang: "fr" | "ar";
+  lang: "fr" | "ar" | "en";
   status: "new" | "done";
   note: string | null;
 };
@@ -88,7 +88,7 @@ export default function RequestsTab({ onCount }: { onCount?: (n: number) => void
         )}
         {shown.map((r) => {
           const isOpen = open === r.id;
-          const reply = `mailto:${r.email}?subject=${encodeURIComponent(r.lang === "ar" ? "ردّ Moon XR على طلبكم" : "Moon XR — réponse à votre demande")}`;
+          const reply = `mailto:${r.email}?subject=${encodeURIComponent(r.lang === "ar" ? "ردّ Moon XR على طلبكم" : r.lang === "en" ? "Moon XR — reply to your request" : "Moon XR — réponse à votre demande")}`;
           return (
             <div key={r.id} className="p-4">
               <button className="flex w-full flex-wrap items-center gap-3 text-start" onClick={() => setOpen(isOpen ? null : r.id)}>
@@ -99,7 +99,7 @@ export default function RequestsTab({ onCount }: { onCount?: (n: number) => void
                     {r.org ? <span className="font-normal text-black/50"> · {r.org}</span> : null}
                   </div>
                   <div className="truncate text-xs text-black/45">
-                    {when(r.created_at)} · {r.kind ?? "—"} · {r.lang === "ar" ? "عربي" : "فرنسي"}
+                    {when(r.created_at)} · {r.kind ?? "—"} · {r.lang === "ar" ? "عربي" : r.lang === "en" ? "إنجليزي" : "فرنسي"}
                   </div>
                 </div>
                 <span className="text-black/35">{isOpen ? "▴" : "▾"}</span>

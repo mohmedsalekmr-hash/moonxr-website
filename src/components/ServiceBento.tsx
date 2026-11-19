@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { rimg } from "@/lib/img";
-import type { Locale, T } from "@/data/i18n";
+import { href, type Locale, type T } from "@/data/i18n";
 
 export const SERVICE_IMG = [
   { src: "/media/photos/moov-c.webp", pos: "50% 35%" },
@@ -18,7 +18,7 @@ export default function ServiceBento({ services, lang }: { services: { title: T;
         const img = { src: s.image ?? SERVICE_IMG[i % 4].src, pos: s.pos ?? SERVICE_IMG[i % 4].pos };
         return (
           <Link
-            href={`/${lang}/services#s${i + 1}`}
+            href={`${href(lang, "services")}#s${i + 1}`}
             key={i}
             className={`veil group relative block aspect-[4/5] w-[78%] shrink-0 snap-start overflow-hidden rounded-[var(--radius-lg)] bg-navy sm:aspect-[4/3] sm:w-auto lg:aspect-auto ${span[i] ?? ""}`}
           >

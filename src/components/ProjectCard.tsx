@@ -4,13 +4,13 @@ import Link from "next/link";
 import { ViewTransition } from "react";
 import type { Project } from "@/data/projects";
 import { projectTag } from "@/data/projects";
-import { type Locale } from "@/data/i18n";
+import { type Locale, href } from "@/data/i18n";
 
 /** Project card — photo under the navy veil, text on the photo (same look as the home strip and the deck). */
 export default function ProjectCard({ p, lang, featured = false }: { p: Project; lang: Locale; index?: number; featured?: boolean }) {
   const { ui } = useShared();
   return (
-    <Link href={`/${lang}/projets/${p.slug}`} className={`group relative block ${featured ? "sm:col-span-2 lg:col-span-3" : ""}`} aria-label={`${p.title[lang]} — ${ui.work.view[lang]}`}>
+    <Link href={`${href(lang, "projets")}/${p.slug}`} className={`group relative block ${featured ? "sm:col-span-2 lg:col-span-3" : ""}`} aria-label={`${p.title[lang]} — ${ui.work.view[lang]}`}>
       <ViewTransition name={`project-${p.slug}`} share="morph" default="none">
         <div className={`veil relative overflow-hidden rounded-[var(--radius-lg)] bg-navy ${featured ? "aspect-[4/5] sm:aspect-[16/9] lg:aspect-[21/9]" : "aspect-[4/3] sm:aspect-[5/4] lg:aspect-[4/5]"}`}>
           <img
