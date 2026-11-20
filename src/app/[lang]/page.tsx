@@ -8,7 +8,7 @@ import { projectTag } from "@/data/projects";
 import Hero3D from "@/components/Hero3D";
 import { Reveal } from "@/components/Media";
 import { LogoMarquee } from "@/components/Logos";
-import Showcase from "@/components/Showcase";
+import ProjectStack from "@/components/ProjectStack";
 import ServiceShowcase from "@/components/ServiceShowcase";
 import ProcessLine from "@/components/ProcessLine";
 import { EcoGrid } from "@/components/Ecosystem";
@@ -91,9 +91,9 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     ),
     work: (
       <>
-          {/* 3 — OUR WORK — a film strip that slides sideways as you scroll */}
-          <Showcase
-            items={projects.map((p) => ({
+          {/* 3 — OUR WORK — a stack of project cards: each holds, the next slides over it */}
+          <ProjectStack
+            items={projects.slice(0, 4).map((p) => ({
               slug: p.slug,
               href: `${pageHref(lang, "projets")}/${p.slug}`,
               image: p.cover.src,
@@ -103,7 +103,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
               short: p.short[lang],
               meta: p.meta[lang],
             }))}
-            look={LOOK}
+            view={ui.work.view[lang]}
             head={
               <>
                 <div className={`kicker ${LOOK === "sheet" ? "!text-sun" : ""}`}>{ui.work.kicker[lang]}</div>
@@ -111,7 +111,6 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
               </>
             }
             all={{ href: `${pageHref(lang, "projets")}`, label: ui.work.seeAll[lang] }}
-            hint={ui.home.swipeHint[lang]}
           />
 
       </>
