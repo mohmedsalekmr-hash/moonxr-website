@@ -1,7 +1,7 @@
 "use client";
 import { useShared } from "@/components/ContentProvider";
 import Link from "next/link";
-import { useEffect, useRef, useState, ViewTransition } from "react";
+import { useEffect, useState, ViewTransition } from "react";
 import { categories, projectTag, type Category, type Project } from "@/data/projects";
 import { href, type Locale } from "@/data/i18n";
 import { rimg } from "@/lib/img";
@@ -172,27 +172,15 @@ function Card({ p, lang, offset }: { p: Project; lang: Locale; offset: boolean }
   );
 }
 
-/** Compact index: one row per project; on computers a preview of the photo follows the pointer. */
+/** Compact index: one row per project, with a small photo on phones. */
 function WorkList({ list, lang, view }: { list: Project[]; lang: Locale; view: string }) {
-  const box = useRef<HTMLDivElement>(null);
-  const [hover, setHover] = useState<Project | null>(null);
-  const [pt, setPt] = useState({ x: 0, y: 0 });
   return (
-    <div
-      ref={box}
-      className="relative mt-6"
-      onMouseMove={(e) => {
-        const r = box.current!.getBoundingClientRect();
-        setPt({ x: e.clientX - r.left, y: e.clientY - r.top });
-      }}
-      onMouseLeave={() => setHover(null)}
-    >
+    <div className="relative mt-6">
       <ul>
         {list.map((p, i) => (
           <li key={p.slug} className="border-b border-line">
             <Link
               href={`${href(lang, "projets")}/${p.slug}`}
-              onMouseEnter={() => setHover(p)}
               aria-label={`${p.title[lang]} — ${view}`}
               className="group grid grid-cols-[4.5rem_minmax(0,1fr)_auto] items-center gap-4 py-4 md:grid-cols-[3rem_minmax(0,1fr)_14rem_10rem_2rem] md:gap-6 md:py-6"
             >
@@ -215,14 +203,6 @@ function WorkList({ list, lang, view }: { list: Project[]; lang: Locale; view: s
           </li>
         ))}
       </ul>
-      {/* floating preview (computer) */}
-      <div
-        aria-hidden
-        className={`pointer-events-none absolute z-10 hidden w-72 overflow-hidden rounded-[var(--radius-sm)] shadow-[0_30px_60px_-25px_rgba(10,20,49,0.6)] transition-[opacity,transform] duration-300 md:block ${hover ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}
-        style={{ left: pt.x + 24, top: pt.y - 100 }}
-      >
-        {hover && <img src={rimg(hover.cover.src).srcSet ? `${hover.cover.src.slice(0, -5)}-960.webp` : hover.cover.src} alt="" className="aspect-[4/3] w-full object-cover" style={{ objectPosition: hover.cover.pos }} />}
-      </div>
     </div>
   );
 }

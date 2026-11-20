@@ -33,6 +33,37 @@ export const aboutPage = {
     fr: "Notre équipe se déplace pour installer, former et accompagner sur site, partout en Mauritanie.",
     ar: "ينتقل فريقنا للتركيب والتدريب والمرافقة في الموقع، في كل أنحاء موريتانيا.", en: "Our team travels to install, train and support on site, anywhere in Mauritania.",
   },
+  /** What "XR" means: the three technologies, each shown with one of our projects */
+  xr: {
+    kicker: { fr: "Le nom", ar: "الاسم", en: "The name" },
+    title: { fr: "XR, pour « réalité étendue ».", ar: "XR تعني «الواقع الممتد».", en: "XR stands for extended reality." },
+    text: {
+      fr: "Le terme qui regroupe toutes les technologies immersives. Nous travaillons avec les trois.",
+      ar: "المصطلح الذي يجمع كل التقنيات الغامرة، ونحن نعمل بها الثلاث.",
+      en: "The umbrella term for every immersive technology. We work with all three.",
+    },
+    items: [
+      {
+        k: "VR",
+        t: { fr: "Réalité virtuelle", ar: "الواقع الافتراضي", en: "Virtual reality" },
+        d: { fr: "Un monde entièrement virtuel, casque sur la tête.", ar: "عالم افتراضي بالكامل، والنظارة على الرأس.", en: "A fully virtual world, headset on." },
+        slug: "moov-mauritel",
+      },
+      {
+        k: "AR",
+        t: { fr: "Réalité augmentée", ar: "الواقع المعزّز", en: "Augmented reality" },
+        d: { fr: "Des éléments numériques posés sur le monde réel.", ar: "عناصر رقمية تظهر فوق العالم الحقيقي.", en: "Digital elements placed over the real world." },
+        slug: "snim",
+      },
+      {
+        k: "MR",
+        t: { fr: "Réalité mixte", ar: "الواقع المختلط", en: "Mixed reality" },
+        d: { fr: "Le réel et le virtuel qui interagissent.", ar: "الحقيقي والافتراضي يتفاعلان معاً.", en: "The real and the virtual interacting." },
+        slug: "eetfp",
+      },
+    ],
+    example: { fr: "Exemple", ar: "مثال", en: "Example" },
+  },
   pillars: {
     kicker: { fr: "Notre engagement", ar: "التزامنا", en: "Our commitment" },
     title: {

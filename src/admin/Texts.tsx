@@ -251,6 +251,17 @@ export default function TextsTab({ focus }: { focus?: string }) {
               <TField label={tr("الشرح")} multi value={it.d} onChange={(v) => setA({ pillars: { ...a.pillars, items: a.pillars.items.map((x, j) => (j === i ? { ...x, d: v } : x)) } })} />
             </div>
           ))}
+          <TField label={tr("«الاسم» – العنوان الصغير")} value={a.xr.kicker} onChange={(v) => setA({ xr: { ...a.xr, kicker: v } })} />
+          <TField label={tr("«الاسم» – العنوان")} value={a.xr.title} onChange={(v) => setA({ xr: { ...a.xr, title: v } })} />
+          <TField label={tr("«الاسم» – الفقرة")} multi value={a.xr.text} onChange={(v) => setA({ xr: { ...a.xr, text: v } })} />
+          {a.xr.items.map((it, i) => (
+            <div key={it.k} className="grid gap-3 rounded-xl bg-black/[0.025] p-4">
+              <div className="text-xs font-bold text-black/45" dir="ltr">{it.k}</div>
+              <TField label={tr("الاسم")} value={it.t} onChange={(v) => setA({ xr: { ...a.xr, items: a.xr.items.map((x, j) => (j === i ? { ...x, t: v } : x)) } })} />
+              <TField label={tr("الشرح")} value={it.d} onChange={(v) => setA({ xr: { ...a.xr, items: a.xr.items.map((x, j) => (j === i ? { ...x, d: v } : x)) } })} />
+            </div>
+          ))}
+          <TField label={tr("كلمة «مثال»")} value={a.xr.example} onChange={(v) => setA({ xr: { ...a.xr, example: v } })} />
         </Section>
       )}
 

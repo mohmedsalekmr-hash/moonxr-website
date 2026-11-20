@@ -437,4 +437,8 @@ export const DICT: Record<string, [fr: string, en: string]> = {
   "«مشروع مميّز» فوق أول مشروع": ["« Projet à la une » au-dessus du premier projet", "“Featured project” above the first project"],
   "زر عرض «شبكة»": ["Bouton d'affichage « Grille »", "“Grid” view button"],
   "زر عرض «قائمة»": ["Bouton d'affichage « Liste »", "“List” view button"],
+  "«الاسم» – العنوان الصغير": ["« Le nom » – petit titre", "“The name” – small title"],
+  "«الاسم» – العنوان": ["« Le nom » – titre", "“The name” – title"],
+  "«الاسم» – الفقرة": ["« Le nom » – paragraphe", "“The name” – paragraph"],
+  "كلمة «مثال»": ["Le mot « Exemple »", "The word “Example”"],
 };
