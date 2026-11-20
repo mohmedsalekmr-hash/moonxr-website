@@ -442,4 +442,7 @@ export const DICT: Record<string, [fr: string, en: string]> = {
   "«الاسم» – الفقرة": ["« Le nom » – paragraphe", "“The name” – paragraph"],
   "كلمة «مثال»": ["Le mot « Exemple »", "The word “Example”"],
   "رابط «اكتشف الخدمة» تحت كل خدمة": ["Lien « Découvrir le service » sous chaque service", "“Explore the service” link under each service"],
+  "اسم قسم التقنيات في شريط التنقل": ["Nom de la section technologies dans la barre de navigation", "Technologies section name in the navigation bar"],
+  "زر «الكل» في فلتر التقنيات": ["Bouton « Tout » du filtre des technologies", "\"All\" button in the technologies filter"],
+  "«مشروع أنجزناه معاً»": ["« Projet réalisé ensemble »", "\"A project we delivered together\""],
 };

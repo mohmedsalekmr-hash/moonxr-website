@@ -278,6 +278,13 @@ export default function TextsTab({ focus }: { focus?: string }) {
               ["techTitle", tr("عنوان قسم التقنيات")],
               ["techSub", tr("فقرة قسم التقنيات")],
               ["view", tr("«عرض المشروع»")],
+              ["tech", tr("اسم قسم التقنيات في شريط التنقل")],
+              ["all", tr("زر «الكل» في فلتر التقنيات")],
+              ["catIndustry", tr("اللحام والصناعة")],
+              ["catEducation", tr("التعليم والصحة")],
+              ["catSafety", tr("السلامة")],
+              ["catPlatform", tr("المنصّات")],
+              ["related", tr("«مشروع أنجزناه معاً»")],
             ] as [keyof PP, string][]
           ).map(([k, label]) => (
             <TField key={k} label={label} multi={k === "sub"} value={pp.value![k]} onChange={(v) => pp.setValue({ ...pp.value!, [k]: v } as PP)} />

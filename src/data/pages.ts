@@ -121,10 +121,17 @@ export const partnersPage = {
     ar: "تقنياتنا.", en: "Our technologies.",
   },
   techSub: {
-    fr: "Survolez un logo pour découvrir ce que chaque fournisseur apporte.",
-    ar: "مرّر المؤشر على شعار لتعرف ما يقدّمه كل مزوّد.", en: "Hover over a logo to see what each supplier brings.",
+    fr: "Les technologies que nous sélectionnons, installons et accompagnons en Mauritanie.",
+    ar: "التقنيات التي نختارها ونركّبها ونرافقها في موريتانيا.", en: "The technologies we select, install and support in Mauritania.",
   },
   view: { fr: "Voir le projet", ar: "عرض المشروع", en: "View project" },
+  tech: { fr: "Technologies", ar: "تقنياتنا", en: "Technologies" },
+  all: { fr: "Tout", ar: "الكل", en: "All" },
+  catIndustry: { fr: "Soudage & industrie", ar: "اللحام والصناعة", en: "Welding & industry" },
+  catEducation: { fr: "Éducation & santé", ar: "التعليم والصحة", en: "Education & health" },
+  catSafety: { fr: "Sécurité", ar: "السلامة", en: "Safety" },
+  catPlatform: { fr: "Plateformes", ar: "المنصّات", en: "Platforms" },
+  related: { fr: "Projet réalisé ensemble", ar: "مشروع أنجزناه معاً", en: "A project we delivered together" },
 };
 
 /** Default bullet points of each partner (editable per partner in /admin). */
