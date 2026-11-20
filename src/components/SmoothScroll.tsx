@@ -18,6 +18,8 @@ export default function SmoothScroll() {
       prevent: (node) => !!(node as HTMLElement).closest?.("section[data-explore], [data-lenis-prevent]"),
     });
     lenis.current = l;
+    // the 3D headset story moves the page one part at a time through the same engine
+    (window as Window & { __lenis?: Lenis }).__lenis = l;
     let raf = 0;
     const loop = (t: number) => {
       l.raf(t);
@@ -28,6 +30,7 @@ export default function SmoothScroll() {
       cancelAnimationFrame(raf);
       l.destroy();
       lenis.current = null;
+      delete (window as Window & { __lenis?: Lenis }).__lenis;
     };
   }, []);
 
