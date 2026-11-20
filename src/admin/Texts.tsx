@@ -1,12 +1,13 @@
 "use client";
 
 import { tr } from "./i18n";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { sb } from "./sb";
 import { ui as defUi } from "@/data/i18n";
 import { aboutPage, partnersPage } from "@/data/pages";
 import { explorer as defExplorer, steps as defSteps, type Step } from "@/data/explorer";
 import { Section } from "./Projects";
-import { ADMIN_LANGS, countMissingEn, MissingEn, SaveBar, TField, type T } from "./ui";
+import { ADMIN_LANGS, countMissingEn, emptyT, Field, FocusPicker, MediaBox, MissingEn, moveItem, RowTools, SaveBar, TField, Toggle, type T } from "./ui";
 import { merge, useContentKey } from "./useContent";
 
 type UI = typeof defUi;
@@ -16,6 +17,37 @@ type Ex = { explorer: typeof defExplorer; steps: Step[] };
 
 /** A text of the `ui` content: its path ("hero.l1", or "trust" for a single text) and what the admin calls it. */
 type F = [path: string, label: string];
+
+type Sections = Record<string, Record<string, boolean>>;
+/** The sections of each page that can be hidden, in the order a visitor meets them. */
+const PAGE_SECTIONS: Record<string, { page: string; items: [id: string, label: string][] }> = {
+  about: { page: "about", items: [["xr", tr("«الاسم» (VR · AR · MR)")], ["commitments", tr("«التزامنا»")], ["journey", tr("«مسيرتنا»")], ["trust", tr("شريط الشعارات")], ["where", tr("«أين نعمل»")]] },
+  aboutText: { page: "about", items: [["xr", tr("«الاسم» (VR · AR · MR)")], ["commitments", tr("«التزامنا»")], ["journey", tr("«مسيرتنا»")], ["trust", tr("شريط الشعارات")], ["where", tr("«أين نعمل»")]] },
+  services: { page: "services", items: [["list", tr("قائمة الخدمات")], ["process", tr("«كيف نعمل»")]] },
+  partners: { page: "partners", items: [["clients", tr("العملاء")], ["partners", tr("الشركاء")]] },
+  partnersText: { page: "partners", items: [["clients", tr("العملاء")], ["partners", tr("الشركاء")]] },
+};
+
+function SectionSwitches({ value, onChange, which }: { value: Sections; onChange: (v: Sections) => void; which: string }) {
+  const g = PAGE_SECTIONS[which];
+  if (!g) return null;
+  const cur = value[g.page] ?? {};
+  return (
+    <Section title={tr("أقسام الصفحة")} sub={tr("أخفِ أي قسم لا تريده أن يظهر في هذه الصفحة. يمكنك إظهاره من جديد في أي وقت.")}>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {g.items.map(([id, label]) => {
+          const on = cur[id] !== false;
+          return (
+            <div key={id} className={`flex items-center justify-between gap-3 rounded-xl border border-black/[0.07] p-3 ${on ? "bg-white" : "bg-black/[0.03] opacity-60"}`}>
+              <span className="font-semibold">{label}</span>
+              <Toggle on={on} label={on ? tr("ظاهر") : tr("مخفي")} onChange={(v) => onChange({ ...value, [g.page]: { ...cur, [id]: v } })} />
+            </div>
+          );
+        })}
+      </div>
+    </Section>
+  );
+}
 
 /**
  * The site's texts, grouped page by page, in the order a visitor meets them.
@@ -191,9 +223,14 @@ export default function TextsTab({ focus }: { focus?: string }) {
   const about = useContentKey<About>("about", aboutPage, true);
   const pp = useContentKey<PP>("partners_page", partnersPage, true);
   const ex = useContentKey<Ex>("explorer", { explorer: defExplorer, steps: defSteps }, true);
+  const ps = useContentKey<Sections>("page_sections", {});
+  const [projects, setProjects] = useState<{ slug: string; title: { ar: string; fr: string }; cover: { src: string } }[]>([]);
+  useEffect(() => {
+    sb.from("projects").select("slug,title,cover").order("position").then(({ data }) => setProjects(data ?? []));
+  }, []);
   const [open, setOpen] = useState<string>(focus ?? "home");
-  const all = [c, about, pp, ex];
-  if (!c.value || !about.value || !pp.value || !ex.value) return <p className="text-black/40">…</p>;
+  const all = [c, about, pp, ex, ps];
+  if (!c.value || !about.value || !pp.value || !ex.value || !ps.value) return <p className="text-black/40">…</p>;
   const a = about.value;
   const setA = (v: Partial<About>) => about.setValue({ ...a, ...v } as About);
   // the tour's steps are matched by id: texts from the database, everything else from the code
@@ -224,6 +261,8 @@ export default function TextsTab({ focus }: { focus?: string }) {
         ))}
       </div>
 
+      <SectionSwitches which={open} value={ps.value} onChange={(v) => ps.setValue(v)} />
+
       {page && (
         <Section title={page.name} sub={page.sub}>
           {page.fields.map(([path, label]) => {
@@ -240,6 +279,37 @@ export default function TextsTab({ focus }: { focus?: string }) {
         <Section title={tr("صفحة «من نحن»")}>
           <TField label={tr("العنوان")} value={a.title} onChange={(v) => setA({ title: v })} />
           <TField label={tr("الفقرة تحت العنوان")} multi value={a.sub} onChange={(v) => setA({ sub: v })} />
+          <div className="rounded-xl bg-black/[0.025] p-4">
+            <div className="text-sm font-semibold">{tr("صور البطاقات في أعلى الصفحة")}</div>
+            <p className="mt-1 text-xs text-black/50">{tr("بدون صور هنا: يعرض الموقع صورة الغلاف لكل مشروع. كل صورة مرتبطة بمشروع يفتح عند الضغط عليها.")}</p>
+            <div className="mt-3 grid gap-3">
+              {(a.heroShots ?? []).map((x, i) => (
+                <div key={i} className="flex gap-3 rounded-xl bg-white p-3 ring-1 ring-black/[0.06]">
+                  <div className="w-40 shrink-0">
+                    <MediaBox folder="about" height="h-28" value={x.src ? { src: x.src } : null} onChange={(m) => setA({ heroShots: a.heroShots.map((y, j) => (j === i ? { ...y, src: m.src } : y)) })} />
+                  </div>
+                  <div className="grid flex-1 content-start gap-3">
+                    <label className="block text-sm">
+                      <span className="text-black/60">{tr("المشروع")}</span>
+                      <select className="inp mt-1" value={x.slug} onChange={(e) => setA({ heroShots: a.heroShots.map((y, j) => (j === i ? { ...y, slug: e.target.value } : y)) })}>
+                        {projects.map((p) => (
+                          <option key={p.slug} value={p.slug}>{p.title?.ar || p.title?.fr || p.slug}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <FocusPicker src={x.src} value={x.pos} onChange={(v) => setA({ heroShots: a.heroShots.map((y, j) => (j === i ? { ...y, pos: v } : y)) })} />
+                  </div>
+                  <RowTools i={i} n={a.heroShots.length} move={(m, n) => setA({ heroShots: moveItem(a.heroShots, m, n) })} remove={() => setA({ heroShots: a.heroShots.filter((_, j) => j !== i) })} />
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" className="btn btn-light" onClick={() => setA({ heroShots: [...(a.heroShots ?? []), { src: "", slug: projects[0]?.slug ?? "" }] })}>{tr("+ صورة")}</button>
+              {!(a.heroShots ?? []).length && projects.length > 0 && (
+                <button type="button" className="btn btn-light" onClick={() => setA({ heroShots: projects.map((p) => ({ src: p.cover?.src, slug: p.slug })) })}>{tr("ابدأ من صور الأغلفة الحالية")}</button>
+              )}
+            </div>
+          </div>
           <TField label={tr("عنوان القطاعات")} value={a.sectors} onChange={(v) => setA({ sectors: v })} />
           <TypesField label={tr("القطاعات")} value={a.sectorList} onChange={(v) => setA({ sectorList: v } as Partial<About>)} />
           <TField label={tr("«أين نعمل» – العنوان")} value={a.where} onChange={(v) => setA({ where: v })} />
@@ -247,21 +317,49 @@ export default function TextsTab({ focus }: { focus?: string }) {
           <TField label={tr("«التزامنا» – العنوان الصغير")} value={a.pillars.kicker} onChange={(v) => setA({ pillars: { ...a.pillars, kicker: v } })} />
           <TField label={tr("«التزامنا» – العنوان")} value={a.pillars.title} onChange={(v) => setA({ pillars: { ...a.pillars, title: v } })} />
           {a.pillars.items.map((it, i) => (
-            <div key={i} className="grid gap-3 rounded-xl bg-black/[0.025] p-4">
-              <TField label={tr("الالتزام {0}", i + 1)} value={it.t} onChange={(v) => setA({ pillars: { ...a.pillars, items: a.pillars.items.map((x, j) => (j === i ? { ...x, t: v } : x)) } })} />
-              <TField label={tr("الشرح")} multi value={it.d} onChange={(v) => setA({ pillars: { ...a.pillars, items: a.pillars.items.map((x, j) => (j === i ? { ...x, d: v } : x)) } })} />
+            <div key={i} className="flex gap-3 rounded-xl bg-black/[0.025] p-4">
+              <div className="grid flex-1 gap-3">
+                <TField label={tr("الالتزام {0}", i + 1)} value={it.t} onChange={(v) => setA({ pillars: { ...a.pillars, items: a.pillars.items.map((x, j) => (j === i ? { ...x, t: v } : x)) } })} />
+                <TField label={tr("الشرح")} multi value={it.d} onChange={(v) => setA({ pillars: { ...a.pillars, items: a.pillars.items.map((x, j) => (j === i ? { ...x, d: v } : x)) } })} />
+              </div>
+              <RowTools
+                i={i}
+                n={a.pillars.items.length}
+                move={(x, y) => setA({ pillars: { ...a.pillars, items: moveItem(a.pillars.items, x, y) } })}
+                remove={a.pillars.items.length > 1 ? () => confirm(tr("حذف هذا الالتزام؟")) && setA({ pillars: { ...a.pillars, items: a.pillars.items.filter((_, j) => j !== i) } }) : undefined}
+              />
             </div>
           ))}
+          <button type="button" className="btn btn-light self-start" onClick={() => setA({ pillars: { ...a.pillars, items: [...a.pillars.items, { t: emptyT(), d: emptyT() }] } })}>{tr("+ التزام")}</button>
           <TField label={tr("«الاسم» – العنوان الصغير")} value={a.xr.kicker} onChange={(v) => setA({ xr: { ...a.xr, kicker: v } })} />
           <TField label={tr("«الاسم» – العنوان")} value={a.xr.title} onChange={(v) => setA({ xr: { ...a.xr, title: v } })} />
           <TField label={tr("«الاسم» – الفقرة")} multi value={a.xr.text} onChange={(v) => setA({ xr: { ...a.xr, text: v } })} />
           {a.xr.items.map((it, i) => (
-            <div key={it.k} className="grid gap-3 rounded-xl bg-black/[0.025] p-4">
-              <div className="text-xs font-bold text-black/45" dir="ltr">{it.k}</div>
-              <TField label={tr("الاسم")} value={it.t} onChange={(v) => setA({ xr: { ...a.xr, items: a.xr.items.map((x, j) => (j === i ? { ...x, t: v } : x)) } })} />
-              <TField label={tr("الشرح")} value={it.d} onChange={(v) => setA({ xr: { ...a.xr, items: a.xr.items.map((x, j) => (j === i ? { ...x, d: v } : x)) } })} />
+            <div key={i} className="flex gap-3 rounded-xl bg-black/[0.025] p-4">
+              <div className="grid flex-1 gap-3">
+                <div className="grid gap-3 md:grid-cols-[8rem_1fr]">
+                  <Field label={tr("الرمز")} value={it.k} onChange={(v) => setA({ xr: { ...a.xr, items: a.xr.items.map((x, j) => (j === i ? { ...x, k: v } : x)) } })} />
+                  <label className="block text-sm">
+                    <span className="text-black/60">{tr("المشروع الذي يظهر كمثال")}</span>
+                    <select className="inp mt-1" value={it.slug} onChange={(e) => setA({ xr: { ...a.xr, items: a.xr.items.map((x, j) => (j === i ? { ...x, slug: e.target.value } : x)) } })}>
+                      {projects.map((p) => (
+                        <option key={p.slug} value={p.slug}>{p.title?.ar || p.title?.fr || p.slug}</option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <TField label={tr("الاسم")} value={it.t} onChange={(v) => setA({ xr: { ...a.xr, items: a.xr.items.map((x, j) => (j === i ? { ...x, t: v } : x)) } })} />
+                <TField label={tr("الشرح")} value={it.d} onChange={(v) => setA({ xr: { ...a.xr, items: a.xr.items.map((x, j) => (j === i ? { ...x, d: v } : x)) } })} />
+              </div>
+              <RowTools
+                i={i}
+                n={a.xr.items.length}
+                move={(x, y) => setA({ xr: { ...a.xr, items: moveItem(a.xr.items, x, y) } })}
+                remove={a.xr.items.length > 1 ? () => confirm(tr("حذف هذه البطاقة؟")) && setA({ xr: { ...a.xr, items: a.xr.items.filter((_, j) => j !== i) } }) : undefined}
+              />
             </div>
           ))}
+          <button type="button" className="btn btn-light self-start" onClick={() => setA({ xr: { ...a.xr, items: [...a.xr.items, { k: "XR", t: emptyT(), d: emptyT(), slug: projects[0]?.slug ?? "" }] } })}>{tr("+ بطاقة")}</button>
           <TField label={tr("كلمة «مثال»")} value={a.xr.example} onChange={(v) => setA({ xr: { ...a.xr, example: v } })} />
         </Section>
       )}

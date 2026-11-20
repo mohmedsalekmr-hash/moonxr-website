@@ -1,6 +1,6 @@
 import { pageMeta } from "@/lib/seo";
 import type { Locale } from "@/data/i18n";
-import { getContent } from "@/lib/content";
+import { getContent, isShown } from "@/lib/content";
 import type { Metadata } from "next";
 import SectionHeader from "@/components/SectionHeader";
 import { notFound } from "next/navigation";
@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/partenaire
 export default async function PartnersPage({ params }: PageProps<"/[lang]/partenaires">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
-  const { ui, clients, partners, suppliers, projects, partnersPage: C } = await getContent();
+  const { sections, ui, clients, partners, suppliers, projects, partnersPage: C } = await getContent();
+  const show = (page: string, id: string) => isShown(sections, page, id);
 
   // each technology once: partners are not repeated among the suppliers
   const techs = suppliers.filter((o) => !partners.some((p) => p.name === o.name));
@@ -63,6 +64,8 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
       <SectionNav items={nav} />
 
       {/* CLIENTS */}
+      {show("partners", "clients") && (
+        <>
       <section id="clients" className="scroll-mt-32 py-14 md:scroll-mt-40 md:py-20">
         <div className="wrap">
           <Reveal>
@@ -73,8 +76,12 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
           </Reveal>
         </div>
       </section>
+        </>
+      )}
 
       {/* PARTNERS */}
+      {show("partners", "partners") && (
+        <>
       <section id="partenaires" className="scroll-mt-32 border-t border-line py-14 md:scroll-mt-40 md:py-20">
         <div className="wrap">
           <Reveal>
@@ -85,6 +92,8 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
           </div>
         </div>
       </section>
+        </>
+      )}
 
       <CTA lang={lang} />
     </Page>

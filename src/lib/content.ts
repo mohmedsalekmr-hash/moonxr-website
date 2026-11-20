@@ -25,6 +25,8 @@ export type Content = {
   steps: typeof i18n.steps;
   home: HomeSection[];
   about: typeof aboutPage;
+  /** page → section → shown (missing = shown) */
+  sections: Record<string, Record<string, boolean>>;
   partnersPage: typeof partnersPage;
   projects: Project[];
   clients: Org[];
@@ -63,7 +65,7 @@ function merge<V>(base: V, over: unknown): V {
 }
 
 type ProjectRow = Pick<Project, "slug" | "category" | "title" | "short" | "meta" | "intro" | "cover" | "facts" | "scenes">;
-type OrgRow = { kind: "client" | "partner" | "supplier"; name: string; logo: string; ratio: number; url: string | null; role: Org["role"] | null; body: Org["text"] | null; points: unknown; category?: string | null };
+type OrgRow = { kind: "client" | "partner" | "supplier"; name: string; logo: string; ratio: number; url: string | null; role: Org["role"] | null; body: Org["text"] | null; points: unknown; category?: string | null; image?: string | null; image_pos?: string | null };
 
 function toProject(row: ProjectRow): Project {
   const base = local.getProject(row.slug);
@@ -84,6 +86,8 @@ function toOrg(row: OrgRow): Org {
   if (row.role) o.role = row.role;
   if (row.body) o.text = row.body;
   if (row.category) o.category = row.category;
+  if (row.image) o.image = row.image;
+  if (row.image_pos) o.imagePos = row.image_pos;
   o.points = Array.isArray(row.points) && row.points.length ? (row.points as Org["points"]) : partnerPoints[row.name];
   return o;
 }
@@ -139,6 +143,7 @@ export async function getContent(): Promise<Content> {
     steps: (get("steps") as typeof i18n.steps) ?? i18n.steps,
     home: (get("home_sections") as HomeSection[]) ?? DEFAULT_HOME,
     about: merge(aboutPage, get("about")),
+    sections: (get("page_sections") as Record<string, Record<string, boolean>>) ?? {},
     partnersPage: merge(partnersPage, get("partners_page")),
     projects: rows?.length ? rows.map(toProject) : local.projects,
     clients: byKind("client", local.clients),
@@ -149,3 +154,6 @@ export async function getContent(): Promise<Content> {
 
 /** What client components need (kept small: it is sent to the browser). */
 export type Shared = { ui: UI; contact: Contact };
+
+/** Whether a section of a page is shown (sections are shown unless switched off in the admin). */
+export const isShown = (sections: Content["sections"], page: string, id: string) => sections?.[page]?.[id] !== false;

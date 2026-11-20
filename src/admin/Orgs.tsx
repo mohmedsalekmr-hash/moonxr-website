@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 import { sb } from "./sb";
 import { saveAndPublish } from "./save";
 import { Section } from "./Projects";
-import { countMissingEn, emptyT, Field, MissingEn, MediaBox, moveItem, RowTools, SaveBar, TField, Toggle, type T } from "./ui";
+import { countMissingEn, emptyT, Field, FocusPicker, MissingEn, MediaBox, moveItem, RowTools, SaveBar, TField, Toggle, type T } from "./ui";
 
 type Kind = "client" | "partner" | "supplier";
-type Org = { id?: string; kind: Kind; name: string; logo: string; ratio: number; url: string | null; role: T | null; body: T | null; points: unknown; position: number; visible: boolean; category?: string | null };
+type Org = { id?: string; kind: Kind; name: string; logo: string; ratio: number; url: string | null; role: T | null; body: T | null; points: unknown; position: number; visible: boolean; category?: string | null; image?: string | null; image_pos?: string | null };
 
 const KINDS: { id: Kind; name: string; sub: string }[] = [
   { id: "client", name: tr("العملاء"), sub: tr("الشعارات في شريط «وثقوا بنا» وصفحة الشركاء.") },
@@ -100,6 +100,17 @@ export default function OrgsTab() {
                   )}
                   {k.id === "partner" && (
                     <>
+                      <div className="grid gap-3 md:grid-cols-[14rem_1fr]">
+                        <div>
+                          <div className="mb-1.5 text-sm font-semibold">{tr("صورة القسم في صفحة الشركاء")}</div>
+                          <MediaBox folder="partners" height="h-28" value={o.image ? { src: o.image } : null} onChange={(m) => update(k.id, i, { image: m.src })} />
+                        </div>
+                        <div className="grid content-start gap-2 text-xs text-black/50">
+                          <p>{tr("بدون صورة: يستعمل الموقع صورة من المشروع المرتبط بهذا الشريك تلقائياً.")}</p>
+                          {o.image && <button type="button" className="self-start text-red-700 underline" onClick={() => update(k.id, i, { image: null })}>{tr("إزالة الصورة")}</button>}
+                          <FocusPicker src={o.image ?? undefined} value={o.image_pos} onChange={(v) => update(k.id, i, { image_pos: v })} />
+                        </div>
+                      </div>
                       <TField label={tr("الدور")} value={o.role} onChange={(v) => update(k.id, i, { role: v })} />
                       <TField label={tr("الوصف")} multi value={o.body} onChange={(v) => update(k.id, i, { body: v })} />
                       <Points value={(o.points as T[] | null) ?? []} onChange={(v) => update(k.id, i, { points: v })} />

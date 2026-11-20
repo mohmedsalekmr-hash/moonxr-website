@@ -467,7 +467,7 @@ export const projects: Project[] = [
 
 export const getProject = (slug: string) => projects.find((x) => x.slug === slug);
 
-export type Org = { name: string; logo: string; r: number; url?: string; role?: T; text?: T; points?: T[]; category?: string };
+export type Org = { name: string; logo: string; r: number; url?: string; role?: T; text?: T; points?: T[]; category?: string; image?: string; imagePos?: string };
 
 export const clients: Org[] = [
   { name: "Moov Mauritel", logo: "/media/logos/moov.webp", r: 1.66 },

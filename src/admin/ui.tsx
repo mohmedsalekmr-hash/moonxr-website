@@ -204,3 +204,32 @@ export function SaveBar({ dirty, saving, onSave, onCancel }: { dirty: boolean; s
     </div>
   );
 }
+
+/** Click the point of the photo that must always stay visible when it is cropped. */
+export function FocusPicker({ src, value, onChange }: { src?: string; value?: string | null; onChange: (v: string) => void }) {
+  const [x, y] = (value ?? "50% 50%").split(" ").map((v) => parseFloat(v) || 50);
+  if (!src) return null;
+  return (
+    <div>
+      <div className="mb-1.5 flex items-baseline gap-2 text-sm font-semibold">
+        {tr("مركز الصورة")}
+        <span className="text-xs font-normal text-black/45">{tr("اضغط على الجزء الذي يجب أن يبقى ظاهراً دائماً")}</span>
+      </div>
+      <div className="grid h-28 w-full place-items-center overflow-hidden rounded-xl bg-black/[0.05]">
+        <button
+          type="button"
+          className="relative block cursor-crosshair"
+          onClick={(e) => {
+            const r = e.currentTarget.getBoundingClientRect();
+            const px = Math.round(((e.clientX - r.left) / r.width) * 100);
+            const py = Math.round(((e.clientY - r.top) / r.height) * 100);
+            onChange(`${px}% ${py}%`);
+          }}
+        >
+          <img src={src} alt="" className="block h-auto max-h-28 w-auto max-w-full" />
+          <span className="pointer-events-none absolute h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-sun shadow" style={{ left: `${x}%`, top: `${y}%` }} />
+        </button>
+      </div>
+    </div>
+  );
+}

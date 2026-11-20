@@ -26,6 +26,7 @@ export const KEYS: Record<string, string> = {
   steps: tr("خطوات العمل"),
   explorer: tr("النظارة ثلاثية الأبعاد"),
   seo: tr("الظهور والمشاركة"),
+  page_sections: tr("أقسام الصفحات"),
 };
 
 const when = (d: string) =>

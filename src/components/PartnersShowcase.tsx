@@ -69,7 +69,10 @@ export function PartnerSpotlights({ orgs, projects, lang, labels }: { orgs: Org[
   return (
     <div className="space-y-14 md:space-y-24">
       {orgs.map((o, i) => {
-        const rel = relatedProject(o, projects);
+        const auto = relatedProject(o, projects);
+        // a photo chosen in the admin wins over the automatic one
+        const rel = o.image ? (auto ? { ...auto, src: o.image, pos: o.imagePos } : null) : auto;
+        const own = o.image && !auto ? o.image : null;
         return (
           <article key={o.name} className="grid items-center gap-7 lg:grid-cols-2 lg:gap-16">
             <div className={`relative ${i % 2 ? "lg:order-2" : ""}`}>
@@ -77,6 +80,14 @@ export function PartnerSpotlights({ orgs, projects, lang, labels }: { orgs: Org[
                 {rel ? (
                   <>
                     <img {...rimg(rel.src, "(min-width: 1024px) 50vw, 100vw")} alt="" loading="lazy" style={{ objectPosition: rel.pos }} className="absolute inset-0 h-full w-full object-cover" />
+                    <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-navy-deep/55 to-transparent" />
+                    <div className="absolute start-5 top-5 flex h-10 items-center md:start-7 md:top-6 md:h-12 [filter:brightness(0)_invert(1)_drop-shadow(0_2px_6px_rgba(0,0,0,.35))]">
+                      <Logo org={o} area={1500} maxW={110} maxH={34} />
+                    </div>
+                  </>
+                ) : own ? (
+                  <>
+                    <img {...rimg(own, "(min-width: 1024px) 50vw, 100vw")} alt="" loading="lazy" style={{ objectPosition: o.imagePos }} className="absolute inset-0 h-full w-full object-cover" />
                     <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-navy-deep/55 to-transparent" />
                     <div className="absolute start-5 top-5 flex h-10 items-center md:start-7 md:top-6 md:h-12 [filter:brightness(0)_invert(1)_drop-shadow(0_2px_6px_rgba(0,0,0,.35))]">
                       <Logo org={o} area={1500} maxW={110} maxH={34} />

@@ -1,6 +1,6 @@
 import { pageMeta } from "@/lib/seo";
 import type { Locale } from "@/data/i18n";
-import { getContent } from "@/lib/content";
+import { getContent, isShown } from "@/lib/content";
 import { rimg } from "@/lib/img";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -26,7 +26,8 @@ const SHOWN_IN: Category[][] = [["event"], ["training"], ["training"], ["dev"]];
 
 export default async function ServicesPage({ params }: PageProps<"/[lang]/services">) {
   const { lang } = await params;
-  const { ui, services, steps, projects } = await getContent();
+  const { sections, ui, services, steps, projects } = await getContent();
+  const show = (page: string, id: string) => isShown(sections, page, id);
   const T = ui.servicesPage;
   if (!hasLocale(lang)) notFound();
   const h = ui.home;
@@ -44,10 +45,12 @@ export default async function ServicesPage({ params }: PageProps<"/[lang]/servic
       </PageHead>
 
       {/* one row per service: photo | words, alternating */}
+      {show("services", "list") && (
+        <>
       <section className="pb-8 md:pb-16">
         <div className="wrap space-y-14 md:space-y-24">
           {services.map((s, i) => {
-            const img = SERVICE_IMG[i % SERVICE_IMG.length];
+            const img = s.image ? { src: s.image, pos: s.pos ?? "50% 50%" } : SERVICE_IMG[i % SERVICE_IMG.length];
             const picked = s.projects?.length ? projects.filter((p) => s.projects!.includes(p.slug)) : null;
             const related = picked ?? projects.filter((p) => (SHOWN_IN[i] ?? []).includes(p.category));
             return (
@@ -83,8 +86,12 @@ export default async function ServicesPage({ params }: PageProps<"/[lang]/servic
           })}
         </div>
       </section>
+        </>
+      )}
 
       {/* how we work */}
+      {show("services", "process") && (
+        <>
       <section className="pb-8 pt-10 md:pb-16 md:pt-16">
         <div className="wrap">
           <div className="border-t border-line pt-14 md:pt-20">
@@ -95,6 +102,8 @@ export default async function ServicesPage({ params }: PageProps<"/[lang]/servic
           </div>
         </div>
       </section>
+        </>
+      )}
 
       <CTA lang={lang} />
     </Page>

@@ -1,6 +1,6 @@
 import { pageMeta } from "@/lib/seo";
 import type { Locale } from "@/data/i18n";
-import { getContent } from "@/lib/content";
+import { getContent, isShown } from "@/lib/content";
 import { rimg } from "@/lib/img";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -24,7 +24,8 @@ const HERO: "swap" | "stack" = "stack";
 
 export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos">) {
   const { lang } = await params;
-  const { ui, about: copy, projects, clients, partners } = await getContent();
+  const { sections, ui, about: copy, projects, clients, partners } = await getContent();
+  const show = (page: string, id: string) => isShown(sections, page, id);
   const T = ui.aboutPage;
   const pillars = copy.pillars;
   const xr = copy.xr;
@@ -39,7 +40,13 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
   }
   const years = [...groups.keys()].sort((a, b) => (a === "dev" ? 1 : b === "dev" ? -1 : Number(b) - Number(a)));
   // the hero photos: one per project, its cover
-  const shots: HeroShot[] = projects.map((p) => ({ ...rimg(p.cover.src), pos: p.cover.pos, title: p.title[lang], href: `${href(lang, "projets")}/${p.slug}` }));
+  const picked = (copy.heroShots ?? []).filter((x) => x.src);
+  const shots: HeroShot[] = picked.length
+    ? picked.map((x) => {
+        const p = projects.find((q) => q.slug === x.slug);
+        return { ...rimg(x.src), pos: x.pos, title: p?.title[lang] ?? "", href: p ? `${href(lang, "projets")}/${p.slug}` : href(lang, "projets") };
+      })
+    : projects.map((p) => ({ ...rimg(p.cover.src), pos: p.cover.pos, title: p.title[lang], href: `${href(lang, "projets")}/${p.slug}` }));
   const bySlug = (slug: string) => projects.find((p) => p.slug === slug);
 
   return (
@@ -70,6 +77,8 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
       </section>
 
       {/* XR — what the name means, each technology with one of our projects */}
+      {show("about", "xr") && (
+        <>
       <section className="py-20 md:py-32">
         <div className="wrap">
           <Reveal>
@@ -111,13 +120,21 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
           </div>
         </div>
       </section>
+        </>
+      )}
 
       {/* COMMITMENT — four promises: the one being read lights up */}
+      {show("about", "commitments") && (
+        <>
       <section className="py-20 md:py-28">
         <Commitments kicker={pillars.kicker[lang]} title={pillars.title[lang]} items={pillars.items.map((it) => ({ t: it.t[lang], d: it.d[lang] }))} />
       </section>
+        </>
+      )}
 
       {/* JOURNEY — one card per year, each sliding over the previous one */}
+      {show("about", "journey") && (
+        <>
       <section className="pb-16 pt-12 md:pb-24 md:pt-20">
         <div className="wrap">
           <Reveal>
@@ -134,8 +151,12 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
           </div>
         </div>
       </section>
+        </>
+      )}
 
       {/* TRUST — the clients and partners we work with */}
+      {show("about", "trust") && (
+        <>
       <section className="border-y border-line py-10 md:py-14">
         <div className="wrap flex flex-col items-stretch gap-4 md:flex-row md:items-center md:gap-10">
           <p className="shrink-0 text-center text-xs font-semibold uppercase tracking-[0.18em] text-ink/45 md:text-start rtl:text-sm rtl:tracking-normal">{ui.trust[lang]}</p>
@@ -144,8 +165,12 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
           </div>
         </div>
       </section>
+        </>
+      )}
 
       {/* WHERE */}
+      {show("about", "where") && (
+        <>
       <section className="py-20 md:py-28">
         <div className="wrap">
           <Reveal className="grid items-center gap-8 md:grid-cols-[auto_minmax(0,1fr)] md:gap-14">
@@ -163,6 +188,8 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
           </Reveal>
         </div>
       </section>
+        </>
+      )}
 
       <CTA lang={lang} />
     </Page>

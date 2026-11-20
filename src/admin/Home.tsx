@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { services as defServices, steps as defSteps, type Service } from "@/data/i18n";
 import { sb } from "./sb";
 import { Section } from "./Projects";
-import { countMissingEn, MissingEn, moveItem, RowTools, SaveBar, TField, Toggle } from "./ui";
+import { countMissingEn, FocusPicker, MediaBox, MissingEn, moveItem, RowTools, SaveBar, TField, Toggle } from "./ui";
+import { SERVICE_IMG } from "@/components/ServiceBento";
 import { useContentKey } from "./useContent";
 
 const LABELS: Record<string, { name: string; sub: string }> = {
@@ -65,6 +66,13 @@ export default function HomeTab() {
         {sv.map((s, i) => (
           <div key={i} className="flex gap-3 rounded-xl bg-black/[0.025] p-4">
             <div className="grid flex-1 gap-3">
+              <div className="grid gap-3 md:grid-cols-[14rem_1fr]">
+                <div>
+                  <div className="mb-1.5 text-sm font-semibold">{tr("الصورة")}</div>
+                  <MediaBox folder="services" height="h-32" value={{ src: s.image ?? SERVICE_IMG[i % 4].src }} onChange={(m) => services.setValue(sv.map((x, j) => (j === i ? { ...x, image: m.src } : x)))} />
+                </div>
+                <FocusPicker src={s.image ?? SERVICE_IMG[i % 4].src} value={s.pos ?? SERVICE_IMG[i % 4].pos} onChange={(v) => services.setValue(sv.map((x, j) => (j === i ? { ...x, pos: v } : x)))} />
+              </div>
               <TField label={tr("الخدمة {0}", i + 1)} value={s.title} onChange={(v) => services.setValue(sv.map((x, j) => (j === i ? { ...x, title: v } : x)))} />
               <TField label={tr("الوصف")} multi value={s.text} onChange={(v) => services.setValue(sv.map((x, j) => (j === i ? { ...x, text: v } : x)))} />
               <div>
@@ -102,6 +110,16 @@ export default function HomeTab() {
         {st.map((s, i) => (
           <div key={i} className="flex gap-3 rounded-xl bg-black/[0.025] p-4">
             <div className="grid flex-1 gap-3">
+              <div className="grid gap-3 md:grid-cols-[14rem_1fr]">
+                <div>
+                  <div className="mb-1.5 text-sm font-semibold">{tr("الصورة")}</div>
+                  <MediaBox folder="steps" height="h-32" value={s.image ? { src: s.image } : null} onChange={(m) => steps.setValue(st.map((x, j) => (j === i ? { ...x, image: m.src } : x)))} />
+                </div>
+                <div className="grid gap-3">
+                  <FocusPicker src={s.image} value={(s as { pos?: string }).pos} onChange={(v) => steps.setValue(st.map((x, j) => (j === i ? { ...x, pos: v } : x)))} />
+                </div>
+                <TField label={tr("التعليق تحت الصورة")} value={s.caption} onChange={(v) => steps.setValue(st.map((x, j) => (j === i ? { ...x, caption: v } : x)))} />
+              </div>
               <TField label={tr("الخطوة {0}", i + 1)} value={s.title} onChange={(v) => steps.setValue(st.map((x, j) => (j === i ? { ...x, title: v } : x)))} />
               <TField label={tr("النص")} multi value={s.text} onChange={(v) => steps.setValue(st.map((x, j) => (j === i ? { ...x, text: v } : x)))} />
             </div>

@@ -284,7 +284,7 @@ export const ui = {
 } as const;
 
 /** A service card. `projects` = slugs of the projects shown under it on the Services page (empty = by category). */
-export type Service = { n: string; title: T; text: T; projects?: string[] };
+export type Service = { n: string; title: T; text: T; projects?: string[]; image?: string; pos?: string };
 
 export const services: Service[] = [
   {

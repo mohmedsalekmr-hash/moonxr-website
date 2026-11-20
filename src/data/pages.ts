@@ -2,6 +2,8 @@ import type { T } from "./i18n";
 
 /** Texts of the «À propos» page (editable in /admin → نصوص الموقع). */
 export const aboutPage = {
+  /** Photos of the opening stack; empty = one cover per project */
+  heroShots: [] as { src: string; pos?: string; slug: string }[],
   title: {
     fr: "La division technologie immersive de Moon Technology.",
     ar: "قسم التقنيات التفاعلية في Moon Technology.", en: "The immersive technology division of Moon Technology.",
