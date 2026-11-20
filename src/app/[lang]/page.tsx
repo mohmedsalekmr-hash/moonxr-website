@@ -151,7 +151,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 />
               </Reveal>
               <Reveal className="mt-8 md:mt-12">
-                <EcoGrid partners={partners} suppliers={suppliers} lang={lang} labels={{ partner: ui.home.partnerLabel[lang], supplier: ui.partners.suppliers[lang] }} more={{ href: `${pageHref(lang, "partenaires")}#technologies`, label: ui.home.allTech[lang] }} />
+                <EcoGrid partners={partners} suppliers={suppliers} lang={lang} labels={{ partner: ui.home.partnerLabel[lang], supplier: ui.partners.suppliers[lang] }} more={{ href: `${pageHref(lang, "partenaires")}`, label: ui.home.allTech[lang] }} />
               </Reveal>
             </div>
           </section>

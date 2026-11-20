@@ -27,25 +27,32 @@ export function EcoGrid({ partners, suppliers, lang, labels, more }: { partners:
   const techs = suppliers.filter((o) => !partners.some((p) => p.name === o.name));
   return (
     <div>
-      {/* Partners: two big logos, no boxes, a single hairline between them */}
-      <div className="grid grid-cols-2 items-start gap-4 sm:grid-cols-[1fr_1px_1fr] sm:items-center sm:gap-0">
+      {/* Partners: two big logos floating gently, a fading hairline with a yellow dot between them */}
+      <div className="grid grid-cols-[1fr_1px_1fr] items-center">
         {partners.map((o, i) => (
           <Fragment key={o.name}>
-            {i > 0 && <span className="hidden h-28 w-px bg-ink/10 sm:mx-auto sm:block" />}
-            <div className="group flex flex-col items-center gap-3 rounded-[var(--radius-sm)] bg-white p-4 text-center sm:gap-5 sm:bg-transparent sm:p-0 sm:py-4">
-              <div className="grid h-[70px] place-items-center transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-[1.04] sm:h-[120px]">
-                <span className="sm:hidden">
-                  <Logo org={o} area={4200} maxW={130} maxH={64} eager />
+            {i > 0 && (
+              <span className="relative mx-auto h-28 w-px bg-gradient-to-b from-transparent via-ink/15 to-transparent sm:h-40" aria-hidden>
+                <span className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sun" />
+              </span>
+            )}
+            <Link href={more ? more.href.split("#")[0] + "#partenaires" : "#"} className="partner-logo group flex flex-col items-center gap-4 px-2 py-4 text-center sm:gap-6 sm:py-6">
+              <div className="relative grid h-[84px] place-items-center sm:h-[150px]">
+                <span className="float relative transition-transform duration-500 group-hover:scale-[1.07]" style={{ animationDelay: `${i * -3}s` }}>
+                  <span className="sm:hidden">
+                    <Logo org={o} area={5200} maxW={140} maxH={74} eager />
+                  </span>
+                  <span className="hidden sm:block">
+                    <Logo org={o} area={15500} maxW={290} maxH={140} />
+                  </span>
                 </span>
-                <span className="hidden sm:block">
-                  <Logo org={o} area={10500} maxW={240} maxH={120} />
-                </span>
+                <span aria-hidden className="partner-shadow" style={{ animationDelay: `${i * -3}s` }} />
               </div>
               <div>
                 <div className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-brand rtl:text-xs rtl:tracking-normal">{labels.partner}</div>
-                <div className="mt-1 text-[0.8rem] leading-snug text-ink/60 sm:text-sm sm:text-ink/60">{o.role?.[lang]}</div>
+                <div className="mt-1 text-[0.8rem] leading-snug text-ink/55 sm:text-sm">{o.role?.[lang]}</div>
               </div>
-            </div>
+            </Link>
           </Fragment>
         ))}
       </div>

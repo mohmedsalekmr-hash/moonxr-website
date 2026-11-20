@@ -610,3 +610,12 @@ section[data-explore] { color: #fff; }
 }
 @keyframes story-wheel { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: 1; } 80%, 100% { opacity: 0; transform: translateY(8px); } }
 @media (prefers-reduced-motion: reduce) { .story-fill { animation-duration: 0s !important; } .story-mouse::after { animation: none; } }
+
+/* home: the two partner logos — a soft halo and a floating shadow */
+.partner-shadow {
+  position: absolute; left: 50%; bottom: -14px; width: 55%; height: 10px; margin-left: -27.5%; border-radius: 999px;
+  background: radial-gradient(closest-side, rgba(20, 36, 84, 0.18), transparent);
+  animation: partner-shadow 6s ease-in-out infinite;
+}
+@keyframes partner-shadow { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(0.82); opacity: 0.6; } }
+@media (prefers-reduced-motion: reduce) { .partner-shadow { animation: none; } }
