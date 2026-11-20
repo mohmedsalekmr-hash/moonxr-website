@@ -7,6 +7,7 @@ import { alternates } from "@/lib/seo";
 import { DEFAULT_SHARE_IMAGE } from "@/data/seo";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import EditMode from "@/components/EditMode";
 import SmoothScroll from "@/components/SmoothScroll";
 import { ContentProvider } from "@/components/ContentProvider";
 import { getContent } from "@/lib/content";
@@ -72,6 +73,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
         <Header lang={lang} />
         <main>{children}</main>
         <Footer lang={lang} />
+        <EditMode />
       </ContentProvider>
       </body>
     </html>
