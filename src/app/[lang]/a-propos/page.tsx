@@ -6,9 +6,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
 import { notFound } from "next/navigation";
-import { hasLocale, href } from "@/data/i18n";
+import { hasLocale, href, isRtl } from "@/data/i18n";
 import { Reveal } from "@/components/Media";
 import CTA from "@/components/CTA";
+import { HeroStack, HeroSwap, type HeroShot } from "@/components/AboutHeroVisual";
 import Page from "@/components/Page";
 import { LogoMarquee } from "@/components/Logos";
 
@@ -17,6 +18,8 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/a-propos">
   return pageMeta(lang as Locale, "a-propos");
 }
 
+
+const HERO: "swap" | "stack" = "swap";
 
 export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos">) {
   const { lang } = await params;
@@ -34,29 +37,23 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
     groups.set(y, [...(groups.get(y) ?? []), p]);
   }
   const years = [...groups.keys()].sort((a, b) => (a === "dev" ? 1 : b === "dev" ? -1 : Number(b) - Number(a)));
-  // the photo ribbon: every project's cover, then its other pictures, each once
-  const seen = new Set<string>();
-  const ribbon = projects
-    .flatMap((p) => [p.cover.src, ...p.scenes.filter((s) => s.media.type === "image").map((s) => s.media.src)].map((src) => ({ src, p })))
-    .filter((x) => !seen.has(x.src) && seen.add(x.src))
-    .slice(0, 14);
-  const rowA = ribbon.filter((_, i) => i % 2 === 0);
-  const rowB = ribbon.filter((_, i) => i % 2 === 1);
+  // the hero photos: one per project, its cover
+  const shots: HeroShot[] = projects.map((p) => ({ ...rimg(p.cover.src), pos: p.cover.pos, title: p.title[lang], href: `${href(lang, "projets")}/${p.slug}` }));
   const bySlug = (slug: string) => projects.find((p) => p.slug === slug);
 
   return (
     <Page>
-      {/* HERO — who we are, in one sentence, then our work moving underneath */}
-      <section className="relative overflow-hidden pt-28 md:pt-40">
+      {/* HERO — who we are, with our work beside it */}
+      <section className="relative overflow-hidden pb-16 pt-28 md:pb-24 md:pt-36">
         <div className="absolute inset-x-0 top-0 -z-10 h-[560px] bg-[radial-gradient(50%_70%_at_85%_10%,rgba(37,60,128,0.10),transparent_70%),linear-gradient(180deg,#eef1f9,#ffffff)]" />
-        <div className="wrap">
-          <div className="kicker" style={{ animation: "rise .8s cubic-bezier(.2,.7,.2,1) both" }}>{ui.nav.about[lang]}</div>
-          <h1 className="font-display mt-5 max-w-5xl text-[2.3rem] font-bold leading-[1.06] tracking-tight md:text-7xl md:leading-[1.02]" style={{ animation: "rise .9s .08s cubic-bezier(.2,.7,.2,1) both" }}>
-            {copy.title[lang]}
-          </h1>
-          <div className="mt-7 grid grid-cols-[minmax(0,1fr)] gap-6 md:mt-10 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] md:items-end md:gap-16" style={{ animation: "rise .9s .16s cubic-bezier(.2,.7,.2,1) both" }}>
-            <p className="max-w-2xl text-lg leading-relaxed text-ink/70 md:text-xl">{copy.sub[lang]}</p>
-            <div>
+        <div className="wrap grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16">
+          <div>
+            <div className="kicker" style={{ animation: "rise .8s cubic-bezier(.2,.7,.2,1) both" }}>{ui.nav.about[lang]}</div>
+            <h1 className="font-display mt-5 text-[2.3rem] font-bold leading-[1.06] tracking-tight md:text-6xl md:leading-[1.04]" style={{ animation: "rise .9s .08s cubic-bezier(.2,.7,.2,1) both" }}>
+              {copy.title[lang]}
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink/70 md:text-xl" style={{ animation: "rise .9s .16s cubic-bezier(.2,.7,.2,1) both" }}>{copy.sub[lang]}</p>
+            <div className="mt-8" style={{ animation: "rise .9s .24s cubic-bezier(.2,.7,.2,1) both" }}>
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/45 rtl:tracking-normal">{copy.sectors[lang]}</div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {copy.sectorList[lang].map((s) => (
@@ -65,10 +62,9 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
               </div>
             </div>
           </div>
-        </div>
-        <div className="mt-12 space-y-3 md:mt-20 md:space-y-4">
-          <Ribbon items={rowA} lang={lang} />
-          <Ribbon items={rowB} lang={lang} reverse />
+          <div style={{ animation: "rise 1s .2s cubic-bezier(.2,.7,.2,1) both" }}>
+            {HERO === "stack" ? <HeroStack shots={shots} rtl={isRtl(lang)} /> : <HeroSwap shots={shots} rtl={isRtl(lang)} />}
+          </div>
         </div>
       </section>
 
@@ -207,23 +203,3 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
   );
 }
 
-type Item = { src: string; p: { slug: string; title: Record<Locale, string> } };
-const small = (src: string) => (rimg(src).srcSet ? `${src.slice(0, -5)}-480.webp` : src);
-
-/** A slowly moving row of real project photos; each opens its project. */
-function Ribbon({ items, reverse, lang }: { items: Item[]; reverse?: boolean; lang: Locale }) {
-  return (
-    <div className="marquee overflow-hidden" dir="ltr">
-      <div className={`marquee-track gap-3 md:gap-4 ${reverse ? "reverse" : ""}`} style={{ "--speed": "70s" } as React.CSSProperties}>
-        {[...items, ...items].map((x, i) => (
-          <Link key={i} href={`${href(lang, "projets")}/${x.p.slug}`} tabIndex={i >= items.length ? -1 : 0} aria-hidden={i >= items.length} className="group relative block h-40 w-60 shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-navy md:h-56 md:w-80">
-            <img src={small(x.src)} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-            <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-deep/85 to-transparent p-3 pt-10 text-start text-xs font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100" dir={lang === "ar" ? "rtl" : "ltr"}>
-              {x.p.title[lang]}
-            </span>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}

@@ -425,7 +425,7 @@ header { view-transition-name: site-header; }
 .hdr-dark nav a { color: rgba(255, 255, 255, 0.7); }
 .hdr-dark nav a:hover, .hdr-dark nav a[aria-current] { color: #fff; background: rgba(255, 255, 255, 0.08); }
 .hdr-dark a[hreflang], .hdr-dark button { color: #fff; border-color: rgba(255, 255, 255, 0.25); }
-.hdr-dark button span { background-color: #fff; }
+.hdr-dark button span:empty { background-color: #fff; }
 .hdr-dark nav a.bg-ink\/5 { color: #fff; background: rgba(255, 255, 255, 0.1); }
 .hint-swipe {
   animation: hint-swipe 1.6s ease-in-out infinite;
