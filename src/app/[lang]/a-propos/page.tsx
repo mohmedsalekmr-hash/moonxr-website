@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/a-propos">
 }
 
 
-const HERO: "swap" | "stack" = "swap";
+const HERO: "swap" | "stack" = "stack";
 
 export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos">) {
   const { lang } = await params;
