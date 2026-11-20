@@ -275,10 +275,8 @@ export default function TextsTab({ focus }: { focus?: string }) {
               ["sub", tr("الفقرة")],
               ["clientsTitle", tr("عنوان قسم العملاء")],
               ["partnersTitle", tr("عنوان قسم الشركاء")],
-              ["techTitle", tr("عنوان قسم التقنيات")],
-              ["techSub", tr("فقرة قسم التقنيات")],
               ["view", tr("«عرض المشروع»")],
-              ["tech", tr("اسم قسم التقنيات في شريط التنقل")],
+              ["tech", tr("اسم التقنيات فوق جدار الشعارات")],
               ["related", tr("«مشروع أنجزناه معاً»")],
             ] as [keyof PP, string][]
           ).map(([k, label]) => (

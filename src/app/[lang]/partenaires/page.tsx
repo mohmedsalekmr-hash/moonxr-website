@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import { hasLocale } from "@/data/i18n";
 
 import { Reveal } from "@/components/Media";
-import { ClientStories, PartnerSpotlights, TechMarquee } from "@/components/PartnersShowcase";
+import { ClientStories, PartnerSpotlights } from "@/components/PartnersShowcase";
 import { LogoWall, SectionNav } from "@/components/PartnersNav";
 import CTA from "@/components/CTA";
 import Page from "@/components/Page";
@@ -27,7 +27,6 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
   const nav = [
     { id: "clients", label: ui.partners.clients[lang] },
     { id: "partenaires", label: ui.partners.kicker[lang] },
-    { id: "technologies", label: C.tech[lang] },
   ];
 
   // the wall: every logo once, each pointing to the section where it is presented
@@ -35,7 +34,7 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
   const wall = [
     ...clients.map((org) => ({ org, to: "clients", label: nav[0].label })),
     ...partners.map((org) => ({ org, to: "partenaires", label: nav[1].label })),
-    ...techs.map((org) => ({ org, to: "technologies", label: nav[2].label })),
+    ...techs.map((org) => ({ org, to: "", label: C.tech[lang] })),
   ].filter((w) => w.org.logo && !seen.has(w.org.name) && seen.add(w.org.name));
 
   // the wall lights up group by group: clients, partners, then the technologies in two halves
@@ -43,8 +42,8 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
   const phases = [
     { label: nav[0].label, names: clients.map((o) => o.name) },
     { label: nav[1].label, names: partners.map((o) => o.name) },
-    { label: nav[2].label, names: techs.slice(0, half).map((o) => o.name) },
-    { label: nav[2].label, names: techs.slice(half).map((o) => o.name) },
+    { label: C.tech[lang], names: techs.slice(0, half).map((o) => o.name) },
+    { label: C.tech[lang], names: techs.slice(half).map((o) => o.name) },
   ];
 
   return (
@@ -84,19 +83,6 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
           <div className="mt-10 md:mt-14">
             <PartnerSpotlights orgs={partners} projects={projects} lang={lang} labels={{ related: C.related[lang], view: C.view[lang] }} />
           </div>
-        </div>
-      </section>
-
-      {/* TECHNOLOGIES */}
-      <section id="technologies" className="scroll-mt-32 border-t border-line py-14 md:scroll-mt-40 md:py-20">
-        <div className="wrap">
-          <Reveal>
-            <SectionHeader kicker={ui.partners.suppliers[lang]} title={C.techTitle[lang]} />
-            <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink/70">{C.techSub[lang]}</p>
-          </Reveal>
-        </div>
-        <div className="mt-8 md:mt-10">
-          <TechMarquee orgs={techs} lang={lang} />
         </div>
       </section>
 

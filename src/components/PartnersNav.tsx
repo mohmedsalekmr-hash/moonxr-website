@@ -76,7 +76,7 @@ export function LogoWall({ items, phases }: { items: { org: Org; to: string; lab
           return (
             <li key={org.name + to}>
               <a
-                href={`#${to}`}
+                href={to ? `#${to}` : undefined}
                 title={`${org.name} · ${label}`}
                 onMouseEnter={() => setHover(i)}
                 onFocus={() => setHover(i)}
