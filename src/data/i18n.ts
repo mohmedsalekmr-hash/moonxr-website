@@ -210,6 +210,12 @@ export const ui = {
     mute: { fr: "Couper le son", ar: "كتم الصوت", en: "Mute" },
     hintDesk: { fr: "Faites défiler pour la suite", ar: "انزل لمشاهدة البقية", en: "Scroll to continue" },
     hintTouch: { fr: "Glissez vers le haut", ar: "اسحب للأعلى", en: "Swipe up" },
+    open: { fr: "Agrandir", ar: "تكبير", en: "Enlarge" },
+    prev: { fr: "Précédente", ar: "السابقة", en: "Previous" },
+    next: { fr: "Suivante", ar: "التالية", en: "Next" },
+    close: { fr: "Fermer", ar: "إغلاق", en: "Close" },
+    all: { fr: "Toutes les photos et vidéos", ar: "كل الصور والفيديوهات", en: "All photos and videos" },
+    swipe: { fr: "Glissez pour voir la suite", ar: "اسحب لمشاهدة البقية", en: "Swipe to see more" },
   },
   contactList: {
     email: { fr: "E-mail", ar: "البريد الإلكتروني", en: "Email" },

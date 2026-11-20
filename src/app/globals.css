@@ -511,3 +511,5 @@ section[data-explore] { color: #fff; }
 .fade-to-navy {
   background: linear-gradient(180deg, #ffffff 0%, #f3f5fb 18%, #d4dcf1 38%, #8fa2d9 58%, #4b5f9f 76%, #22336a 90%, var(--color-navy) 100%);
 }
+@keyframes hero-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { [style*="hero-zoom"] { animation: none !important; } }

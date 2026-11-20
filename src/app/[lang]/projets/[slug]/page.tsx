@@ -8,7 +8,7 @@ import { ViewTransition } from "react";
 import { hasLocale, locales, href } from "@/data/i18n";
 import { EndTakeover } from "@/components/ProjectEnd";
 
-import { ScrollStory } from "@/components/Story";
+import ProjectStory from "@/components/ProjectStory";
 import Page from "@/components/Page";
 
 // new projects added in /admin are rendered on first visit
@@ -57,32 +57,25 @@ export default async function ProjectPage({
 
   return (
     <Page>
-      {/* STORY — the whole project in one dark, pinned stage; scroll to move through it */}
+      {/* STORY — full-screen opening picture, then the scenes in big pictures; any picture opens the viewer */}
       <ViewTransition name={`project-${p.slug}`} share="morph" default="none">
         <div>
-          <ScrollStory
+          <ProjectStory
+            rtl={lang === "ar"}
+            heroFocus={p.scenes[0]?.media.src === p.cover.src ? p.cover.pos : undefined}
             scenes={p.scenes.map((sc) => ({ media: sc.media, kicker: sc.kicker?.[lang], title: sc.title[lang], text: sc.text?.[lang] }))}
-            soundLabel={L.sound[lang]}
-            muteLabel={L.mute[lang]}
-            hint={{ desktop: L.hintDesk[lang], touch: L.hintTouch[lang] }}
-            opening={
-              <>
-                <nav className="flex flex-wrap items-center gap-2 text-xs text-ink/60" aria-label="Breadcrumb">
-                  <Link href={`${href(lang, "projets")}`} className="hover:text-ink">{ui.nav.projects[lang]}</Link>
-                  <span>/</span>
-                  <span className="text-brand">{p.meta[lang]}</span>
-                </nav>
-                <h1 className="font-display mt-4 text-[1.75rem] font-bold leading-[1.1] md:mt-5 md:text-5xl">{p.title[lang]}</h1>
-                <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/75 md:mt-5 md:text-lg">{p.intro[lang]}</p>
-                <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 border-t border-line pt-3 md:mt-7 md:gap-y-3 md:pt-4">
-                  {p.facts.slice(0, 4).map((f, k) => (
-                    <div key={k}>
-                      <dt className="text-[0.7rem] font-medium uppercase tracking-[0.12em] text-ink/45 rtl:text-xs rtl:tracking-normal">{f.k[lang]}</dt>
-                      <dd className="mt-0.5 text-xs font-semibold text-ink md:text-sm">{f.v[lang]}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </>
+            title={p.title[lang]}
+            intro={p.intro[lang]}
+            facts={p.facts.slice(0, 4).map((f) => ({ k: f.k[lang], v: f.v[lang] }))}
+            galleryKicker={ui.project.gallery[lang]}
+            L={{ open: L.open[lang], prev: L.prev[lang], next: L.next[lang], close: L.close[lang], all: L.all[lang], swipe: L.swipe[lang], sound: L.sound[lang], mute: L.mute[lang] }}
+            heroTop={
+              <nav className="flex flex-wrap items-center gap-2 text-xs font-semibold text-white/80" aria-label="Breadcrumb">
+                <Link href={href(lang, "projets")} className="rounded-full bg-white/15 px-3 py-1.5 backdrop-blur transition hover:bg-white/25">
+                  {ui.nav.projects[lang]}
+                </Link>
+                <span className="rounded-full bg-sun px-3 py-1.5 text-ink">{p.meta[lang]}</span>
+              </nav>
             }
           />
         </div>
