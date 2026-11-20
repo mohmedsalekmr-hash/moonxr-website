@@ -434,4 +434,7 @@ export const DICT: Record<string, [fr: string, en: string]> = {
   "كاملة، مع خلفية ضبابية وطبقة داكنة خفيفة": ["Entière, sur un fond flou avec un léger voile sombre", "Whole, on a blurred background with a light dark layer"],
   "تملأ الإطار (قد يُقصّ جزء منها)": ["Remplit le cadre (peut être recadrée)", "Fills the frame (may be cropped)"],
   "«كاملة» أفضل للصور ذات الجودة المتوسطة. «تملأ الإطار» أجمل للصور الواضحة.": ["« Entière » convient aux photos de qualité moyenne. « Remplit le cadre » est plus beau pour les photos nettes.", "“Whole” suits medium-quality photos. “Fills the frame” looks best with sharp photos."],
+  "«مشروع مميّز» فوق أول مشروع": ["« Projet à la une » au-dessus du premier projet", "“Featured project” above the first project"],
+  "زر عرض «شبكة»": ["Bouton d'affichage « Grille »", "“Grid” view button"],
+  "زر عرض «قائمة»": ["Bouton d'affichage « Liste »", "“List” view button"],
 };

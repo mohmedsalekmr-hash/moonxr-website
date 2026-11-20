@@ -121,6 +121,9 @@ export const ui = {
     all: { fr: "Tous", ar: "الكل", en: "All" },
     seeAll: { fr: "Tous les projets", ar: "كل المشاريع", en: "All projects" },
     view: { fr: "Voir le projet", ar: "عرض المشروع", en: "View project" },
+    grid: { fr: "Grille", ar: "شبكة", en: "Grid" },
+    list: { fr: "Liste", ar: "قائمة", en: "List" },
+    featured: { fr: "Projet à la une", ar: "مشروع مميّز", en: "Featured project" },
     sub: {
       fr: "Événements, simulateurs de formation et une application maison — des projets réalisés en Mauritanie.",
       ar: "فعاليات، ومحاكيات تدريب، وتطبيق من تطويرنا — مشاريع نفّذناها في موريتانيا.",
