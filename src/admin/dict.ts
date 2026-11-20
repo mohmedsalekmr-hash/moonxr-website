@@ -428,4 +428,10 @@ export const DICT: Record<string, [fr: string, en: string]> = {
   "لديك تعديلات غير محفوظة": ["Vous avez des modifications non enregistrées", "You have unsaved changes"],
   "تراجع": ["Annuler", "Undo"],
   "حفظ ونشر": ["Enregistrer et publier", "Save and publish"],
+  "الصورة الأولى في صفحة المشروع": ["Première image de la page projet", "First picture on the project page"],
+  "صورة المشهد الأول": ["Image de la première scène", "First scene's picture"],
+  "طريقة عرضها": ["Affichage", "How it is shown"],
+  "كاملة، مع خلفية ضبابية وطبقة داكنة خفيفة": ["Entière, sur un fond flou avec un léger voile sombre", "Whole, on a blurred background with a light dark layer"],
+  "تملأ الإطار (قد يُقصّ جزء منها)": ["Remplit le cadre (peut être recadrée)", "Fills the frame (may be cropped)"],
+  "«كاملة» أفضل للصور ذات الجودة المتوسطة. «تملأ الإطار» أجمل للصور الواضحة.": ["« Entière » convient aux photos de qualité moyenne. « Remplit le cadre » est plus beau pour les photos nettes.", "“Whole” suits medium-quality photos. “Fills the frame” looks best with sharp photos."],
 };

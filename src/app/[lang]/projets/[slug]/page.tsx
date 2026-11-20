@@ -62,8 +62,9 @@ export default async function ProjectPage({
         <div>
           <ProjectStory
             rtl={lang === "ar"}
-            cover={{ type: "image", src: p.cover.src, w: p.cover.w, h: p.cover.h }}
-            heroFocus={p.cover.pos}
+            cover={p.cover.opening === "scene" && p.scenes[0] ? p.scenes[0].media : { type: "image", src: p.cover.src, w: p.cover.w, h: p.cover.h }}
+            heroFocus={p.cover.opening === "scene" ? undefined : p.cover.pos}
+            fit={p.cover.fit ?? "whole"}
             scenes={p.scenes.map((sc) => ({ media: sc.media, kicker: sc.kicker?.[lang], title: sc.title[lang], text: sc.text?.[lang] }))}
             title={p.title[lang]}
             intro={p.intro[lang]}

@@ -15,7 +15,17 @@ export const projectTag: Record<Category, T> = {
   dev: { fr: "En développement", ar: "قيد التطوير", en: "In development" },
 };
 
-export type Photo = { src: string; alt: T; w: number; h: number; pos?: string };
+export type Photo = {
+  src: string;
+  alt: T;
+  w: number;
+  h: number;
+  pos?: string;
+  /** project page opening: the cover photo (default) or the first scene's picture */
+  opening?: "cover" | "scene";
+  /** opening picture: whole on a blurred copy (default) or filling the frame */
+  fit?: "whole" | "fill";
+};
 export type Reel = { src: string; poster: string; label: T };
 export type Fact = { k: T; v: T };
 
@@ -307,7 +317,7 @@ export const projects: Project[] = [
     title: { fr: "GITEX Africa 2026 — Marrakech", ar: "GITEX Africa 2026 — مراكش", en: "GITEX Africa 2026 — Marrakech" },
     short: { fr: "Démonstrations VR sur casques Moon", ar: "عروض واقع افتراضي بنظارات Moon", en: "VR demonstrations on Moon headsets" },
     meta: { fr: "Salon international · Avril 2026", ar: "معرض دولي · أبريل 2026", en: "International fair · April 2026" },
-    cover: { ...p("gitex-visit", "Un visiteur teste un casque Moon au GITEX Africa", "زائر يجرّب نظارة Moon في GITEX Africa", "A visitor tries a Moon headset at GITEX Africa", 1200, 1600), pos: "50% 35%" },
+    cover: { ...p("gitex-visit", "Un visiteur teste un casque Moon au GITEX Africa", "زائر يجرّب نظارة Moon في GITEX Africa", "A visitor tries a Moon headset at GITEX Africa", 1200, 1600), pos: "50% 35%", opening: "scene", fit: "fill" },
     intro: {
       fr: "Du 7 au 9 avril 2026 à Marrakech, Moon Technology a présenté ses solutions au plus grand salon technologique du continent, avec des démonstrations sur casques de marque Moon.",
       ar: "من 7 إلى 9 أبريل 2026 في مراكش، عرضت Moon Technology حلولها في أكبر معرض تقني في القارة، مع عروض تجريبية بنظارات تحمل علامة Moon.", en: "From 7 to 9 April 2026 in Marrakech, Moon Technology presented its solutions at the continent's largest technology fair, with demonstrations on Moon-branded headsets.",

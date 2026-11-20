@@ -10,7 +10,7 @@ type Category = "event" | "training" | "dev";
 type Media = { type: "image" | "video"; src: string; w: number; h: number; poster?: string; pos?: string };
 type Scene = { media: Media; kicker?: T; title: T; text?: T };
 type Fact = { k: T; v: T };
-type Photo = { src: string; alt: T; w: number; h: number; pos?: string };
+type Photo = { src: string; alt: T; w: number; h: number; pos?: string; opening?: "cover" | "scene"; fit?: "whole" | "fill" };
 type Row = {
   id?: string;
   slug: string;
@@ -261,7 +261,7 @@ function Editor({ initial, taken, onClose }: { initial: Row; taken: string[]; on
 
       <Section title={tr("صورة الغلاف")} sub={tr("تظهر في الصفحة الرئيسية وقائمة المشاريع. الصور تُضغط تلقائياً.")}>
         <div className="grid gap-4 md:grid-cols-[1fr_14rem]">
-          <MediaBox height="h-56" folder={folder} value={p.cover} onChange={(m) => set("cover", { src: m.src, w: m.w, h: m.h, alt: p.title, pos: p.cover?.pos })} />
+          <MediaBox height="h-56" folder={folder} value={p.cover} onChange={(m) => set("cover", { ...p.cover, src: m.src, w: m.w, h: m.h, alt: p.title, pos: p.cover?.pos })} />
           <label className="block">
             <span className="mb-1.5 block text-sm font-semibold">{tr("موضع القصّ")}</span>
             <select className="inp" value={p.cover?.pos ?? ""} disabled={!p.cover} onChange={(e) => p.cover && set("cover", { ...p.cover, pos: e.target.value || undefined })}>
@@ -272,6 +272,23 @@ function Editor({ initial, taken, onClose }: { initial: Row; taken: string[]; on
               ))}
             </select>
             <span className="mt-2 block text-xs leading-5 text-black/45">{tr("الجزء الذي يبقى ظاهراً عندما تُقصّ الصورة في البطاقات.")}</span>
+          </label>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold">{tr("الصورة الأولى في صفحة المشروع")}</span>
+            <select className="inp" value={p.cover?.opening ?? "cover"} disabled={!p.cover} onChange={(e) => p.cover && set("cover", { ...p.cover, opening: e.target.value as "cover" | "scene" })}>
+              <option value="cover">{tr("صورة الغلاف")}</option>
+              <option value="scene">{tr("صورة المشهد الأول")}</option>
+            </select>
+          </label>
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold">{tr("طريقة عرضها")}</span>
+            <select className="inp" value={p.cover?.fit ?? "whole"} disabled={!p.cover} onChange={(e) => p.cover && set("cover", { ...p.cover, fit: e.target.value as "whole" | "fill" })}>
+              <option value="whole">{tr("كاملة، مع خلفية ضبابية وطبقة داكنة خفيفة")}</option>
+              <option value="fill">{tr("تملأ الإطار (قد يُقصّ جزء منها)")}</option>
+            </select>
+            <span className="mt-2 block text-xs leading-5 text-black/45">{tr("«كاملة» أفضل للصور ذات الجودة المتوسطة. «تملأ الإطار» أجمل للصور الواضحة.")}</span>
           </label>
         </div>
       </Section>

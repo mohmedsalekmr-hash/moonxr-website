@@ -226,7 +226,9 @@ export default function ProjectStory({
   rtl,
   heroFocus,
   cover,
+  fit = "whole",
 }: {
+  fit?: "whole" | "fill";
   heroFocus?: string;
   /** the project's cover photo (chosen in the admin) opens the page */
   cover: SceneMedia;
@@ -247,6 +249,9 @@ export default function ProjectStory({
   const media = [hero, ...story.map((s) => s.media)];
   const at = (m: SceneMedia) => Math.max(0, media.findIndex((x) => x.src === m.src));
   const [box, setBox] = useState<number | null>(null);
+  const heroVid = useRef<HTMLVideoElement>(null);
+  useAutoplay(heroVid, 0.2);
+  const whole = fit === "whole";
   const art = useRef<HTMLElement>(null);
   const [progress, setProgress] = useState(0);
 
@@ -297,20 +302,34 @@ export default function ProjectStory({
         <div className="relative mx-auto h-[calc(82svh-64px)] min-h-[420px] max-w-[1400px] overflow-hidden bg-navy-deep md:h-[calc(90vh-88px)] md:rounded-[var(--radius-lg)]">
           <button type="button" onClick={() => setBox(0)} aria-label={L.open} className="absolute inset-0 block overflow-hidden">
             {/* soft blurred copy filling the frame (seen around the picture on computers) */}
-            <img src={rimg(hero.src).srcSet ? `${hero.src.slice(0, -5)}-480.webp` : hero.src} alt="" aria-hidden className="absolute inset-0 hidden h-full w-full scale-110 object-cover opacity-80 blur-2xl saturate-[1.15] md:block" />
-            <img
-              {...rimg(hero.src, "100vw")}
-              alt=""
-              width={hero.w}
-              height={hero.h}
-              loading="eager"
-              fetchPriority="high"
-              className="relative mx-auto h-full w-full object-cover md:w-auto md:max-w-full md:object-contain md:shadow-[0_0_80px_rgba(10,20,49,0.45)]"
-              style={{ objectPosition: heroPos, animation: "hero-zoom 14s ease-out both" }}
-            />
+            {whole && <img src={rimg(still(hero)).srcSet ? `${still(hero).slice(0, -5)}-480.webp` : still(hero)} alt="" aria-hidden className="absolute inset-0 hidden h-full w-full scale-110 object-cover opacity-80 blur-2xl saturate-[1.15] md:block" />}
+            {hero.type === "video" ? (
+              <video
+                ref={heroVid}
+                src={hero.src}
+                poster={hero.poster}
+                muted
+                loop
+                playsInline
+                preload="auto"
+                className={`relative mx-auto h-full w-full object-cover ${whole ? "md:w-auto md:max-w-full md:object-contain" : ""}`}
+                style={{ objectPosition: heroPos }}
+              />
+            ) : (
+              <img
+                {...rimg(hero.src, "100vw")}
+                alt=""
+                width={hero.w}
+                height={hero.h}
+                loading="eager"
+                fetchPriority="high"
+                className={`relative mx-auto h-full w-full object-cover ${whole ? "md:w-auto md:max-w-full md:object-contain md:shadow-[0_0_80px_rgba(10,20,49,0.45)]" : ""}`}
+                style={{ objectPosition: heroPos, animation: "hero-zoom 14s ease-out both" }}
+              />
+            )}
           </button>
           {/* light dark layer: calmer picture, readable title */}
-          <div className="pointer-events-none absolute inset-0 bg-navy-deep/20" />
+          {whole && <div className="pointer-events-none absolute inset-0 bg-navy-deep/20" />}
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(10,20,49,0.15)_0%,rgba(10,20,49,0)_35%,rgba(10,20,49,0.55)_65%,rgba(10,20,49,0.92)_100%)]" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-9 md:px-14 md:pb-14">
             <div className="pointer-events-auto max-w-3xl" style={{ animation: "rise .9s .15s cubic-bezier(.2,.7,.2,1) both" }}>
