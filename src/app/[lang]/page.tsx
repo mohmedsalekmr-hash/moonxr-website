@@ -33,8 +33,9 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const S: Record<string, React.ReactNode> = {
     hero: (
       <>
-          {/* 1 — HERO: the headset */}
-          <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pb-14 md:flex-row md:items-center md:pb-0">
+          {/* 1 — HERO: the headset; scrolling on tells its story (one screen per part) while the stage stays */}
+          <div data-story className="relative" style={{ height: `calc(${(explorer.steps.length + 2.5) * 100}svh)` }}>
+          <section className="sticky top-0 isolate flex h-[100svh] flex-col overflow-hidden pb-14 md:flex-row md:items-center md:pb-0">
             <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_70%_at_72%_45%,rgba(37,60,128,0.12),transparent_70%),linear-gradient(180deg,#eef1f9,#ffffff)] rtl:bg-[radial-gradient(60%_70%_at_28%_45%,rgba(37,60,128,0.12),transparent_70%),linear-gradient(180deg,#eef1f9,#ffffff)]" />
             {/* phone: the headset has its own stage above the text; desktop: full-bleed behind it */}
             <div className="hero-stage relative z-0 mt-16 h-[40svh] min-h-[270px] w-full md:absolute md:inset-0 md:mt-0 md:h-auto">
@@ -59,6 +60,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             </div>
             <div className="hero-fade pointer-events-none absolute inset-x-0 bottom-0 z-10 h-32 bg-gradient-to-t from-white to-transparent" />
           </section>
+          </div>
 
       </>
     ),

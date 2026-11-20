@@ -8,9 +8,9 @@ type Api = { enter: () => void; exit: () => void; focus: (id: string | null, gro
 
 /**
  * Hero 3D scene: a real Meta Quest 3 (CC BY 4.0, Roberto Domínguez) with the Moon XR logo.
- * Idle: it turns slowly and can be dragged. Click it → explore mode: the page copy fades,
- * the headset comes to the centre, the controllers fly in, callouts appear on each part,
- * and the visitor can rotate, zoom (wheel / pinch) and read what every part does.
+ * Idle: it turns slowly and can be dragged. Scrolling on (or clicking it) tells its story:
+ * the page copy fades, the headset comes to the centre, the controllers fly in, and each
+ * screen of scrolling turns the camera to one part with a big headline beside it.
  */
 export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lang: Locale; data?: Explorer }) {
   // texts of the headset tour, edited in the admin (site texts → 3D headset)
@@ -22,72 +22,106 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
   const [ready, setReady] = useState(false);
   const [explore, setExplore] = useState(false);
   const [active, setActive] = useState<string | null>(null);
-  const [tour, setTour] = useState(false);
   const [hint, setHint] = useState(false);
   const hintRef = useRef<HTMLDivElement>(null);
   const userAct = useRef<() => void>(() => {});
-  /** «choose»: the start card (tour or free); «tour»: guided; «free»: the visitor drives */
-  const [mode, setMode] = useState<"choose" | "tour" | "free">("choose");
-  const [paused, setPaused] = useState(false);
   const activeRef = useRef<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<SVGPathElement>(null);
   const dotRef = useRef<SVGCircleElement>(null);
-  const shownAt = useRef(0);
-  const chapters = useRef<HTMLDivElement>(null);
 
   const select = useCallback((id: string | null) => {
     setActive(id);
     activeRef.current = id;
     api.current?.focus(id, id ? (steps.find((s) => s.id === id)?.group ?? null) : null);
-  }, []);
-  const enter = useCallback(() => {
-    if (!api.current) return; // 3D scene still loading
-    setExplore(true);
-    setActive(null);
-    setHint(false);
-    api.current?.enter();
-    setMode("choose"); // a short start card: guided tour or explore alone
-    setTour(false);
-  }, []);
-  const exit = useCallback(() => {
-    setExplore(false);
-    setActive(null);
-    activeRef.current = null;
-    setMode("choose");
-    setTour(false);
-    api.current?.exit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // the hero's "Explorer le casque" button
+  /**
+   * The story is told while scrolling: the hero section is tall and its stage stays on screen.
+   * One screen of scrolling = one stage: -1 hero, 0 overview, 1…n one part each.
+   */
+  const [stage, setStage] = useState(-1);
+  const storyEl = useCallback(() => host.current?.closest<HTMLElement>("[data-story]") ?? null, []);
+  const scrollToStage = useCallback(
+    (st: number) => {
+      const el = storyEl();
+      if (!el) return;
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      // stage k is fully shown around the middle of its screen
+      const u = st < 0 ? 0 : st === 0 ? 1 : st + 1;
+      window.scrollTo({ top: top + u * window.innerHeight, behavior: "smooth" });
+    },
+    [storyEl],
+  );
+  const enter = useCallback(() => scrollToStage(0), [scrollToStage]);
+  // the hero's «Explore the headset» button
   useEffect(() => {
     const on = () => enter();
     window.addEventListener("mx-explore", on);
     return () => window.removeEventListener("mx-explore", on);
   }, [enter]);
+  const jumpRef = useRef<(id: string) => void>(() => {});
+  useEffect(() => {
+    jumpRef.current = (id: string) => scrollToStage(steps.findIndex((s) => s.id === id) + 1);
+  }, [scrollToStage, steps]);
 
-  // page copy fades out while exploring; Escape closes
+  useEffect(() => {
+    const el = storyEl();
+    if (!el) return;
+    let raf = 0;
+    const read = () => {
+      raf = 0;
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const u = -r.top / vh; // screens scrolled into the section
+      const st = u < 0.45 ? -1 : u < 1.5 ? 0 : Math.min(steps.length, Math.floor(u - 0.5));
+      setStage((cur) => (cur === st ? cur : st));
+      // the active part's progress bar (0→1 across its screen)
+      el.style.setProperty("--story-p", String(Math.min(1, Math.max(0, u - 0.5 - Math.floor(u - 0.5)))));
+    };
+    const on = () => {
+      if (!raf) raf = requestAnimationFrame(read);
+    };
+    read();
+    window.addEventListener("scroll", on, { passive: true });
+    window.addEventListener("resize", on);
+    return () => {
+      window.removeEventListener("scroll", on);
+      window.removeEventListener("resize", on);
+      cancelAnimationFrame(raf);
+    };
+  }, [storyEl, steps.length]);
+
+  // stage → scene: enter the story, focus the part, or go back to the hero
+  useEffect(() => {
+    if (!ready) return;
+    if (stage < 0) {
+      if (explore) {
+        setExplore(false);
+        setActive(null);
+        activeRef.current = null;
+        api.current?.exit();
+      }
+      return;
+    }
+    if (!explore) {
+      setExplore(true);
+      setHint(false);
+      api.current?.enter();
+    }
+    select(stage === 0 ? null : steps[stage - 1].id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage, ready]);
+
+  // the page copy fades and the header turns dark while the story is told
   useEffect(() => {
     const section = host.current?.closest("section");
     if (!section) return;
     window.dispatchEvent(new CustomEvent("mx-studio", { detail: explore }));
     if (explore) section.setAttribute("data-explore", "");
     else section.removeAttribute("data-explore");
-    if (!explore) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && exit();
-    window.addEventListener("keydown", onKey);
-    const phone = window.matchMedia("(max-width: 767px)").matches;
-    if (phone) {
-      document.documentElement.style.overflow = "hidden";
-      document.documentElement.setAttribute("data-explore-full", "");
-    }
-    else section.scrollIntoView({ behavior: "smooth", block: "start" });
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.documentElement.style.overflow = "";
-      document.documentElement.removeAttribute("data-explore-full");
-    };
-  }, [explore, exit]);
+  }, [explore]);
 
   useEffect(() => {
     const el = host.current;
@@ -274,7 +308,7 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
       let exploring = false;
       // while exploring, the 3D set must fit in the area left free by the title (top) and the info card
       // (right on desktop, bottom on phones): fractions of the canvas
-      const area = () => (wide ? { w: 0.58, h: 0.66 } : { w: 0.94, h: 0.46 });
+      const area = () => (wide ? { w: 0.52, h: 0.78 } : { w: 0.94, h: 0.46 });
       const fitDist = (r: number) => {
         const a = area();
         const t = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
@@ -292,7 +326,7 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
         renderer.setSize(w, h, false);
         camera.aspect = w / h;
         // centre of the free area: desktop x 4–64 %, y 18–90 %; phone y 10–56 %
-        shiftGoalX = exploring ? (wide ? (rtl ? -0.16 : 0.16) * w : 0) : wide ? (rtl ? 0.22 : -0.22) * w : 0;
+        shiftGoalX = exploring ? (wide ? (rtl ? -0.2 : 0.2) * w : 0) : wide ? (rtl ? 0.22 : -0.22) * w : 0;
         shiftGoalY = exploring ? (wide ? 0.02 * h : 0.17 * h) : wide ? 0 : 0.07 * h;
         camera.updateProjectionMatrix();
       };
@@ -340,11 +374,12 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
         enter: () => {
           exploring = true;
           ctrlGoal = 1;
-          controls.enabled = true;
-          controls.enableZoom = true;
+          // the page keeps scrolling: drag to turn on computers only, never zoom
+          controls.enabled = !touch;
+          controls.enableZoom = false;
           controls.autoRotate = false;
-          renderer.domElement.style.touchAction = "none";
-          renderer.domElement.style.cursor = "grab";
+          renderer.domElement.style.touchAction = "pan-y";
+          renderer.domElement.style.cursor = touch ? "default" : "grab";
           resize();
           setLayout(!wide);
           refreshPts();
@@ -393,9 +428,7 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
         downY = e.clientY;
         userAct.current();
       };
-      const onDbl = () => {
-        if (exploring) select(null);
-      };
+      const onDbl = () => {};
       const onUp = (e: PointerEvent) => {
         if (Math.hypot(e.clientX - downX, e.clientY - downY) > 6) return;
         const r = renderer.domElement.getBoundingClientRect();
@@ -416,7 +449,7 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
             best = c;
           }
         }
-        select(best);
+        jumpRef.current(best);
       };
       renderer.domElement.addEventListener("pointerdown", onDown);
       renderer.domElement.addEventListener("pointerup", onUp);
@@ -590,79 +623,29 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
 
   const idx = active ? steps.findIndex((s) => s.id === active) : -1;
   const step = idx >= 0 ? steps[idx] : null;
-  const move = useCallback(
-    (d: number) => {
-      const i = active ? steps.findIndex((s) => s.id === active) : -1;
-      const n = i < 0 ? (d > 0 ? 0 : steps.length - 1) : (i + d + steps.length) % steps.length;
-      select(steps[n].id);
-    },
-    [active, select],
-  );
 
-  // any touch on the scene stops the idle hint and the guided tour
+  // a touch on the scene stops the idle hint
   useEffect(() => {
-    userAct.current = () => {
-      setHint(false);
-      setTour(false);
-      setMode((m) => (m === "tour" ? "free" : m));
-    };
+    userAct.current = () => setHint(false);
   }, []);
-
-  // guided tour: one part every 8 s (time to read it), paused while the card is hovered or touched
-  const TOUR_MS = 8000;
-  const [left, setLeft] = useState(TOUR_MS);
-  useEffect(() => {
-    setLeft(TOUR_MS);
-    setPaused(false);
-    shownAt.current = Date.now();
-    // the chapter in focus scrolls into view in the bar (phones)
-    chapters.current?.querySelector<HTMLElement>("[aria-current]")?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
-  }, [active]);
-  useEffect(() => {
-    if (!tour || paused) return;
-    const started = Date.now();
-    const t = setTimeout(() => {
-      if (idx === steps.length - 1) {
-        setTour(false);
-        setMode("free");
-        select(null);
-      } else move(1);
-    }, left);
-    return () => {
-      clearTimeout(t);
-      setLeft((l) => Math.max(0, l - (Date.now() - started)));
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tour, paused, idx]);
-  const startTour = useCallback(() => {
-    setMode("tour");
-    setTour(true);
-    setPaused(false);
-    select(steps[0].id);
-  }, [select, steps]);
-  const goFree = useCallback((id?: string) => {
-    setMode("free");
-    setTour(false);
-    if (id) select(id);
-  }, [select]);
 
   // a very slow turn while a part is being read
   useEffect(() => {
-    api.current?.drift(explore && !!active && !paused);
-  }, [explore, active, paused]);
+    api.current?.drift(explore && !!active);
+  }, [explore, active]);
 
-  // keyboard: arrows move between parts
+  // keyboard: arrows go to the previous / next part
   useEffect(() => {
     if (!explore) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-      setTour(false);
-      setMode("free");
-      move((e.key === "ArrowRight") !== rtl ? 1 : -1);
+      if (e.key !== "ArrowDown" && e.key !== "ArrowUp" && e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      const fwd = e.key === "ArrowDown" || (e.key === "ArrowRight") !== rtl;
+      e.preventDefault();
+      scrollToStage(Math.max(0, Math.min(steps.length, stage + (fwd ? 1 : -1))));
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [explore, move, rtl]);
+  }, [explore, stage, rtl, scrollToStage, steps.length]);
 
   const t = (v: { fr: string; ar: string; en?: string }) => v[lang] ?? v.fr;
 
@@ -700,7 +683,7 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
         </div>
       )}
 
-      {/* numbered points on the model: the name shows on hover and for the part in focus */}
+      {/* numbered points on the model */}
       {explore &&
         steps.map((s, i) => (
           <div
@@ -712,158 +695,78 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
             className="callout pointer-events-none absolute left-0 top-0"
             style={{ animationDelay: `${s.group === "headset" ? 0.9 + i * 0.1 : 2.6 + i * 0.1}s` }}
           >
-            <button type="button" onClick={() => goFree(s.id)} className={`hs-dot pointer-events-auto ${active === s.id ? "is-active" : ""}`} aria-label={s.title[lang]}>
+            <button type="button" onClick={() => jumpRef.current(s.id)} className={`hs-dot pointer-events-auto ${active === s.id ? "is-active" : ""}`} aria-label={s.title[lang]}>
               {i + 1}
             </button>
-            <span className={`hs-name ${active === s.id ? "is-active" : ""}`} dir={rtl ? "rtl" : "ltr"}>
-              {s.title[lang]}
-            </span>
           </div>
         ))}
 
-      {/* leader line from the part in focus to the info card (computers) */}
-      {explore && (
-        <svg className="pointer-events-none absolute inset-0 z-[5] hidden h-full w-full md:block" aria-hidden>
-          <path key={active ?? "none"} ref={lineRef} className="hs-line" d="M0,0" />
-          <circle ref={dotRef} r="3.5" className="fill-sun transition-opacity duration-300" style={{ opacity: 0 }} />
-        </svg>
-      )}
-
-      {/* explore UI */}
+      {/* the story: one big headline per part, beside the headset */}
       {explore && (
         <>
-          <div className="pointer-events-none absolute inset-x-0 top-[max(1rem,env(safe-area-inset-top))] z-10 md:top-24">
-            <div className="wrap flex items-start justify-between gap-4">
-              <div dir={rtl ? "rtl" : "ltr"}>
-                <div className="kicker !text-sun">{explorer.kicker[lang]}</div>
-                <div className="mt-1 hidden text-sm text-white/55 md:block">{t(explorer.help)}</div>
+          <div className="pointer-events-none absolute inset-x-0 bottom-[max(2rem,env(safe-area-inset-bottom))] z-10 md:bottom-0 md:top-0 md:flex md:items-center">
+            <div className="wrap">
+              <div dir={rtl ? "rtl" : "ltr"} className="md:me-0 md:ms-auto md:w-[min(440px,40vw)]">
+                {/* progress: one segment per part, the current one fills while scrolling */}
+                <div className="pointer-events-auto mb-5 flex gap-1.5 md:mb-8" dir={rtl ? "rtl" : "ltr"}>
+                  {steps.map((s, i) => (
+                    <button key={s.id} type="button" onClick={() => jumpRef.current(s.id)} aria-label={s.title[lang]} className="group flex-1 py-2">
+                      <span className="block h-[3px] overflow-hidden rounded-full bg-white/20 transition group-hover:bg-white/35">
+                        <span className="block h-full rounded-full bg-sun" style={{ width: i < idx ? "100%" : i === idx ? "calc(var(--story-p, 0) * 100%)" : "0%" }} />
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <div key={active ?? "intro"} className="story-text">
+                  <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-sun rtl:text-sm rtl:tracking-normal">
+                    <span>{step ? explorer.groups[step.group][lang] : "Meta Quest 3"}</span>
+                    {step && (
+                      <span className="tabular-nums text-white/40" dir="ltr">
+                        {String(idx + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="font-display mt-3 text-[2.1rem] font-bold leading-[1.02] tracking-tight text-white md:text-6xl">
+                    {step ? step.title[lang] : explorer.intro.title[lang]}
+                  </h3>
+                  <p className="mt-3 max-w-md text-base leading-relaxed text-white/70 md:mt-5 md:text-xl">{step ? step.text[lang] : explorer.intro.text[lang]}</p>
+                  <Figures text={t((step ? step.spec : explorer.introSpec) ?? { fr: "", ar: "" })} />
+                </div>
               </div>
-              <button type="button" onClick={exit} className="pointer-events-auto btn btn-line btn-sm">
-                ✕ {t(explorer.close)}
-              </button>
             </div>
           </div>
 
-          {/* start card: guided tour or explore alone */}
-          {!step && (
-            <div className="absolute inset-x-0 bottom-[max(5.5rem,calc(env(safe-area-inset-bottom)+5rem))] z-10 md:bottom-auto md:top-1/2 md:-translate-y-1/2">
-              <div className="wrap">
-                <div dir={rtl ? "rtl" : "ltr"} className="vr-card mx-auto w-full max-w-md md:me-0 md:ms-auto md:max-w-[380px]">
-                  <div className="text-xs font-semibold text-sun">Meta Quest 3</div>
-                  <h3 className="font-display mt-1.5 text-2xl font-bold leading-tight md:text-3xl">{explorer.intro.title[lang]}</h3>
-                  <p className="mt-2 hidden text-base leading-relaxed text-white/80 md:block">{explorer.intro.text[lang]}</p>
-                  <div className="hidden md:block">
-                    <Specs text={t(explorer.introSpec)} />
-                  </div>
-                  <button type="button" onClick={startTour} className="btn btn-sun mt-4 w-full justify-center text-base md:mt-6">
-                    ▶ {t(explorer.tour)}
-                  </button>
-                  <button type="button" onClick={() => goFree(steps[0].id)} className="mt-2 w-full rounded-full border border-white/20 py-2.5 text-sm md:py-3 font-semibold text-white/85 transition hover:border-white/50 hover:text-white">
-                    {t(explorer.free ?? explorer.or)}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* the part in focus */}
-          {step && (
-            <div className="absolute inset-x-0 bottom-[max(5.25rem,calc(env(safe-area-inset-bottom)+4.75rem))] z-10 md:bottom-auto md:top-1/2 md:-translate-y-1/2">
-              <div className="wrap">
-                <div
-                  ref={cardRef}
-                  key={active}
-                  dir={rtl ? "rtl" : "ltr"}
-                  className="vr-card mx-auto w-full max-w-md touch-pan-y md:me-0 md:ms-auto md:max-w-[380px]"
-                  onMouseMove={() => {
-                    // the pointer is often already there when the card appears: only a real move means «reading»
-                    if (!paused && Date.now() - shownAt.current > 700) setPaused(true);
-                  }}
-                  onMouseLeave={() => setPaused(false)}
-                  onPointerDown={(e) => ((e.currentTarget as HTMLElement).dataset.x = String(e.clientX))}
-                  onPointerUp={(e) => {
-                    const x0 = Number((e.currentTarget as HTMLElement).dataset.x ?? e.clientX);
-                    const dx = e.clientX - x0;
-                    if (Math.abs(dx) < 50) return;
-                    // swipe between parts (phone): towards the reading direction = next
-                    goFree();
-                    move((dx < 0) !== rtl ? 1 : -1);
-                  }}
-                  aria-live="polite"
-                >
-                  <div className="flex items-center justify-between gap-3 text-xs font-semibold">
-                    <span className="text-sun">{explorer.groups[step.group][lang]}</span>
-                    <span className="tabular-nums text-white/50" dir="ltr">
-                      {idx + 1} / {steps.length}
-                    </span>
-                  </div>
-                  <h3 className="font-display mt-1.5 text-2xl font-bold leading-tight md:text-[2rem]">{step.title[lang]}</h3>
-                  <p className="mt-2.5 text-[0.95rem] leading-relaxed text-white/80 md:text-[1.05rem]">{step.text[lang]}</p>
-                  {step.spec && <Specs text={t(step.spec)} />}
-                  <div className="mt-5 flex items-center gap-2">
-                    <button type="button" onClick={() => { goFree(); move(-1); }} className="grid h-11 w-11 place-items-center rounded-full border border-white/20 transition hover:border-white/60" aria-label={explorer.prev[lang]}>
-                      <span className="rtl:rotate-180">←</span>
-                    </button>
-                    <button type="button" onClick={() => { goFree(); move(1); }} className="grid h-11 w-11 place-items-center rounded-full bg-white text-ink transition hover:bg-sun" aria-label={explorer.next[lang]}>
-                      <span className="rtl:rotate-180">→</span>
-                    </button>
-                    {tour ? (
-                      <button type="button" onClick={() => goFree()} className="ms-auto text-sm font-semibold text-white/60 hover:text-white">
-                        ❚❚ {t(explorer.stop)}
-                      </button>
-                    ) : (
-                      <button type="button" onClick={startTour} className="ms-auto text-sm font-semibold text-white/60 hover:text-white">
-                        ▶ {t(explorer.tour)}
-                      </button>
-                    )}
-                  </div>
-                  {tour && <span className="tour-bar" style={{ animationDuration: `${TOUR_MS}ms`, animationPlayState: paused ? "paused" : "running" }} />}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* chapters: every part, grouped, always one tap away */}
-          <nav className="absolute inset-x-0 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-10" aria-label={explorer.kicker[lang]}>
-            <div className="wrap">
-              <div ref={chapters} dir={rtl ? "rtl" : "ltr"} className="vr-chapters no-scrollbar">
-                {(["headset", "controller"] as const).map((g) => (
-                  <div key={g} className="flex shrink-0 items-center gap-1">
-                    <span className="hidden px-2 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-white/40 lg:inline rtl:tracking-normal">{explorer.groups[g][lang]}</span>
-                    {steps.map((s, i) =>
-                      s.group !== g ? null : (
-                        <button
-                          key={s.id}
-                          type="button"
-                          onClick={() => goFree(s.id)}
-                          aria-current={active === s.id ? "step" : undefined}
-                          className={`vr-chip ${active === s.id ? "is-active" : ""}`}
-                        >
-                          <span className="vr-chip-num">{i + 1}</span>
-                          {s.title[lang]}
-                        </button>
-                      ),
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </nav>
         </>
       )}
     </div>
   );
 }
 
-/** Specifications as separate chips («4 MP colour cameras», «110° field of view», …). */
-function Specs({ text }: { text?: string }) {
+/**
+ * Specifications as big figures («4 MP», «110°», «8 GB») with their meaning underneath;
+ * a part without a number stays a small line.
+ */
+function Figures({ text }: { text?: string }) {
   if (!text) return null;
   const parts = text.split("·").map((x) => x.trim()).filter(Boolean);
+  // only a number with a unit (or a × size) becomes a figure: «XR2 Gen 2» stays words
+  const NUM = /(\d[\d.,]*\s?[×x]\s?\d[\d.,]*(?:\s?px)?|\d[\d.,]*\s?(?:MP|GB|Go|Hz|px|°|%))/;
+  const items = parts.map((p) => {
+    const m = p.match(NUM);
+    if (!m) return { big: "", small: p };
+    const small = p.replace(m[0], "").replace(/\s+/g, " ").trim();
+    return { big: m[0].trim(), small };
+  });
   return (
-    <ul className="mt-4 flex flex-wrap gap-2">
-      {parts.map((p) => (
-        <li key={p} className="rounded-full bg-white/[0.09] px-3 py-1.5 text-[0.78rem] font-semibold text-white ring-1 ring-white/10 md:text-[0.82rem]">
-          {p}
+    <ul className="mt-6 flex flex-wrap gap-x-8 gap-y-4 md:mt-8">
+      {items.map((it) => (
+        <li key={it.big + it.small} className="min-w-0">
+          {it.big && (
+            <div className="font-display text-2xl font-bold leading-none text-white md:text-4xl" dir="ltr">
+              {it.big}
+            </div>
+          )}
+          <div className={`text-white/55 ${it.big ? "mt-1.5 text-xs md:text-sm" : "text-sm font-semibold text-white/80 md:text-base"}`}>{it.small}</div>
         </li>
       ))}
     </ul>

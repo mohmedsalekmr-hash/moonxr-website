@@ -296,11 +296,9 @@ section[data-explore] .hero-stage {
   z-index: 20;
 }
 /* phones: exploring the headset takes the whole screen, the header steps aside */
-html[data-explore-full] header { opacity: 0; pointer-events: none; }
 @media (max-width: 767px) {
-  section[data-explore] .hero-stage {
-    position: fixed; inset: 0; height: auto; min-height: 0; margin: 0; z-index: 60;
-  }
+  /* phones: during the story the stage takes the whole (sticky) screen */
+  section[data-explore] .hero-stage { position: absolute; inset: 0; height: auto; min-height: 0; margin: 0; }
 }
 .explore-panel {
   animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
@@ -582,3 +580,16 @@ section[data-explore] { color: #fff; }
 }
 @keyframes hs-draw { to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) { .hs-dot { animation: none; } .hs-line { animation: none; stroke-dashoffset: 0; } .vr-card { animation: none; } }
+
+/* ---------- headset story (scroll) ---------- */
+.story-text { animation: story-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@keyframes story-in { from { opacity: 0; transform: translateY(18px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+.story-index {
+  display: flex; align-items: baseline; gap: 0.75rem; padding: 0.3rem 0; text-align: start;
+  font-size: 0.88rem; font-weight: 600; color: rgba(255, 255, 255, 0.35); transition: color 0.3s;
+}
+.story-index > span:first-child { font-size: 0.7rem; color: rgba(255, 255, 255, 0.3); }
+.story-index:hover { color: rgba(255, 255, 255, 0.75); }
+.story-index.is-active { color: #fff; }
+.story-index.is-active > span:first-child { color: var(--color-sun); }
+@media (prefers-reduced-motion: reduce) { .story-text { animation: none; } }
