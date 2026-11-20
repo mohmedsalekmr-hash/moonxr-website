@@ -225,8 +225,11 @@ export default function ProjectStory({
   L,
   rtl,
   heroFocus,
+  cover,
 }: {
   heroFocus?: string;
+  /** the project's cover photo (chosen in the admin) opens the page */
+  cover: SceneMedia;
   scenes: StoryScene[];
   heroTop: ReactNode;
   title: string;
@@ -236,12 +239,14 @@ export default function ProjectStory({
   L: Labels;
   rtl: boolean;
 }) {
-  const media = scenes.map((s) => s.media);
-  const [box, setBox] = useState<number | null>(null);
-  const hero = scenes[0].media;
+  const hero = cover;
   const heroPos = heroFocus ?? (hero.h > hero.w ? "50% 22%" : "50% 40%");
-  const heroVid = useRef<HTMLVideoElement>(null);
-  useAutoplay(heroVid, 0.2);
+  // the story: every scene whose picture is not already the opening one (a picture is never shown twice)
+  const story = scenes.filter((s, k) => s.media.src !== hero.src && scenes.findIndex((x) => x.media.src === s.media.src) === k);
+  // all media once each, the opening picture first
+  const media = [hero, ...story.map((s) => s.media)];
+  const at = (m: SceneMedia) => Math.max(0, media.findIndex((x) => x.src === m.src));
+  const [box, setBox] = useState<number | null>(null);
   const art = useRef<HTMLElement>(null);
   const [progress, setProgress] = useState(0);
 
@@ -280,7 +285,7 @@ export default function ProjectStory({
     t.scrollBy({ left: (rtl ? -1 : 1) * dir * (card.offsetWidth + 16), behavior: "smooth" });
   };
 
-  const rest = scenes.slice(1);
+  const rest = story;
   const clamp = (m: SceneMedia) => Math.min(1.78, Math.max(0.8, m.w / m.h));
 
   return (
@@ -290,13 +295,22 @@ export default function ProjectStory({
       {/* OPENING — the first picture, full screen, with the title on it */}
       <header className="relative px-0 pt-16 md:px-6 md:pt-[88px]">
         <div className="relative mx-auto h-[calc(82svh-64px)] min-h-[420px] max-w-[1400px] overflow-hidden bg-navy-deep md:h-[calc(90vh-88px)] md:rounded-[var(--radius-lg)]">
-          <button type="button" onClick={() => setBox(0)} aria-label={L.open} className="absolute inset-0 block">
-            {hero.type === "video" ? (
-              <video ref={heroVid} src={hero.src} poster={hero.poster} muted loop playsInline preload="auto" className="h-full w-full object-cover" style={{ objectPosition: heroPos }} />
-            ) : (
-              <img {...rimg(hero.src, "100vw")} alt="" width={hero.w} height={hero.h} loading="eager" fetchPriority="high" className="h-full w-full object-cover" style={{ objectPosition: heroPos, animation: "hero-zoom 14s ease-out both" }} />
-            )}
+          <button type="button" onClick={() => setBox(0)} aria-label={L.open} className="absolute inset-0 block overflow-hidden">
+            {/* soft blurred copy filling the frame (seen around the picture on computers) */}
+            <img src={rimg(hero.src).srcSet ? `${hero.src.slice(0, -5)}-480.webp` : hero.src} alt="" aria-hidden className="absolute inset-0 hidden h-full w-full scale-110 object-cover opacity-80 blur-2xl saturate-[1.15] md:block" />
+            <img
+              {...rimg(hero.src, "100vw")}
+              alt=""
+              width={hero.w}
+              height={hero.h}
+              loading="eager"
+              fetchPriority="high"
+              className="relative mx-auto h-full w-full object-cover md:w-auto md:max-w-full md:object-contain md:shadow-[0_0_80px_rgba(10,20,49,0.45)]"
+              style={{ objectPosition: heroPos, animation: "hero-zoom 14s ease-out both" }}
+            />
           </button>
+          {/* light dark layer: calmer picture, readable title */}
+          <div className="pointer-events-none absolute inset-0 bg-navy-deep/20" />
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(10,20,49,0.15)_0%,rgba(10,20,49,0)_35%,rgba(10,20,49,0.55)_65%,rgba(10,20,49,0.92)_100%)]" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-9 md:px-14 md:pb-14">
             <div className="pointer-events-auto max-w-3xl" style={{ animation: "rise .9s .15s cubic-bezier(.2,.7,.2,1) both" }}>
@@ -339,7 +353,7 @@ export default function ProjectStory({
                 <Tile
                   m={s.media}
                   sizes="(min-width: 768px) 58vw, 100vw"
-                  onOpen={() => setBox(k + 1)}
+                  onOpen={() => setBox(at(s.media))}
                   label={L.open}
                   className="max-h-[78svh] rounded-[var(--radius-lg)] shadow-[0_40px_80px_-45px_rgba(20,36,84,0.55)]"
                   style={{ aspectRatio: clamp(s.media) }}
@@ -347,7 +361,7 @@ export default function ProjectStory({
               </Reveal>
               <Reveal delay={100} className={`md:col-span-5 ${flip ? "md:order-1" : ""}`}>
                 <div className="flex items-center gap-3 text-sm font-semibold">
-                  <span className="font-display text-brand">{String(k + 2).padStart(2, "0")}</span>
+                  <span className="font-display text-brand">{String(k + 1).padStart(2, "0")}</span>
                   <span className="h-px w-10 bg-ink/20" />
                   {s.kicker && <span className="uppercase tracking-[0.16em] text-ink/55 rtl:tracking-normal">{s.kicker}</span>}
                 </div>
