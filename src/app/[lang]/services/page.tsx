@@ -9,7 +9,7 @@ import { hasLocale, href } from "@/data/i18n";
 import type { Category } from "@/data/projects";
 import PageHead from "@/components/PageHead";
 import SectionHeader from "@/components/SectionHeader";
-import ProcessLine from "@/components/ProcessLine";
+import ProcessJourney from "@/components/ProcessJourney";
 import { SERVICE_IMG } from "@/components/ServiceBento";
 import { Reveal } from "@/components/Media";
 import CTA from "@/components/CTA";
@@ -89,9 +89,9 @@ export default async function ServicesPage({ params }: PageProps<"/[lang]/servic
         <div className="wrap">
           <div className="border-t border-line pt-14 md:pt-20">
             <Reveal>
-              <SectionHeader center kicker={h.processKicker[lang]} title={h.processTitle[lang]} />
+              <SectionHeader kicker={h.processKicker[lang]} title={h.processTitle[lang]} />
             </Reveal>
-            <ProcessLine steps={steps} lang={lang} />
+            <ProcessJourney steps={steps} lang={lang} />
           </div>
         </div>
       </section>

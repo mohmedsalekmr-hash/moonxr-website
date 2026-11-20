@@ -10,7 +10,7 @@ import { Reveal } from "@/components/Media";
 import { LogoMarquee } from "@/components/Logos";
 import ProjectStack from "@/components/ProjectStack";
 import ServiceShowcase from "@/components/ServiceShowcase";
-import ProcessLine from "@/components/ProcessLine";
+import ProcessJourney from "@/components/ProcessJourney";
 import { EcoGrid } from "@/components/Ecosystem";
 import ExploreButton from "@/components/ExploreButton";
 import CTA from "@/components/CTA";
@@ -117,14 +117,14 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     ),
     process: (
       <>
-          {/* 4 — HOW WE WORK: one line, four stops */}
+          {/* 4 — HOW WE WORK: four steps told while scrolling, with their photos */}
           <section className="relative bg-white pb-12 pt-6 md:pb-16 md:pt-10">
             <div className="wrap">
               <div className="border-t border-line pt-14 md:pt-20">
                 <Reveal>
-                  <SectionHeader center kicker={h.processKicker[lang]} title={h.processTitle[lang]} />
+                  <SectionHeader kicker={h.processKicker[lang]} title={h.processTitle[lang]} />
                 </Reveal>
-                <ProcessLine steps={steps} lang={lang} />
+                <ProcessJourney steps={steps} lang={lang} />
               </div>
             </div>
           </section>

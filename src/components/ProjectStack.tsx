@@ -100,11 +100,12 @@ export default function ProjectStack({ items, head, all, view }: { items: Showca
             </div>
           </div>
         ))}
-        <div className="mt-4 flex justify-center md:mt-8">
-          <Link href={all.href} className="btn btn-sun">
-            {all.label} <span className="rtl:rotate-180">→</span>
-          </Link>
-        </div>
+      </div>
+      {/* outside the stack, so the last card never sits on top of it */}
+      <div className="wrap relative z-10 mt-6 flex justify-center md:mt-10">
+        <Link href={all.href} className="btn btn-sun">
+          {all.label} <span className="rtl:rotate-180">→</span>
+        </Link>
       </div>
     </section>
   );
