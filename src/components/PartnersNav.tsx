@@ -40,52 +40,59 @@ export function SectionNav({ items }: { items: { id: string; label: string }[] }
   );
 }
 
-/** Technologies as a clear grid, filterable by field. */
-export function TechGrid({ orgs, cats, all }: { orgs: (Org & { roleText?: string; catText?: string })[]; cats: { id: string; label: string }[]; all: string }) {
-  const [cat, setCat] = useState("all");
-  const present = cats.filter((c) => orgs.some((o) => o.category === c.id));
-  const shown = cat === "all" ? orgs : orgs.filter((o) => o.category === cat);
+/**
+ * Every logo of the ecosystem in white tiles. The tiles light up group by group
+ * (clients, partners, then the technologies in two halves) while a line says who they are.
+ * Hovering a tile lights it alone and names it; clicking jumps to its section.
+ */
+export function LogoWall({ items, phases }: { items: { org: Org; to: string; label: string }[]; phases: { label: string; names: string[] }[] }) {
+  const [step, setStep] = useState(0);
+  const [hover, setHover] = useState<number | null>(null);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setInterval(() => setStep((s) => (s + 1) % phases.length), 2600);
+    return () => clearInterval(t);
+  }, [phases.length]);
+  const phase = phases[step];
+  const h = hover === null ? null : items[hover];
+  const lit = (name: string, i: number) => (h ? hover === i : phase.names.includes(name));
+  const caption = h ? `${h.org.name} · ${h.label}` : phase.label;
   return (
     <div>
-      {present.length > 1 && (
-        <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 md:mx-0 md:flex-wrap md:px-0">
-          {[{ id: "all", label: all }, ...present].map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => setCat(c.id)}
-              aria-pressed={cat === c.id}
-              className={`shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
-                cat === c.id ? "border-navy bg-navy text-white" : "border-ink/12 bg-white text-ink/65 hover:border-ink/35 hover:text-ink"
-              }`}
-            >
-              {c.label}
-            </button>
+      <div className="mb-4 flex h-8 items-center gap-3" aria-live="polite">
+        <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-sun" />
+        <span key={caption} className="text-sm font-semibold text-ink/70" style={{ animation: "fadein .45s both" }}>
+          {caption}
+        </span>
+        <span className="ms-auto flex gap-1.5" aria-hidden>
+          {phases.map((_, k) => (
+            <span key={k} className={`h-1 rounded-full transition-all duration-500 ${k === step && !h ? "w-6 bg-navy" : "w-2 bg-ink/15"}`} />
           ))}
-        </div>
-      )}
-      <ul className="mt-6 grid grid-cols-2 gap-3 md:mt-8 md:grid-cols-4 md:gap-4">
-        {shown.map((o) => (
-          <li
-            key={o.name}
-            style={{ animation: "rise .5s both" }}
-            className="group flex flex-col rounded-[var(--radius-sm)] border border-line bg-white p-4 transition duration-300 hover:-translate-y-1 hover:border-ink/20 hover:shadow-[0_18px_40px_-24px_rgba(20,30,60,.35)] md:p-6"
-          >
-            <div className="grid h-20 place-items-center md:h-24">
-              <span className="md:hidden">
-                <Logo org={o} area={3200} maxW={120} maxH={46} />
-              </span>
-              <span className="hidden md:block">
-                <Logo org={o} area={5200} maxW={170} maxH={60} />
-              </span>
-            </div>
-            <div className="mt-3 border-t border-line pt-3 md:mt-4 md:pt-4">
-              <div className="font-display text-[0.95rem] font-semibold leading-tight md:text-base">{o.name}</div>
-              {o.roleText && <div className="mt-1 text-[0.8rem] leading-snug text-ink/60 md:text-sm">{o.roleText}</div>}
-              {o.catText && <div className="mt-3 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-brand rtl:text-xs rtl:tracking-normal">{o.catText}</div>}
-            </div>
-          </li>
-        ))}
+        </span>
+      </div>
+      <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:gap-3" dir="ltr" onMouseLeave={() => setHover(null)}>
+        {items.map(({ org, to, label }, i) => {
+          const on = lit(org.name, i);
+          return (
+            <li key={org.name + to}>
+              <a
+                href={`#${to}`}
+                title={`${org.name} · ${label}`}
+                onMouseEnter={() => setHover(i)}
+                onFocus={() => setHover(i)}
+                onBlur={() => setHover(null)}
+                className={`grid aspect-[4/3] place-items-center rounded-[var(--radius-sm)] border bg-white px-3 transition duration-500 ${
+                  on ? "-translate-y-0.5 border-ink/15 shadow-[0_14px_30px_-20px_rgba(20,30,60,.45)]" : "border-line"
+                }`}
+                style={{ animation: `rise .6s ${0.1 + i * 0.04}s both` }}
+              >
+                <span className={`block transition duration-700 ${on ? "opacity-100 grayscale-0" : "opacity-40 grayscale"}`}>
+                  <Logo org={org} area={2600} maxW={110} maxH={44} eager />
+                </span>
+              </a>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

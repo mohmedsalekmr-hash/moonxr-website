@@ -5,29 +5,6 @@ import { Logo } from "@/components/Logos";
 import type { Org, Project } from "@/data/projects";
 import { href as pageHref, type Locale, type T } from "@/data/i18n";
 
-/** Every logo of the ecosystem in white tiles; a slow wave brings each one to colour. Click jumps to its section. */
-export function LogoWall({ items }: { items: { org: Org; to: string; label: string }[] }) {
-  return (
-    <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:gap-3" dir="ltr">
-      {items.map(({ org, to, label }, i) => (
-        <li key={org.name + to}>
-          <a
-            href={`#${to}`}
-            title={`${org.name} · ${label}`}
-            className="logo-wave group relative grid aspect-[4/3] place-items-center rounded-[var(--radius-sm)] border border-line bg-white px-3 transition duration-300 hover:-translate-y-0.5 hover:border-ink/20 hover:shadow-[0_14px_30px_-20px_rgba(20,30,60,.4)]"
-            style={{ "--d": `${i * 0.45}s`, animation: `rise .6s ${0.1 + i * 0.04}s both` } as React.CSSProperties}
-          >
-            <span className="logo-wave-img">
-              <Logo org={org} area={2600} maxW={110} maxH={44} eager />
-            </span>
-            <span className="absolute bottom-1.5 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-ink/0 transition-colors group-hover:text-ink/45">{label}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 const clientOf = (p: Project) => p.facts.find((f) => f.k.fr === "Client")?.v;
 
 /** Clients as story cards: the real project photo, the client's logo, what we delivered. */
@@ -50,11 +27,12 @@ export function ClientStories({ projects, orgs, lang, cta }: { projects: Project
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.05]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-deep/85 via-navy-deep/10 to-transparent" />
-                <div className="absolute start-4 top-4 grid h-16 min-w-16 place-items-center rounded-[var(--radius-sm)] bg-white px-3 shadow-[0_10px_30px_-12px_rgba(0,0,0,.45)] md:start-5 md:top-5 md:h-20 md:px-4">
+                <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-navy-deep/55 to-transparent" />
+                <div className="absolute start-5 top-5 flex h-10 items-center md:start-7 md:top-6 md:h-12 [filter:brightness(0)_invert(1)_drop-shadow(0_2px_6px_rgba(0,0,0,.35))]">
                   {org ? (
-                    <Logo org={org} area={2400} maxW={110} maxH={40} />
+                    <Logo org={org} area={1500} maxW={90} maxH={32} />
                   ) : (
-                    <span className="font-display text-lg font-bold tracking-tight text-navy">{client[lang].split(" — ")[0].split(" (")[0]}</span>
+                    <span className="font-display text-base font-bold tracking-tight md:text-lg">{client[lang].split(" — ")[0].split(" (")[0]}</span>
                   )}
                 </div>
                 <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 text-white md:p-7">
@@ -148,6 +126,40 @@ export function PartnerSpotlights({ orgs, projects, lang, labels }: { orgs: Org[
           </article>
         );
       })}
+    </div>
+  );
+}
+
+/** Technologies on two gliding rows of cards (logo, name, specialty), in opposite directions. */
+export function TechMarquee({ orgs, lang }: { orgs: Org[]; lang: Locale }) {
+  // both rows carry every technology, the second one starting halfway: no logo repeats on screen
+  const half = Math.ceil(orgs.length / 2);
+  const row = (list: Org[], reverse: boolean, speed: number) => {
+    const base = Array.from({ length: Math.max(1, Math.ceil(8 / list.length)) }, () => list).flat();
+    return (
+      <div className="marquee overflow-hidden py-3" dir="ltr">
+        <ul className={`marquee-track ${reverse ? "reverse" : ""}`} style={{ "--speed": `${speed}s` } as React.CSSProperties}>
+          {[...base, ...base].map((o, i) => (
+            <li key={i} aria-hidden={i >= list.length} className="shrink-0 px-2 md:px-2.5">
+              <div className="group flex h-[92px] w-[250px] items-center gap-4 rounded-[var(--radius-lg)] border border-line bg-white px-4 transition duration-300 hover:-translate-y-1 hover:border-ink/20 hover:shadow-[0_18px_40px_-24px_rgba(20,30,60,.35)] md:h-[104px] md:w-[300px] md:px-5" dir={lang === "ar" ? "rtl" : "ltr"}>
+                <div className="grid h-14 w-[96px] shrink-0 place-items-center grayscale transition duration-500 group-hover:grayscale-0 md:w-[112px]">
+                  <Logo org={o} area={2400} maxW={104} maxH={40} />
+                </div>
+                <div className="min-w-0 border-s border-line ps-4">
+                  <div className="font-display text-[0.95rem] font-semibold leading-tight">{o.name}</div>
+                  {o.role && <div className="mt-0.5 line-clamp-2 text-[0.8rem] leading-snug text-ink/60">{o.role[lang]}</div>}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+  return (
+    <div className="space-y-1">
+      {row(orgs, false, 52)}
+      {row([...orgs.slice(half), ...orgs.slice(0, half)], true, 46)}
     </div>
   );
 }

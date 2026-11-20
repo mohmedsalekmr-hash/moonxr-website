@@ -7,8 +7,8 @@ import { notFound } from "next/navigation";
 import { hasLocale } from "@/data/i18n";
 
 import { Reveal } from "@/components/Media";
-import { ClientStories, LogoWall, PartnerSpotlights } from "@/components/PartnersShowcase";
-import { SectionNav, TechGrid } from "@/components/PartnersNav";
+import { ClientStories, PartnerSpotlights, TechMarquee } from "@/components/PartnersShowcase";
+import { LogoWall, SectionNav } from "@/components/PartnersNav";
 import CTA from "@/components/CTA";
 import Page from "@/components/Page";
 
@@ -38,13 +38,14 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
     ...techs.map((org) => ({ org, to: "technologies", label: nav[2].label })),
   ].filter((w) => w.org.logo && !seen.has(w.org.name) && seen.add(w.org.name));
 
-  const cats = [
-    { id: "industry", label: C.catIndustry[lang] },
-    { id: "education", label: C.catEducation[lang] },
-    { id: "safety", label: C.catSafety[lang] },
-    { id: "platform", label: C.catPlatform[lang] },
+  // the wall lights up group by group: clients, partners, then the technologies in two halves
+  const half = Math.ceil(techs.length / 2);
+  const phases = [
+    { label: nav[0].label, names: clients.map((o) => o.name) },
+    { label: nav[1].label, names: partners.map((o) => o.name) },
+    { label: nav[2].label, names: techs.slice(0, half).map((o) => o.name) },
+    { label: nav[2].label, names: techs.slice(half).map((o) => o.name) },
   ];
-  const techItems = techs.map((o) => ({ ...o, roleText: o.role?.[lang], catText: cats.find((c) => c.id === o.category)?.label }));
 
   return (
     <Page>
@@ -56,7 +57,7 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
             <h1 className="font-display mt-5 max-w-xl text-[2rem] font-bold leading-[1.1] md:text-6xl md:leading-[1.08]">{C.title[lang]}</h1>
             <p className="mt-5 max-w-lg text-lg leading-relaxed text-ink/75">{C.sub[lang]}</p>
           </div>
-          <LogoWall items={wall} />
+          <LogoWall items={wall} phases={phases} />
         </div>
       </section>
 
@@ -93,9 +94,9 @@ export default async function PartnersPage({ params }: PageProps<"/[lang]/parten
             <SectionHeader kicker={ui.partners.suppliers[lang]} title={C.techTitle[lang]} />
             <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink/70">{C.techSub[lang]}</p>
           </Reveal>
-          <div className="mt-8">
-            <TechGrid orgs={techItems} cats={cats} all={C.all[lang]} />
-          </div>
+        </div>
+        <div className="mt-8 md:mt-10">
+          <TechMarquee orgs={techs} lang={lang} />
         </div>
       </section>
 

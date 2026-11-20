@@ -279,11 +279,6 @@ export default function TextsTab({ focus }: { focus?: string }) {
               ["techSub", tr("فقرة قسم التقنيات")],
               ["view", tr("«عرض المشروع»")],
               ["tech", tr("اسم قسم التقنيات في شريط التنقل")],
-              ["all", tr("زر «الكل» في فلتر التقنيات")],
-              ["catIndustry", tr("اللحام والصناعة")],
-              ["catEducation", tr("التعليم والصحة")],
-              ["catSafety", tr("السلامة")],
-              ["catPlatform", tr("المنصّات")],
               ["related", tr("«مشروع أنجزناه معاً»")],
             ] as [keyof PP, string][]
           ).map(([k, label]) => (
