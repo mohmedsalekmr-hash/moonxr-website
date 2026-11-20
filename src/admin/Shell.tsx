@@ -25,6 +25,8 @@ export const ICON = {
   more: "M5 12h.01M12 12h.01M19 12h.01",
   globe: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.7 3.7 5.7 3.7 9s-1.2 6.3-3.7 9c-2.5-2.7-3.7-5.7-3.7-9S9.5 5.7 12 3z",
   plus: "M12 5v14M5 12h14",
+  pages: "M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5",
+  pen: "M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4",
   check: "M5 12l5 5 9-10",
   alert: "M12 8v5M12 16h.01M10.3 3.9L2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z",
 };
@@ -36,14 +38,15 @@ export function Icon({ d, className = "h-5 w-5" }: { d: string; className?: stri
   );
 }
 
-export type Tab = "overview" | "requests" | "projects" | "home" | "texts" | "orgs" | "seo" | "contact" | "history" | "brand";
+export type Tab = "overview" | "requests" | "projects" | "pages" | "home" | "texts" | "orgs" | "seo" | "contact" | "history" | "brand";
 export type Go = (tab: Tab, focus?: string) => void;
 
-export const NAV: { group: string; items: { id: Tab; label: string; icon: string }[] }[] = [
+/** Texts and photos are edited on the site itself (edit mode); the menu keeps what the pages can't show. */
+export const NAV: { group: string; advanced?: boolean; items: { id: Tab; label: string; icon: string }[] }[] = [
   {
     group: "",
     items: [
-      { id: "overview", label: tr("نظرة عامة"), icon: ICON.overview },
+      { id: "overview", label: tr("الرئيسية"), icon: ICON.overview },
       { id: "requests", label: tr("الطلبات"), icon: ICON.requests },
     ],
   },
@@ -51,24 +54,33 @@ export const NAV: { group: string; items: { id: Tab; label: string; icon: string
     group: tr("المحتوى"),
     items: [
       { id: "projects", label: tr("المشاريع"), icon: ICON.projects },
-      { id: "home", label: tr("الصفحة الرئيسية"), icon: ICON.home },
-      { id: "texts", label: tr("نصوص الموقع"), icon: ICON.texts },
-      { id: "orgs", label: tr("العملاء والشركاء"), icon: ICON.orgs },
+      { id: "orgs", label: tr("الشعارات"), icon: ICON.orgs },
+      { id: "pages", label: tr("الصفحات"), icon: ICON.pages },
     ],
   },
   {
     group: tr("الإعدادات"),
     items: [
-      { id: "seo", label: tr("الظهور والمشاركة"), icon: ICON.seo },
       { id: "contact", label: tr("التواصل"), icon: ICON.contact },
+      { id: "seo", label: tr("الظهور والمشاركة"), icon: ICON.seo },
       { id: "history", label: tr("السجل"), icon: ICON.history },
+    ],
+  },
+  {
+    group: tr("متقدّم"),
+    advanced: true,
+    items: [
+      { id: "texts", label: tr("كل النصوص"), icon: ICON.texts },
+      { id: "home", label: tr("الخدمات والخطوات"), icon: ICON.home },
       { id: "brand", label: tr("دليل الهوية"), icon: ICON.brand },
     ],
   },
 ];
+/** Opens the site in edit mode (in a new tab), on the page matching the admin's language. */
+export const EDIT_URL = () => `/${adminLang()}?edit=1`;
 const ALL = NAV.flatMap((g) => g.items);
 /** The four shortcuts of the phone's bottom bar; everything else is under «المزيد». */
-const MOBILE: Tab[] = ["overview", "requests", "projects", "texts"];
+const MOBILE: Tab[] = ["overview", "requests", "projects", "pages"];
 
 /** Leaving a tab with unsaved edits asks first. */
 export const confirmLeave = () => !hasUnsaved() || confirm(tr("لديك تعديلات غير محفوظة. الخروج دون حفظها؟"));
@@ -112,6 +124,9 @@ export function Shell({ tab, go, email, newCount, children }: { tab: Tab; go: Go
   const lang = adminLang();
   const site = `/${lang === "ar" ? "ar" : lang}`;
 
+  // «متقدّم» stays folded unless one of its pages is open
+  const [adv, setAdv] = useState(false);
+  const advOpen = adv || NAV.some((g) => g.advanced && g.items.some((x) => x.id === tab));
   const item = (i: (typeof ALL)[number], onPick?: () => void) => (
     <button
       key={i.id}
@@ -148,13 +163,27 @@ export function Shell({ tab, go, email, newCount, children }: { tab: Tab; go: Go
             Ctrl K
           </kbd>
         </button>
+        <a href={EDIT_URL()} target="_blank" className="mx-4 mb-4 flex items-center justify-center gap-2 rounded-xl bg-sun px-3 py-2.5 text-sm font-bold text-ink shadow-[0_10px_24px_-14px_rgba(250,182,45,.9)] transition hover:brightness-95">
+          <Icon d={ICON.pen} className="h-4 w-4" />
+          {tr("عدّل الموقع مباشرة")}
+        </a>
         <nav className="flex-1 space-y-5 overflow-y-auto px-3 pb-4">
-          {NAV.map((g) => (
-            <div key={g.group || "main"}>
-              {g.group && <div className="mb-1.5 px-3 text-[0.7rem] font-bold uppercase tracking-wide text-black/35">{g.group}</div>}
-              <div className="space-y-0.5">{g.items.map((i) => item(i))}</div>
-            </div>
-          ))}
+          {NAV.map((g) =>
+            g.advanced ? (
+              <div key={g.group}>
+                <button type="button" onClick={() => setAdv(!advOpen)} className="mb-1.5 flex w-full items-center justify-between px-3 text-[0.7rem] font-bold uppercase tracking-wide text-black/35 hover:text-black/60">
+                  {g.group}
+                  <span className={`transition-transform ${advOpen ? "rotate-180" : ""}`}>▾</span>
+                </button>
+                {advOpen && <div className="space-y-0.5">{g.items.map((i) => item(i))}</div>}
+              </div>
+            ) : (
+              <div key={g.group || "main"}>
+                {g.group && <div className="mb-1.5 px-3 text-[0.7rem] font-bold uppercase tracking-wide text-black/35">{g.group}</div>}
+                <div className="space-y-0.5">{g.items.map((i) => item(i))}</div>
+              </div>
+            ),
+          )}
         </nav>
         <div className="space-y-1 border-t border-black/[0.06] p-3">
           <a href={site} target="_blank" className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-black/60 hover:bg-black/[0.04] hover:text-black">
@@ -201,6 +230,10 @@ export function Shell({ tab, go, email, newCount, children }: { tab: Tab; go: Go
           <div className="absolute inset-0 bg-navy/40 backdrop-blur-[2px]" />
           <div className="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto rounded-t-3xl bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]" onClick={(e) => e.stopPropagation()}>
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-black/15" />
+            <a href={EDIT_URL()} target="_blank" className="mb-4 flex items-center justify-center gap-2 rounded-xl bg-sun px-3 py-3 text-sm font-bold text-ink">
+              <Icon d={ICON.pen} className="h-4 w-4" />
+              {tr("عدّل الموقع مباشرة")}
+            </a>
             {NAV.map((g) => (
               <div key={g.group || "main"} className="mb-3">
                 {g.group && <div className="mb-1 px-3 text-[0.7rem] font-bold text-black/35">{g.group}</div>}

@@ -5,6 +5,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { sb } from "./sb";
 import ProjectsTab from "./Projects";
+import PagesTab from "./Pages";
 import HomeTab from "./Home";
 import TextsTab from "./Texts";
 import OrgsTab from "./Orgs";
@@ -86,6 +87,7 @@ export default function Admin() {
       <div key={visit}>
         {tab === "overview" && <Overview go={go} email={session.user.email ?? ""} />}
         {tab === "projects" && <ProjectsTab focus={focus === "new" ? undefined : focus} isNew={focus === "new"} />}
+        {tab === "pages" && <PagesTab />}
         {tab === "home" && <HomeTab />}
         {tab === "texts" && <TextsTab focus={focus} />}
         {tab === "orgs" && <OrgsTab />}

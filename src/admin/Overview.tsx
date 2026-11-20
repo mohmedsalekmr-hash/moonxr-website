@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { sb } from "./sb";
 import { countMissingEn } from "./ui";
-import { Icon, ICON, type Go } from "./Shell";
+import { EDIT_URL, Icon, ICON, type Go } from "./Shell";
 import { adminLang, adminLocale, tr } from "./i18n";
 import { KEYS } from "./History";
 
@@ -51,8 +51,20 @@ export default function Overview({ go, email }: { go: Go; email: string }) {
         {hello}{tr("،")}{" "}<span className="text-navy">{name}</span>
       </h1>
 
+      {/* the main way to change the site: on the site itself */}
+      <a href={EDIT_URL()} target="_blank" className="group mt-6 flex items-center gap-4 rounded-2xl bg-navy p-5 text-white shadow-[0_24px_50px_-30px_rgba(20,36,84,.9)] transition hover:-translate-y-0.5 sm:p-6">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-sun text-ink">
+          <Icon d={ICON.pen} className="h-6 w-6" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-lg font-bold">{tr("عدّل الموقع مباشرة")}</span>
+          <span className="mt-0.5 block text-sm text-white/70">{tr("يفتح الموقع في وضع التعديل: اضغط على أي نص أو صورة وغيّره في مكانه.")}</span>
+        </span>
+        <span className="hidden text-2xl text-sun transition-transform group-hover:-translate-x-1 sm:block rtl:group-hover:translate-x-1">{adminLang() === "ar" ? "←" : "→"}</span>
+      </a>
+
       {/* what needs attention */}
-      <div className="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
+      <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
         <Card
           tone={fresh.length ? "sun" : "plain"}
           icon={ICON.requests}
@@ -61,17 +73,18 @@ export default function Overview({ go, email }: { go: Go; email: string }) {
           action={tr("فتح الطلبات")}
           onClick={() => go("requests")}
         />
-        <Card
-          tone={stats?.missing ? "amber" : "plain"}
-          icon={ICON.globe}
-          value={stats ? stats.missing : "…"}
-          label={tr("نصوص بدون إنجليزية")}
-          action={stats?.missing ? tr("إكمال الترجمة") : tr("كل شيء مترجم ✓")}
-          onClick={() => go("texts")}
-        />
+        <Card icon={ICON.pages} value="4" label={tr("صفحات الموقع")} action={tr("إظهار وإخفاء الأقسام")} onClick={() => go("pages")} />
         <Card icon={ICON.projects} value={stats ? stats.published : "…"} label={stats?.hidden ? tr("مشاريع منشورة · {0} مخفي", stats.hidden) : tr("مشاريع منشورة")} action={tr("إدارة المشاريع")} onClick={() => go("projects")} />
         <Card icon={ICON.orgs} value={stats ? stats.logos : "…"} label={tr("شعارات العملاء والشركاء")} action={tr("إدارة الشعارات")} onClick={() => go("orgs")} />
       </div>
+
+      {!!stats?.missing && (
+        <button onClick={() => go("texts")} className="mt-4 flex w-full items-center gap-3 rounded-xl bg-amber-50 px-4 py-3 text-start text-sm ring-1 ring-amber-200 hover:bg-amber-100">
+          <Icon d={ICON.globe} className="h-4 w-4 text-amber-700" />
+          <span className="flex-1">{tr("{0} نصوص بدون ترجمة إنجليزية (يظهر مكانها النص الفرنسي).", stats.missing)}</span>
+          <span className="font-semibold text-amber-800">{tr("إكمال الترجمة")}</span>
+        </button>
+      )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         {/* latest requests */}
@@ -107,7 +120,7 @@ export default function Overview({ go, email }: { go: Go; email: string }) {
             <h2 className="font-bold">{tr("اختصارات")}</h2>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <Quick icon={ICON.plus} label={tr("مشروع جديد")} onClick={() => go("projects", "new")} />
-              <Quick icon={ICON.texts} label={tr("تعديل النصوص")} onClick={() => go("texts")} />
+              <Quick icon={ICON.contact} label={tr("الهاتف والبريد")} onClick={() => go("contact")} />
               <Quick icon={ICON.seo} label={tr("صورة المشاركة")} onClick={() => go("seo")} />
               <a href={site} target="_blank" className="flex items-center gap-2 rounded-xl bg-black/[0.035] px-3 py-3 text-sm font-semibold text-black/70 transition hover:bg-black/[0.07] hover:text-black">
                 <Icon d={ICON.external} className="h-4 w-4 text-navy" />{tr("عرض الموقع")}</a>

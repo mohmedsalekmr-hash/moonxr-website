@@ -19,6 +19,12 @@ export default function EditMode() {
     try {
       const signedIn = Object.keys(localStorage).some((k) => k.startsWith("sb-") && k.endsWith("-auth-token"));
       setCan(signedIn);
+      // «عدّل الموقع مباشرة» in the admin opens the site with ?edit=1
+      const asked = new URLSearchParams(location.search).get("edit") === "1";
+      if (asked) {
+        sessionStorage.setItem(FLAG, "1");
+        history.replaceState(null, "", location.pathname + location.hash);
+      }
       setOn(signedIn && sessionStorage.getItem(FLAG) === "1");
     } catch {}
   }, []);

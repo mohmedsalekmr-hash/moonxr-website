@@ -7,7 +7,7 @@ import { ui as defUi } from "@/data/i18n";
 import { aboutPage, partnersPage } from "@/data/pages";
 import { explorer as defExplorer, steps as defSteps, type Step } from "@/data/explorer";
 import { Section } from "./Projects";
-import { ADMIN_LANGS, countMissingEn, emptyT, Field, FocusPicker, MediaBox, MissingEn, moveItem, RowTools, SaveBar, TField, Toggle, type T } from "./ui";
+import { ADMIN_LANGS, countMissingEn, emptyT, Field, FocusPicker, MediaBox, MissingEn, moveItem, RowTools, SaveBar, TField, type T } from "./ui";
 import { merge, useContentKey } from "./useContent";
 
 type UI = typeof defUi;
@@ -18,36 +18,6 @@ type Ex = { explorer: typeof defExplorer; steps: Step[] };
 /** A text of the `ui` content: its path ("hero.l1", or "trust" for a single text) and what the admin calls it. */
 type F = [path: string, label: string];
 
-type Sections = Record<string, Record<string, boolean>>;
-/** The sections of each page that can be hidden, in the order a visitor meets them. */
-const PAGE_SECTIONS: Record<string, { page: string; items: [id: string, label: string][] }> = {
-  about: { page: "about", items: [["xr", tr("«الاسم» (VR · AR · MR)")], ["commitments", tr("«التزامنا»")], ["journey", tr("«مسيرتنا»")], ["trust", tr("شريط الشعارات")], ["where", tr("«أين نعمل»")]] },
-  aboutText: { page: "about", items: [["xr", tr("«الاسم» (VR · AR · MR)")], ["commitments", tr("«التزامنا»")], ["journey", tr("«مسيرتنا»")], ["trust", tr("شريط الشعارات")], ["where", tr("«أين نعمل»")]] },
-  services: { page: "services", items: [["list", tr("قائمة الخدمات")], ["process", tr("«كيف نعمل»")]] },
-  partners: { page: "partners", items: [["clients", tr("العملاء")], ["partners", tr("الشركاء")]] },
-  partnersText: { page: "partners", items: [["clients", tr("العملاء")], ["partners", tr("الشركاء")]] },
-};
-
-function SectionSwitches({ value, onChange, which }: { value: Sections; onChange: (v: Sections) => void; which: string }) {
-  const g = PAGE_SECTIONS[which];
-  if (!g) return null;
-  const cur = value[g.page] ?? {};
-  return (
-    <Section title={tr("أقسام الصفحة")} sub={tr("أخفِ أي قسم لا تريده أن يظهر في هذه الصفحة. يمكنك إظهاره من جديد في أي وقت.")}>
-      <div className="grid gap-2 sm:grid-cols-2">
-        {g.items.map(([id, label]) => {
-          const on = cur[id] !== false;
-          return (
-            <div key={id} className={`flex items-center justify-between gap-3 rounded-xl border border-black/[0.07] p-3 ${on ? "bg-white" : "bg-black/[0.03] opacity-60"}`}>
-              <span className="font-semibold">{label}</span>
-              <Toggle on={on} label={on ? tr("ظاهر") : tr("مخفي")} onChange={(v) => onChange({ ...value, [g.page]: { ...cur, [id]: v } })} />
-            </div>
-          );
-        })}
-      </div>
-    </Section>
-  );
-}
 
 /**
  * The site's texts, grouped page by page, in the order a visitor meets them.
@@ -223,14 +193,13 @@ export default function TextsTab({ focus }: { focus?: string }) {
   const about = useContentKey<About>("about", aboutPage, true);
   const pp = useContentKey<PP>("partners_page", partnersPage, true);
   const ex = useContentKey<Ex>("explorer", { explorer: defExplorer, steps: defSteps }, true);
-  const ps = useContentKey<Sections>("page_sections", {});
   const [projects, setProjects] = useState<{ slug: string; title: { ar: string; fr: string }; cover: { src: string } }[]>([]);
   useEffect(() => {
     sb.from("projects").select("slug,title,cover").order("position").then(({ data }) => setProjects(data ?? []));
   }, []);
   const [open, setOpen] = useState<string>(focus ?? "home");
-  const all = [c, about, pp, ex, ps];
-  if (!c.value || !about.value || !pp.value || !ex.value || !ps.value) return <p className="text-black/40">…</p>;
+  const all = [c, about, pp, ex];
+  if (!c.value || !about.value || !pp.value || !ex.value) return <p className="text-black/40">…</p>;
   const a = about.value;
   const setA = (v: Partial<About>) => about.setValue({ ...a, ...v } as About);
   // the tour's steps are matched by id: texts from the database, everything else from the code
@@ -260,8 +229,6 @@ export default function TextsTab({ focus }: { focus?: string }) {
           </button>
         ))}
       </div>
-
-      <SectionSwitches which={open} value={ps.value} onChange={(v) => ps.setValue(v)} />
 
       {page && (
         <Section title={page.name} sub={page.sub}>
