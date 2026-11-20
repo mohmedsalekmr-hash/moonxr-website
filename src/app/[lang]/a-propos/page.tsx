@@ -10,6 +10,7 @@ import { hasLocale, href, isRtl } from "@/data/i18n";
 import { Reveal } from "@/components/Media";
 import CTA from "@/components/CTA";
 import { HeroStack, HeroSwap, type HeroShot } from "@/components/AboutHeroVisual";
+import { Commitments, YearStack } from "@/components/AboutScroll";
 import Page from "@/components/Page";
 import { LogoMarquee } from "@/components/Logos";
 
@@ -111,60 +112,25 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/a-propos"
         </div>
       </section>
 
-      {/* COMMITMENT — four promises, large and numbered */}
+      {/* COMMITMENT — four promises: the one being read lights up */}
       <section className="py-20 md:py-28">
-        <div className="wrap grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20">
-          <Reveal>
-            <div className="lg:sticky lg:top-32">
-              <div className="kicker">{pillars.kicker[lang]}</div>
-              <h2 className="font-display mt-4 text-[2rem] font-bold leading-[1.1] md:text-5xl">{pillars.title[lang]}</h2>
-            </div>
-          </Reveal>
-          <ol className="divide-y divide-line border-y border-line">
-            {pillars.items.map((it, i) => (
-              <Reveal key={i} delay={i * 80}>
-                <li className="grid grid-cols-[3.5rem_minmax(0,1fr)] gap-4 py-7 md:grid-cols-[5rem_minmax(0,1fr)] md:py-9">
-                  <span className="font-display text-3xl font-bold text-brand/25 md:text-5xl">0{i + 1}</span>
-                  <div>
-                    <h3 className="font-display text-xl font-bold md:text-2xl">{it.t[lang]}</h3>
-                    <p className="mt-2 leading-relaxed text-ink/65 md:text-lg">{it.d[lang]}</p>
-                  </div>
-                </li>
-              </Reveal>
-            ))}
-          </ol>
-        </div>
+        <Commitments kicker={pillars.kicker[lang]} title={pillars.title[lang]} items={pillars.items.map((it) => ({ t: it.t[lang], d: it.d[lang] }))} />
       </section>
 
-      {/* JOURNEY — a vertical line, newest first */}
-      <section className="py-20 md:py-32">
+      {/* JOURNEY — one card per year, each sliding over the previous one */}
+      <section className="pb-16 pt-12 md:pb-24 md:pt-20">
         <div className="wrap">
           <Reveal>
             <SectionHeader kicker={T.pathK[lang]} title={T.pathT[lang]} action={<Link href={`${href(lang, "projets")}`} className="btn btn-ghost">{T.all[lang]}</Link>} />
           </Reveal>
-          <div className="relative mt-12 md:mt-16">
-            <span className="absolute inset-y-2 start-[7px] w-px bg-line md:start-[11px]" aria-hidden />
-            {years.map((y) => (
-              <Reveal key={y} className="relative pb-12 ps-9 last:pb-0 md:ps-14">
-                <span className={`absolute start-0 top-2 h-[15px] w-[15px] rounded-full ring-4 ring-white md:h-6 md:w-6 ${y === "dev" ? "bg-ink/25" : "bg-sun"}`} aria-hidden />
-                <div className={`font-display font-bold ${y === "dev" ? "text-xl text-ink/60 md:text-2xl" : "text-4xl text-brand md:text-5xl"}`}>{y === "dev" ? T.dev[lang] : y}</div>
-                <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {groups.get(y)!.map((p) => (
-                    <li key={p.slug}>
-                      <Link href={`${href(lang, "projets")}/${p.slug}`} className="group block overflow-hidden rounded-[var(--radius-sm)] bg-white ring-1 ring-line transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_24px_50px_-30px_rgba(20,36,84,0.5)]">
-                        <div className="aspect-[16/10] overflow-hidden bg-navy">
-                          <img {...rimg(p.cover.src, "(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw")} alt="" loading="lazy" style={{ objectPosition: p.cover.pos }} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                        </div>
-                        <div className="p-4">
-                          <div className="text-xs text-ink/50">{p.meta[lang]}</div>
-                          <div className="font-display mt-1 font-bold leading-snug transition-colors group-hover:text-brand">{p.title[lang]}</div>
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </Reveal>
-            ))}
+          <div className="mt-10 md:mt-14">
+            <YearStack
+              years={years.map((y) => ({
+                label: y === "dev" ? T.dev[lang] : y,
+                dev: y === "dev",
+                items: groups.get(y)!.map((p) => ({ href: `${href(lang, "projets")}/${p.slug}`, title: p.title[lang], meta: p.meta[lang], ...rimg(p.cover.src), pos: p.cover.pos })),
+              }))}
+            />
           </div>
         </div>
       </section>
