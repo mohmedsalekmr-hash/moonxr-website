@@ -361,6 +361,7 @@ export default function TextsTab({ focus }: { focus?: string }) {
             <TField label={tr("تلميح قبل الاستكشاف (الكمبيوتر)")} value={e.hintDrag} onChange={(v) => setE("hintDrag", v)} />
             <TField label={tr("تلميح قبل الاستكشاف (الهاتف)")} value={e.hintTap} onChange={(v) => setE("hintTap", v)} />
             <TField label={tr("زر الجولة")} value={e.tour} onChange={(v) => setE("tour", v)} />
+            <TField label={tr("زر «استكشف بنفسك»")} value={e.free} onChange={(v) => setE("free", v)} />
             <TField label={tr("أثناء الجولة")} value={e.touring} onChange={(v) => setE("touring", v)} />
             <TField label={tr("زر الإيقاف")} value={e.stop} onChange={(v) => setE("stop", v)} />
             <TField label={tr("«أو اضغط على نقطة»")} value={e.or} onChange={(v) => setE("or", v)} />

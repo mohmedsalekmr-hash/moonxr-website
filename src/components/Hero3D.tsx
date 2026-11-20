@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Locale } from "@/data/i18n";
 import { explorer as defExplorer, steps as defSteps, type Explorer } from "@/data/explorer";
 
-type Api = { enter: () => void; exit: () => void; focus: (id: string | null, group?: "headset" | "controller" | null) => void };
+type Api = { enter: () => void; exit: () => void; focus: (id: string | null, group?: "headset" | "controller" | null) => void; drift: (on: boolean) => void };
 
 /**
  * Hero 3D scene: a real Meta Quest 3 (CC BY 4.0, Roberto Domínguez) with the Moon XR logo.
@@ -26,9 +26,19 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
   const [hint, setHint] = useState(false);
   const hintRef = useRef<HTMLDivElement>(null);
   const userAct = useRef<() => void>(() => {});
+  /** «choose»: the start card (tour or free); «tour»: guided; «free»: the visitor drives */
+  const [mode, setMode] = useState<"choose" | "tour" | "free">("choose");
+  const [paused, setPaused] = useState(false);
+  const activeRef = useRef<string | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const lineRef = useRef<SVGPathElement>(null);
+  const dotRef = useRef<SVGCircleElement>(null);
+  const shownAt = useRef(0);
+  const chapters = useRef<HTMLDivElement>(null);
 
   const select = useCallback((id: string | null) => {
     setActive(id);
+    activeRef.current = id;
     api.current?.focus(id, id ? (steps.find((s) => s.id === id)?.group ?? null) : null);
   }, []);
   const enter = useCallback(() => {
@@ -37,11 +47,14 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
     setActive(null);
     setHint(false);
     api.current?.enter();
-    setTour(true); // the guided tour plays by itself; any touch takes over
+    setMode("choose"); // a short start card: guided tour or explore alone
+    setTour(false);
   }, []);
   const exit = useCallback(() => {
     setExplore(false);
     setActive(null);
+    activeRef.current = null;
+    setMode("choose");
     setTour(false);
     api.current?.exit();
   }, []);
@@ -261,7 +274,7 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
       let exploring = false;
       // while exploring, the 3D set must fit in the area left free by the title (top) and the info card
       // (right on desktop, bottom on phones): fractions of the canvas
-      const area = () => (wide ? { w: 0.62, h: 0.72 } : { w: 0.92, h: 0.42 });
+      const area = () => (wide ? { w: 0.58, h: 0.66 } : { w: 0.94, h: 0.46 });
       const fitDist = (r: number) => {
         const a = area();
         const t = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
@@ -280,7 +293,7 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
         camera.aspect = w / h;
         // centre of the free area: desktop x 4–64 %, y 18–90 %; phone y 10–56 %
         shiftGoalX = exploring ? (wide ? (rtl ? -0.16 : 0.16) * w : 0) : wide ? (rtl ? 0.22 : -0.22) * w : 0;
-        shiftGoalY = exploring ? (wide ? -0.04 * h : 0.2 * h) : wide ? 0 : 0.07 * h;
+        shiftGoalY = exploring ? (wide ? 0.02 * h : 0.17 * h) : wide ? 0 : 0.07 * h;
         camera.updateProjectionMatrix();
       };
       resize();
@@ -355,10 +368,17 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
           anim = idleView();
         },
         focus,
+        // a very slow turn while a part is being read, so the scene stays alive
+        drift: (on: boolean) => {
+          if (!exploring || reduce) return;
+          controls.autoRotate = on;
+          controls.autoRotateSpeed = rtl ? -0.22 : 0.22;
+        },
       };
 
       controls.addEventListener("start", () => {
         anim = null;
+        controls.autoRotate = false;
         if (exploring) renderer.domElement.style.cursor = "grabbing";
       });
       controls.addEventListener("end", () => {
@@ -427,6 +447,8 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
         if (!visible || document.hidden) return;
         const dt = Math.min(clock.getDelta(), 0.1);
         const k = 1 - Math.exp(-dt * 3.2);
+        // camera moves between parts are slower and softer than the page's own motion
+        const kc = 1 - Math.exp(-dt * 2.1);
 
         shiftX += (shiftGoalX - shiftX) * k;
         shiftY += (shiftGoalY - shiftY) * k;
@@ -474,10 +496,10 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
           goalS.setFromVector3(off.copy(anim.pos).sub(anim.target));
           let dTheta = goalS.theta - curS.theta;
           dTheta = Math.atan2(Math.sin(dTheta), Math.cos(dTheta));
-          curS.theta += dTheta * k;
-          curS.phi += (goalS.phi - curS.phi) * k;
-          curS.radius += (goalS.radius - curS.radius) * k;
-          controls.target.lerp(anim.target, k);
+          curS.theta += dTheta * kc;
+          curS.phi += (goalS.phi - curS.phi) * kc;
+          curS.radius += (goalS.radius - curS.radius) * kc;
+          controls.target.lerp(anim.target, kc);
           camera.position.copy(controls.target).add(off.setFromSpherical(curS));
           if (Math.abs(dTheta) < 0.003 && Math.abs(goalS.radius - curS.radius) < 0.002 && controls.target.distanceTo(anim.target) < 0.001) anim = null;
         }
@@ -486,6 +508,7 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
 
         if (exploring) {
           frameN++;
+          let aX = 0, aY = 0, aOn = false;
           c2.copy(layoutCenter).project(camera);
           const cx = ((c2.x + 1) / 2) * w, cy = ((1 - c2.y) / 2) * h;
           ids.forEach((id, i) => {
@@ -509,9 +532,33 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
             lab.style.setProperty("--dy", `${ay * 54}px`);
             lab.style.setProperty("--ang", `${Math.atan2(ay, ax)}rad`);
             lab.dataset.side = ax < 0 ? "l" : "r";
-            lab.style.opacity = occluded[id] ? "0.18" : "1";
+            lab.style.opacity = occluded[id] ? "0" : "1";
             lab.style.visibility = v.z > 1 ? "hidden" : "visible";
+            if (id === activeRef.current) {
+              aX = x;
+              aY = y;
+              aOn = !occluded[id] && v.z <= 1;
+            }
           });
+          // leader line: from the part in focus to the info card (computers only)
+          const line = lineRef.current, dot = dotRef.current, card = cardRef.current;
+          if (line && dot) {
+            if (wide && card && activeRef.current && aOn) {
+              const hr = el.getBoundingClientRect(), cr = card.getBoundingClientRect();
+              const left = cr.left - hr.left, right = cr.right - hr.left, top = cr.top - hr.top;
+              const ex = aX < left ? left : right;
+              const ey = Math.min(Math.max(aY, top + 28), top + Math.max(40, cr.height - 28));
+              const mx = aX + (ex - aX) * 0.55;
+              line.setAttribute("d", `M${aX},${aY} L${mx},${ey} L${ex},${ey}`);
+              line.style.opacity = "1";
+              dot.setAttribute("cx", String(ex));
+              dot.setAttribute("cy", String(ey));
+              dot.style.opacity = "1";
+            } else {
+              line.style.opacity = "0";
+              dot.style.opacity = "0";
+            }
+          }
         }
       };
       tick();
@@ -557,22 +604,52 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
     userAct.current = () => {
       setHint(false);
       setTour(false);
+      setMode((m) => (m === "tour" ? "free" : m));
     };
   }, []);
 
-  // guided tour: one part every 5 s, then back to the overview
-  const TOUR_MS = 5200;
-  const INTRO_MS = 4200; // the headset settles, then the overview card is read
+  // guided tour: one part every 8 s (time to read it), paused while the card is hovered or touched
+  const TOUR_MS = 8000;
+  const [left, setLeft] = useState(TOUR_MS);
   useEffect(() => {
-    if (!tour) return;
+    setLeft(TOUR_MS);
+    setPaused(false);
+    shownAt.current = Date.now();
+    // the chapter in focus scrolls into view in the bar (phones)
+    chapters.current?.querySelector<HTMLElement>("[aria-current]")?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+  }, [active]);
+  useEffect(() => {
+    if (!tour || paused) return;
+    const started = Date.now();
     const t = setTimeout(() => {
       if (idx === steps.length - 1) {
         setTour(false);
+        setMode("free");
         select(null);
       } else move(1);
-    }, idx < 0 ? INTRO_MS : TOUR_MS);
-    return () => clearTimeout(t);
-  }, [tour, idx, move, select]);
+    }, left);
+    return () => {
+      clearTimeout(t);
+      setLeft((l) => Math.max(0, l - (Date.now() - started)));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tour, paused, idx]);
+  const startTour = useCallback(() => {
+    setMode("tour");
+    setTour(true);
+    setPaused(false);
+    select(steps[0].id);
+  }, [select, steps]);
+  const goFree = useCallback((id?: string) => {
+    setMode("free");
+    setTour(false);
+    if (id) select(id);
+  }, [select]);
+
+  // a very slow turn while a part is being read
+  useEffect(() => {
+    api.current?.drift(explore && !!active && !paused);
+  }, [explore, active, paused]);
 
   // keyboard: arrows move between parts
   useEffect(() => {
@@ -580,6 +657,7 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
       setTour(false);
+      setMode("free");
       move((e.key === "ArrowRight") !== rtl ? 1 : -1);
     };
     window.addEventListener("keydown", onKey);
@@ -622,7 +700,7 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
         </div>
       )}
 
-      {/* callouts on the model */}
+      {/* numbered points on the model: the name shows on hover and for the part in focus */}
       {explore &&
         steps.map((s, i) => (
           <div
@@ -630,19 +708,26 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
             ref={(n) => {
               labelRefs.current[s.id] = n;
             }}
-            data-dim={step && step.id !== s.id ? "" : undefined}
             data-hide={step && (step.group !== s.group || (step.group === "controller" && (step.id === "trigger") !== (s.id === "trigger"))) ? "" : undefined}
             className="callout pointer-events-none absolute left-0 top-0"
             style={{ animationDelay: `${s.group === "headset" ? 0.9 + i * 0.1 : 2.6 + i * 0.1}s` }}
           >
-            <span className="callout-line" />
-            <button type="button" onClick={() => { setTour(false); select(s.id); }} className={`callout-dot pointer-events-auto ${active === s.id ? "is-active" : ""}`} aria-label={s.title[lang]} />
-            <button type="button" onClick={() => { setTour(false); select(s.id); }} className={`callout-label pointer-events-auto ${active === s.id ? "is-active" : ""}`}>
-              <span className="callout-num">{i + 1}</span>
-              <span dir={rtl ? "rtl" : "ltr"}>{s.title[lang]}</span>
+            <button type="button" onClick={() => goFree(s.id)} className={`hs-dot pointer-events-auto ${active === s.id ? "is-active" : ""}`} aria-label={s.title[lang]}>
+              {i + 1}
             </button>
+            <span className={`hs-name ${active === s.id ? "is-active" : ""}`} dir={rtl ? "rtl" : "ltr"}>
+              {s.title[lang]}
+            </span>
           </div>
         ))}
+
+      {/* leader line from the part in focus to the info card (computers) */}
+      {explore && (
+        <svg className="pointer-events-none absolute inset-0 z-[5] hidden h-full w-full md:block" aria-hidden>
+          <path key={active ?? "none"} ref={lineRef} className="hs-line" d="M0,0" />
+          <circle ref={dotRef} r="3.5" className="fill-sun transition-opacity duration-300" style={{ opacity: 0 }} />
+        </svg>
+      )}
 
       {/* explore UI */}
       {explore && (
@@ -651,7 +736,7 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
             <div className="wrap flex items-start justify-between gap-4">
               <div dir={rtl ? "rtl" : "ltr"}>
                 <div className="kicker !text-sun">{explorer.kicker[lang]}</div>
-                <div className="mt-1 hidden text-sm text-white/60 md:block">{t(explorer.help)}</div>
+                <div className="mt-1 hidden text-sm text-white/55 md:block">{t(explorer.help)}</div>
               </div>
               <button type="button" onClick={exit} className="pointer-events-auto btn btn-line btn-sm">
                 ✕ {t(explorer.close)}
@@ -659,67 +744,128 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
             </div>
           </div>
 
-          <div className="absolute inset-x-0 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-10 md:bottom-auto md:top-1/2 md:-translate-y-1/2">
-            <div className="wrap">
-              <div
-                key={active ?? "intro"}
-                dir={rtl ? "rtl" : "ltr"}
-                className="explore-panel relative mx-auto max-h-[46svh] w-full max-w-md overflow-y-auto rounded-[var(--radius-lg)] border border-white/12 bg-white/[0.07] p-4 text-white shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl md:me-0 md:ms-auto md:max-w-[350px] md:p-6"
-                aria-live="polite"
-              >
-                <div className="text-xs font-semibold text-sun">
-                  {step ? `${explorer.groups[step.group][lang]} · ${idx + 1}/${steps.length}` : "Meta Quest 3"}
+          {/* start card: guided tour or explore alone */}
+          {!step && (
+            <div className="absolute inset-x-0 bottom-[max(5.5rem,calc(env(safe-area-inset-bottom)+5rem))] z-10 md:bottom-auto md:top-1/2 md:-translate-y-1/2">
+              <div className="wrap">
+                <div dir={rtl ? "rtl" : "ltr"} className="vr-card mx-auto w-full max-w-md md:me-0 md:ms-auto md:max-w-[380px]">
+                  <div className="text-xs font-semibold text-sun">Meta Quest 3</div>
+                  <h3 className="font-display mt-1.5 text-2xl font-bold leading-tight md:text-3xl">{explorer.intro.title[lang]}</h3>
+                  <p className="mt-2 hidden text-base leading-relaxed text-white/80 md:block">{explorer.intro.text[lang]}</p>
+                  <div className="hidden md:block">
+                    <Specs text={t(explorer.introSpec)} />
+                  </div>
+                  <button type="button" onClick={startTour} className="btn btn-sun mt-4 w-full justify-center text-base md:mt-6">
+                    ▶ {t(explorer.tour)}
+                  </button>
+                  <button type="button" onClick={() => goFree(steps[0].id)} className="mt-2 w-full rounded-full border border-white/20 py-2.5 text-sm md:py-3 font-semibold text-white/85 transition hover:border-white/50 hover:text-white">
+                    {t(explorer.free ?? explorer.or)}
+                  </button>
                 </div>
-                <h3 className="font-display mt-1 text-lg font-semibold md:mt-1.5 md:text-2xl">{step ? step.title[lang] : explorer.intro.title[lang]}</h3>
-                <p className="mt-1.5 text-[0.82rem] leading-relaxed text-white/75 md:mt-2 md:text-[0.95rem]">{step ? step.text[lang] : explorer.intro.text[lang]}</p>
-                {(step ? step.spec : explorer.introSpec) && (
-                  <div className="mt-2.5 rounded-[var(--radius-sm)] bg-white/[0.08] px-3 py-2 text-[0.7rem] md:mt-3 md:text-xs font-medium leading-relaxed text-white ring-1 ring-white/10">
-                    {t((step ? step.spec : explorer.introSpec)!)}
-                  </div>
-                )}
+              </div>
+            </div>
+          )}
 
-                {!step && tour ? (
-                  <div className="mt-4 flex items-center justify-between gap-3 text-xs text-white/60">
-                    <span>{t(explorer.touring)}</span>
-                    <button type="button" onClick={() => setTour(false)} className="font-semibold hover:text-white">❚❚ {t(explorer.stop)}</button>
+          {/* the part in focus */}
+          {step && (
+            <div className="absolute inset-x-0 bottom-[max(5.25rem,calc(env(safe-area-inset-bottom)+4.75rem))] z-10 md:bottom-auto md:top-1/2 md:-translate-y-1/2">
+              <div className="wrap">
+                <div
+                  ref={cardRef}
+                  key={active}
+                  dir={rtl ? "rtl" : "ltr"}
+                  className="vr-card mx-auto w-full max-w-md touch-pan-y md:me-0 md:ms-auto md:max-w-[380px]"
+                  onMouseMove={() => {
+                    // the pointer is often already there when the card appears: only a real move means «reading»
+                    if (!paused && Date.now() - shownAt.current > 700) setPaused(true);
+                  }}
+                  onMouseLeave={() => setPaused(false)}
+                  onPointerDown={(e) => ((e.currentTarget as HTMLElement).dataset.x = String(e.clientX))}
+                  onPointerUp={(e) => {
+                    const x0 = Number((e.currentTarget as HTMLElement).dataset.x ?? e.clientX);
+                    const dx = e.clientX - x0;
+                    if (Math.abs(dx) < 50) return;
+                    // swipe between parts (phone): towards the reading direction = next
+                    goFree();
+                    move((dx < 0) !== rtl ? 1 : -1);
+                  }}
+                  aria-live="polite"
+                >
+                  <div className="flex items-center justify-between gap-3 text-xs font-semibold">
+                    <span className="text-sun">{explorer.groups[step.group][lang]}</span>
+                    <span className="tabular-nums text-white/50" dir="ltr">
+                      {idx + 1} / {steps.length}
+                    </span>
                   </div>
-                ) : !step && !tour ? (
-                  <div className="mt-4 md:mt-5">
-                    <button type="button" onClick={() => setTour(true)} className="btn btn-sun w-full justify-center">
-                      ▶ {t(explorer.tour)}
-                    </button>
-                    <p className="mt-2 text-center text-xs text-white/60">{t(explorer.or)}</p>
-                  </div>
-                ) : (
-                  <div className="mt-4 flex items-center gap-2">
-                    <button type="button" onClick={() => { setTour(false); move(-1); }} className="grid h-9 w-9 place-items-center rounded-full border border-white/20 hover:border-white/60" aria-label={explorer.prev[lang]}>
+                  <h3 className="font-display mt-1.5 text-2xl font-bold leading-tight md:text-[2rem]">{step.title[lang]}</h3>
+                  <p className="mt-2.5 text-[0.95rem] leading-relaxed text-white/80 md:text-[1.05rem]">{step.text[lang]}</p>
+                  {step.spec && <Specs text={t(step.spec)} />}
+                  <div className="mt-5 flex items-center gap-2">
+                    <button type="button" onClick={() => { goFree(); move(-1); }} className="grid h-11 w-11 place-items-center rounded-full border border-white/20 transition hover:border-white/60" aria-label={explorer.prev[lang]}>
                       <span className="rtl:rotate-180">←</span>
                     </button>
-                    <button type="button" onClick={() => { setTour(false); move(1); }} className="grid h-9 w-9 place-items-center rounded-full border border-white/20 hover:border-white/60" aria-label={explorer.next[lang]}>
+                    <button type="button" onClick={() => { goFree(); move(1); }} className="grid h-11 w-11 place-items-center rounded-full bg-white text-ink transition hover:bg-sun" aria-label={explorer.next[lang]}>
                       <span className="rtl:rotate-180">→</span>
                     </button>
-                    <div className="ms-2 flex gap-1.5">
-                      {steps.map((s) => (
+                    {tour ? (
+                      <button type="button" onClick={() => goFree()} className="ms-auto text-sm font-semibold text-white/60 hover:text-white">
+                        ❚❚ {t(explorer.stop)}
+                      </button>
+                    ) : (
+                      <button type="button" onClick={startTour} className="ms-auto text-sm font-semibold text-white/60 hover:text-white">
+                        ▶ {t(explorer.tour)}
+                      </button>
+                    )}
+                  </div>
+                  {tour && <span className="tour-bar" style={{ animationDuration: `${TOUR_MS}ms`, animationPlayState: paused ? "paused" : "running" }} />}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* chapters: every part, grouped, always one tap away */}
+          <nav className="absolute inset-x-0 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-10" aria-label={explorer.kicker[lang]}>
+            <div className="wrap">
+              <div ref={chapters} dir={rtl ? "rtl" : "ltr"} className="vr-chapters no-scrollbar">
+                {(["headset", "controller"] as const).map((g) => (
+                  <div key={g} className="flex shrink-0 items-center gap-1">
+                    <span className="hidden px-2 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-white/40 lg:inline rtl:tracking-normal">{explorer.groups[g][lang]}</span>
+                    {steps.map((s, i) =>
+                      s.group !== g ? null : (
                         <button
                           key={s.id}
                           type="button"
-                          onClick={() => { setTour(false); select(s.id); }}
-                          aria-label={s.title[lang]}
-                          className={`h-1.5 rounded-full transition-all ${active === s.id ? "w-6 bg-sun" : "w-1.5 bg-white/25 hover:bg-white/50"}`}
-                        />
-                      ))}
-                    </div>
-                    <button type="button" onClick={() => (tour ? setTour(false) : (setTour(false), select(null)))} className="ms-auto text-xs font-semibold text-white/60 hover:text-white">
-                      {tour ? `❚❚ ${t(explorer.stop)}` : explorer.reset[lang]}
-                    </button>
+                          onClick={() => goFree(s.id)}
+                          aria-current={active === s.id ? "step" : undefined}
+                          className={`vr-chip ${active === s.id ? "is-active" : ""}`}
+                        >
+                          <span className="vr-chip-num">{i + 1}</span>
+                          {s.title[lang]}
+                        </button>
+                      ),
+                    )}
                   </div>
-                )}
-                {tour && <span key={`bar-${active ?? "intro"}`} className="tour-bar" style={{ animationDuration: `${step ? TOUR_MS : INTRO_MS}ms` }} />}
+                ))}
               </div>
             </div>
-          </div>
+          </nav>
         </>
       )}
     </div>
+  );
+}
+
+/** Specifications as separate chips («4 MP colour cameras», «110° field of view», …). */
+function Specs({ text }: { text?: string }) {
+  if (!text) return null;
+  const parts = text.split("·").map((x) => x.trim()).filter(Boolean);
+  return (
+    <ul className="mt-4 flex flex-wrap gap-2">
+      {parts.map((p) => (
+        <li key={p} className="rounded-full bg-white/[0.09] px-3 py-1.5 text-[0.78rem] font-semibold text-white ring-1 ring-white/10 md:text-[0.82rem]">
+          {p}
+        </li>
+      ))}
+    </ul>
   );
 }

@@ -15,6 +15,7 @@ export const explorer = {
     },
   },
   tour: { fr: "Visite guidée", ar: "جولة موجّهة", en: "Guided tour" },
+  free: { fr: "Explorer moi-même", ar: "استكشف بنفسك", en: "Explore on my own" },
   stop: { fr: "Arrêter", ar: "إيقاف", en: "Stop" },
   prev: { fr: "Précédent", ar: "السابق", en: "Previous" },
   next: { fr: "Suivant", ar: "التالي", en: "Next" },

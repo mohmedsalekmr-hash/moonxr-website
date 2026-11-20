@@ -522,3 +522,63 @@ section[data-explore] { color: #fff; }
 .logo-wave:hover .logo-wave-img, .logo-wave:focus-visible .logo-wave-img { filter: none; opacity: 1; animation: none; }
 @keyframes logo-wave { 0%, 22%, 100% { filter: grayscale(1); opacity: .5; } 6%, 14% { filter: grayscale(0); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .logo-wave .logo-wave-img { animation: none; } }
+
+/* ---------- 3D headset tour (v2) ---------- */
+.vr-card {
+  position: relative; overflow: hidden;
+  border-radius: var(--radius-lg); padding: 1.25rem 1.25rem 1.1rem;
+  background: rgba(10, 18, 44, 0.86); color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  max-height: 46svh; overflow-y: auto;
+  animation: vr-card-in 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@media (min-width: 768px) { .vr-card { padding: 1.75rem; max-height: none; } }
+@keyframes vr-card-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.vr-chapters {
+  display: flex; gap: 0.75rem; overflow-x: auto; align-items: center;
+  margin-inline: auto; width: max-content; max-width: 100%;
+  padding: 0.35rem; border-radius: 999px;
+  background: rgba(10, 18, 44, 0.7); border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+}
+.vr-chip {
+  display: inline-flex; align-items: center; gap: 0.45rem; white-space: nowrap;
+  padding: 0.45rem 0.85rem 0.45rem 0.45rem; border-radius: 999px;
+  font-size: 0.82rem; font-weight: 600; color: rgba(255, 255, 255, 0.7);
+  transition: background 0.25s, color 0.25s;
+}
+[dir="rtl"] .vr-chip { padding: 0.45rem 0.45rem 0.45rem 0.85rem; }
+.vr-chip:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+.vr-chip.is-active { background: #fff; color: var(--color-ink); }
+.vr-chip-num {
+  display: grid; place-items: center; width: 1.35rem; height: 1.35rem; border-radius: 999px;
+  font-size: 0.7rem; background: rgba(255, 255, 255, 0.12);
+}
+.vr-chip.is-active .vr-chip-num { background: var(--color-sun); color: var(--color-ink); }
+/* points on the model */
+.hs-dot {
+  position: absolute; left: 0; top: 0; transform: translate(-50%, -50%);
+  display: grid; place-items: center; width: 26px; height: 26px; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 700; color: var(--color-ink);
+  background: #fff; box-shadow: 0 0 0 0 rgba(250, 182, 45, 0.6);
+  animation: hs-pulse 2.4s ease-out infinite; transition: transform 0.25s, background 0.25s;
+}
+.hs-dot:hover { transform: translate(-50%, -50%) scale(1.15); }
+.hs-dot.is-active { background: var(--color-sun); animation: none; box-shadow: 0 0 0 7px rgba(250, 182, 45, 0.28), 0 0 0 16px rgba(250, 182, 45, 0.1); }
+@keyframes hs-pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.55); } 70%, 100% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); } }
+.hs-name {
+  position: absolute; left: 0; top: 0; transform: translate(18px, -50%);
+  white-space: nowrap; pointer-events: none; padding: 4px 10px; border-radius: 999px;
+  font-size: 0.78rem; font-weight: 600; color: #fff; background: rgba(10, 18, 44, 0.8);
+  opacity: 0; transition: opacity 0.25s;
+}
+.callout:hover .hs-name, .hs-name.is-active { opacity: 1; }
+@media (min-width: 768px) { .hs-name.is-active { opacity: 0; } } /* the card names it, the line points to it */
+.hs-line {
+  fill: none; stroke: var(--color-sun); stroke-width: 1.5; stroke-dasharray: 600; stroke-dashoffset: 600;
+  animation: hs-draw 0.9s 0.35s ease forwards; transition: opacity 0.3s;
+}
+@keyframes hs-draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .hs-dot { animation: none; } .hs-line { animation: none; stroke-dashoffset: 0; } .vr-card { animation: none; } }

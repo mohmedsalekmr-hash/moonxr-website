@@ -519,4 +519,5 @@ export const DICT: Record<string, [fr: string, en: string]> = {
   "إظهار وإخفاء الأقسام": ["Afficher ou masquer les sections", "Show or hide sections"],
   "الهاتف والبريد": ["Téléphone et e-mail", "Phone and e-mail"],
   "{0} نصوص بدون ترجمة إنجليزية (يظهر مكانها النص الفرنسي).": ["{0} textes sans traduction anglaise (le texte français s'affiche à la place).", "{0} texts without an English translation (the French text shows instead)."],
+  "زر «استكشف بنفسك»": ["Bouton « Explorer moi-même »", "“Explore on my own” button"],
 };
