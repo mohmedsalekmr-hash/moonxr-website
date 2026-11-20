@@ -38,32 +38,13 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
   }, []);
 
   /**
-   * The story is told while scrolling: the hero section is tall and its stage stays on screen.
-   * One screen of scrolling = one stage: -1 hero, 0 overview, 1…n one part each.
+   * The story opens only when asked («Explore the headset», or a click on the headset) and takes the
+   * whole screen; the page keeps scrolling normally otherwise. Stages: -1 closed, 0 overview, 1…n parts.
    */
   const [stage, setStage] = useState(-1);
-  /** screens scrolled into the story section, and the stage the page is moving to */
-  const uRef = useRef(0);
-  const targetRef = useRef<number | null>(null);
-  const storyEl = useCallback(() => host.current?.closest<HTMLElement>("[data-story]") ?? null, []);
-  const scrollToStage = useCallback(
-    (st: number) => {
-      const el = storyEl();
-      if (!el) return;
-      const top = el.getBoundingClientRect().top + window.scrollY;
-      // stage k is fully shown around the middle of its screen
-      targetRef.current = st;
-      setTimeout(() => (targetRef.current === st ? (targetRef.current = null) : null), 1000);
-      const u = st < 0 ? 0 : st === 0 ? 1 : st + 1;
-      const y = top + u * window.innerHeight;
-      const lenis = (window as Window & { __lenis?: { scrollTo: (y: number, o?: { duration?: number; force?: boolean }) => void } }).__lenis;
-      // through the smooth-scroll engine when it runs (it also stops any glide), else the browser's own
-      if (lenis) lenis.scrollTo(y, { duration: 0.9, force: true });
-      else window.scrollTo({ top: y, behavior: "smooth" });
-    },
-    [storyEl],
-  );
-  const enter = useCallback(() => scrollToStage(0), [scrollToStage]);
+  const goStage = useCallback((st: number) => setStage(st < 0 || st > steps.length ? -1 : st), [steps.length]);
+  const enter = useCallback(() => goStage(0), [goStage]);
+  const close = useCallback(() => goStage(-1), [goStage]);
   // the hero's «Explore the headset» button
   useEffect(() => {
     const on = () => enter();
@@ -72,41 +53,10 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
   }, [enter]);
   const jumpRef = useRef<(id: string) => void>(() => {});
   useEffect(() => {
-    jumpRef.current = (id: string) => scrollToStage(steps.findIndex((s) => s.id === id) + 1);
-  }, [scrollToStage, steps]);
-
-  useEffect(() => {
-    const el = storyEl();
-    if (!el) return;
-    let raf = 0;
-    const read = () => {
-      raf = 0;
-      const r = el.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const u = -r.top / vh; // screens scrolled into the section
-      // -1 hero, 0 overview, 1…n parts, -2 once the story is behind us
-      const st = u < 0.45 ? -1 : u < 1.5 ? 0 : u > steps.length + 1.45 ? -2 : Math.min(steps.length, Math.floor(u - 0.5));
-      uRef.current = u;
-      setStage((cur) => (cur === st ? cur : st));
-      // the active part's progress bar (0→1 across its screen)
-      el.style.setProperty("--story-p", String(Math.min(1, Math.max(0, u - 0.5 - Math.floor(u - 0.5)))));
-    };
-    const on = () => {
-      if (!raf) raf = requestAnimationFrame(read);
-    };
-    read();
-    window.addEventListener("scroll", on, { passive: true });
-    window.addEventListener("resize", on);
-    return () => {
-      window.removeEventListener("scroll", on);
-      window.removeEventListener("resize", on);
-      cancelAnimationFrame(raf);
-    };
-  }, [storyEl, steps.length]);
+    jumpRef.current = (id: string) => goStage(steps.findIndex((s) => s.id === id) + 1);
+  }, [goStage, steps]);
 
   // stage → scene: enter the story, focus the part, or go back to the hero
-  const prevStage = useRef(-1);
-  useEffect(() => () => void (prevStage.current = stage), [stage]);
   useEffect(() => {
     if (!ready) return;
     if (stage < 0) {
@@ -122,8 +72,6 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
       setExplore(true);
       setHint(false);
       api.current?.enter();
-      // entered from the hero by scrolling: settle on the overview (not when passing through on a jump)
-      if (stage === 0 && prevStage.current === -1 && targetRef.current === null) scrollToStage(0);
     }
     select(stage === 0 ? null : steps[stage - 1].id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -644,6 +592,21 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
     userAct.current = () => setHint(false);
   }, []);
 
+  // while open: full screen, the page underneath does not move, Escape closes
+  useEffect(() => {
+    if (!explore) return;
+    const html = document.documentElement;
+    html.style.overflow = "hidden";
+    html.setAttribute("data-explore-full", "");
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    window.addEventListener("keydown", onKey);
+    return () => {
+      html.style.overflow = "";
+      html.removeAttribute("data-explore-full");
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [explore, close]);
+
   // a very slow turn while a part is being read
   useEffect(() => {
     api.current?.drift(explore && !!active);
@@ -657,11 +620,12 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
       const fwd = e.key === "ArrowDown" || (e.key === "ArrowRight") !== rtl;
       e.preventDefault();
       setMoved(true);
-      scrollToStage(Math.max(0, Math.min(steps.length, stage + (fwd ? 1 : -1))));
+      setNudge((n) => n + 1);
+      goStage(fwd ? stage + 1 : Math.max(0, stage - 1));
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [explore, stage, rtl, scrollToStage, steps.length]);
+  }, [explore, stage, rtl, goStage]);
 
   /**
    * One gesture = one part: inside the story, a flick of the wheel, a swipe or an arrow key goes to the
@@ -672,13 +636,9 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
   stageRef.current = stage;
   const [nudge, setNudge] = useState(0);
   useEffect(() => {
-    if (!storyEl()) return;
-    const N = steps.length;
+    if (!explore) return;
     let lock = 0, acc = 0, y0 = 0, x0 = 0;
-    // where the page is (or is already heading)
-    const here = () => targetRef.current ?? stageRef.current;
-    const inHero = () => stageRef.current === -1 && uRef.current >= 0 && uRef.current < 0.45;
-    const inStory = () => stageRef.current >= 0;
+    // forward after the last part closes the story; back from the overview stays there
     const go = (d: number) => {
       const now = Date.now();
       if (now < lock) return;
@@ -686,19 +646,11 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
       acc = 0;
       setMoved(true);
       setNudge((n) => n + 1); // a manual move restarts the 5-second clock
-      const st = here();
-      scrollToStage(d > 0 ? Math.min(N, Math.max(0, st + 1)) : st - 1);
-    };
-    // the way out stays a normal scroll: down after the last part, up before the first (or from the hero)
-    const free = (down: boolean) => {
-      if (inHero()) return !down;
-      if (!inStory()) return true;
-      return down && here() >= N;
+      const st = stageRef.current;
+      goStage(d > 0 ? st + 1 : Math.max(0, st - 1));
     };
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
-      if (!inHero() && !inStory()) return;
-      if (free(e.deltaY > 0)) return;
       e.preventDefault();
       e.stopPropagation();
       acc += e.deltaY;
@@ -709,15 +661,11 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
       x0 = e.touches[0].clientX;
     };
     const onMove = (e: TouchEvent) => {
-      if (!inHero() && !inStory()) return;
-      const dy = y0 - e.touches[0].clientY;
-      if (Math.abs(dy) < Math.abs(x0 - e.touches[0].clientX) || free(dy > 0)) return;
-      e.preventDefault();
+      if (Math.abs(y0 - e.touches[0].clientY) > Math.abs(x0 - e.touches[0].clientX)) e.preventDefault();
     };
     const onEnd = (e: TouchEvent) => {
-      if (!inHero() && !inStory()) return;
       const dy = y0 - e.changedTouches[0].clientY;
-      if (Math.abs(dy) > 36 && !free(dy > 0)) go(dy);
+      if (Math.abs(dy) > 36) go(dy);
     };
     window.addEventListener("wheel", onWheel, { passive: false, capture: true });
     window.addEventListener("touchstart", onStart, { passive: true });
@@ -729,15 +677,16 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
       window.removeEventListener("touchmove", onMove);
       window.removeEventListener("touchend", onEnd);
     };
-  }, [steps.length, scrollToStage, storyEl]);
+  }, [explore, goStage]);
 
   // and it plays by itself: the next part after 5 s, until the last one
   const STORY_MS = 5000;
+  // …and closes by itself 5 s after the last part
   useEffect(() => {
-    if (!explore || stage < 0 || stage >= steps.length) return;
-    const t = setTimeout(() => !document.hidden && targetRef.current === null && scrollToStage(stage + 1), STORY_MS);
+    if (!explore || stage < 0) return;
+    const t = setTimeout(() => !document.hidden && goStage(stage + 1), STORY_MS);
     return () => clearTimeout(t);
-  }, [explore, stage, nudge, steps.length, scrollToStage]);
+  }, [explore, stage, nudge, goStage]);
 
   const t = (v: { fr: string; ar: string; en?: string }) => v[lang] ?? v.fr;
 
@@ -796,6 +745,16 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
       {/* the story: one big headline per part, beside the headset */}
       {explore && (
         <>
+          {/* always a way out */}
+          <div className="pointer-events-none absolute inset-x-0 top-[max(1rem,env(safe-area-inset-top))] z-30 md:top-6">
+            <div className="wrap flex items-center justify-between gap-4" dir={rtl ? "rtl" : "ltr"}>
+              <img src="/media/logos/moonxr-d.svg?v=2" alt="Moon XR" width={1920} height={467} className="h-7 w-auto opacity-90 md:h-9" />
+              <button type="button" onClick={close} className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-white hover:text-ink">
+                <span aria-hidden>✕</span> {t(explorer.close)}
+              </button>
+            </div>
+          </div>
+
           {/* «scroll» hint until the first move (computers) */}
           {!moved && stage <= 1 && (
             <div className="pointer-events-none absolute inset-x-0 bottom-[max(0.9rem,env(safe-area-inset-bottom))] z-20 hidden justify-center md:flex">
@@ -862,8 +821,8 @@ function Figures({ text }: { text?: string }) {
       {items.map((it) => (
         <li key={it.big + it.small} className="min-w-0">
           {it.big && (
-            <div className="font-display text-2xl font-bold leading-none text-white md:text-4xl" dir="ltr">
-              {it.big}
+            <div className="font-display text-2xl font-bold leading-none text-white md:text-4xl" dir="ltr" style={{ unicodeBidi: "isolate" }}>
+              {"\u2066" + it.big + "\u2069"}
             </div>
           )}
           <div className={`text-white/55 ${it.big ? "mt-1.5 text-xs md:text-sm" : "text-sm font-semibold text-white/80 md:text-base"}`}>{it.small}</div>
