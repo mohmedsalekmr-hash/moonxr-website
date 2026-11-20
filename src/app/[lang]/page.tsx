@@ -9,7 +9,7 @@ import Hero3D from "@/components/Hero3D";
 import { Reveal } from "@/components/Media";
 import { LogoMarquee } from "@/components/Logos";
 import Showcase from "@/components/Showcase";
-import ServiceBento from "@/components/ServiceBento";
+import ServiceShowcase from "@/components/ServiceShowcase";
 import ProcessLine from "@/components/ProcessLine";
 import { EcoGrid } from "@/components/Ecosystem";
 import ExploreButton from "@/components/ExploreButton";
@@ -74,7 +74,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 </h2>
               </Reveal>
               <Reveal>
-                <ServiceBento services={services} lang={lang} />
+                <ServiceShowcase services={services} lang={lang} more={h.serviceMore[lang]} />
               </Reveal>
             </div>
             <div className="wrap mt-10 md:mt-14">

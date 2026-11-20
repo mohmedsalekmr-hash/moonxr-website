@@ -38,6 +38,7 @@ export const PAGES: { id: string; name: string; sub?: string; fields: F[] }[] = 
       ["home.statementA", tr("الجملة التعريفية – الجزء الأول")],
       ["home.statementB", tr("الجملة التعريفية – الجزء الملوّن")],
       ["home.statementC", tr("الجملة التعريفية – الجزء الأخير")],
+      ["home.serviceMore", tr("رابط «اكتشف الخدمة» تحت كل خدمة")],
       ["trust", tr("عنوان شريط الشعارات «وثقوا بنا»")],
       ["home.workTitle", tr("عنوان قسم المشاريع")],
       ["home.swipeHint", tr("تلميح السحب تحت المشاريع (الهاتف)")],

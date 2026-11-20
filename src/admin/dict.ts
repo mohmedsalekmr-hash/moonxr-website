@@ -441,4 +441,5 @@ export const DICT: Record<string, [fr: string, en: string]> = {
   "«الاسم» – العنوان": ["« Le nom » – titre", "“The name” – title"],
   "«الاسم» – الفقرة": ["« Le nom » – paragraphe", "“The name” – paragraph"],
   "كلمة «مثال»": ["Le mot « Exemple »", "The word “Example”"],
+  "رابط «اكتشف الخدمة» تحت كل خدمة": ["Lien « Découvrir le service » sous chaque service", "“Explore the service” link under each service"],
 };

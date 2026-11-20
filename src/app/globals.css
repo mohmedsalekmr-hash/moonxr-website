@@ -513,3 +513,4 @@ section[data-explore] { color: #fff; }
 }
 @keyframes hero-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { [style*="hero-zoom"] { animation: none !important; } }
+@keyframes svc-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }

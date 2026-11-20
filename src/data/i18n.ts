@@ -70,6 +70,7 @@ export const ui = {
   trust: { fr: "Ils nous ont fait confiance", ar: "وثقوا بنا", en: "They trusted us" },
   home: {
     aboutKicker: { fr: "Qui sommes-nous", ar: "من نحن", en: "Who we are" },
+    serviceMore: { fr: "Découvrir le service", ar: "اكتشف الخدمة", en: "Explore the service" },
     swipeHint: { fr: "Glissez vers la gauche ou la droite pour parcourir", ar: "اسحب يميناً أو يساراً لتصفّح المشاريع", en: "Swipe left or right to browse" },
     partnerLabel: { fr: "Partenaire", ar: "شريك", en: "Partner" },
     allTech: { fr: "Toutes nos technologies", ar: "كل التقنيات", en: "All our technologies" },
