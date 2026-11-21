@@ -20,6 +20,8 @@ html { background: var(--color-canvas); color: var(--color-ink); }
 body { font-family: var(--font-sans); font-size: 0.92rem; }
 ::selection { background: rgb(37 60 128 / 0.18); }
 
+/* component classes live in a layer, so a utility on the same element (ps-8, !min-h-11…) always wins */
+@layer components {
 /* ── inputs ─────────────────────────────────────────── */
 .inp {
   width: 100%; min-height: 2.5rem; border-radius: 0.625rem; border: 1px solid #d9dce2; background: #fff;
@@ -80,6 +82,8 @@ textarea.inp { resize: vertical; }
 .seg > button { position: relative; border-radius: 0.45rem; padding: 0.2rem 0.65rem; font-size: 0.75rem; font-weight: 600; color: rgb(10 15 31 / 0.55); transition: 0.15s; }
 .seg > button:hover { color: var(--color-ink); }
 .seg > button[aria-pressed="true"] { background: #fff; color: var(--color-ink); box-shadow: 0 1px 2px rgb(10 15 31 / 0.12); }
+
+}
 
 @keyframes mx-pop { from { opacity: 0; transform: translateY(8px) scale(0.97); } to { opacity: 1; transform: none; } }
 @keyframes mx-down { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }

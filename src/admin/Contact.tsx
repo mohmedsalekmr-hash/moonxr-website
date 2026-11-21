@@ -3,7 +3,7 @@
 import { tr } from "./i18n";
 import { CONTACT } from "@/data/i18n";
 import { Section } from "./Projects";
-import { Field, moveItem, RowTools, SaveBar } from "./ui";
+import { Field, moveItem, RowTools, SaveBar, PageHead } from "./ui";
 import { useContentKey } from "./useContent";
 
 /** Common platforms: the name is filled in from the link; any other name can be typed. */
@@ -25,8 +25,7 @@ export default function ContactTab() {
   const v = c.value;
   return (
     <div>
-      <h1 className="text-2xl font-bold">{tr("التواصل")}</h1>
-      <p className="mt-1 text-sm text-black/55">{tr("البريد والهاتف وواتساب تظهر في أسفل الصفحات وفي صفحة التواصل، ومعها حسابات التواصل الاجتماعي.")}</p>
+      <PageHead title={tr("التواصل")} sub={tr("البريد والهاتف وواتساب تظهر في أسفل الصفحات وفي صفحة التواصل، ومعها حسابات التواصل الاجتماعي.")} />
       {c.err && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{c.err}</p>}
       <Section title={tr("بيانات التواصل")}>
         <div className="grid gap-4 md:grid-cols-2">
@@ -49,7 +48,7 @@ export default function ContactTab() {
       <Section title={tr("حسابات التواصل الاجتماعي")} sub={tr("تظهر في أسفل كل صفحات الموقع، بنفس هذا الترتيب. اترك القائمة فارغة إذا لم تكن هناك حسابات.")}>
         <div className="grid gap-3">
           {(v.socials ?? []).map((so, i) => (
-            <div key={i} className="flex items-end gap-3 rounded-xl bg-black/[0.025] p-3">
+            <div key={i} className="flex items-end gap-3 rounded-xl border border-line p-3">
               <div className="grid flex-1 gap-3 md:grid-cols-[14rem_1fr]">
                 <label className="block text-sm">
                   <span className="text-black/60">{tr("المنصة")}</span>

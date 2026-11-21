@@ -2,7 +2,7 @@
 
 import { tr, adminLang } from "./i18n";
 import { Section } from "./Projects";
-import { moveItem, RowTools, SaveBar, Toggle } from "./ui";
+import { moveItem, PageHead, RowTools, SaveBar, Toggle } from "./ui";
 import { useContentKey } from "./useContent";
 import { EDIT_URL, Icon, ICON } from "./Shell";
 
@@ -72,10 +72,15 @@ export default function PagesTab() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">{tr("الصفحات")}</h1>
-      <p className="mt-1 text-sm text-black/55">{tr("أظهر أو أخفِ أقسام كل صفحة، ورتّب أقسام الصفحة الرئيسية. لتعديل النصوص والصور:")}{" "}
-        <a href={EDIT_URL()} target="_blank" className="font-semibold text-navy underline">{tr("عدّل الموقع مباشرة")}</a>
-      </p>
+      <PageHead
+        title={tr("الصفحات")}
+        sub={tr("أظهر أو أخفِ أقسام كل صفحة، ورتّب أقسام الصفحة الرئيسية.")}
+        actions={
+          <a href={EDIT_URL()} target="_blank" className="btn btn-secondary">
+            {tr("تعديل النصوص والصور في الموقع")}
+          </a>
+        }
+      />
       {all.map((x) => x.err).find(Boolean) && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{all.map((x) => x.err).find(Boolean)}</p>}
 
       <Section title={tr("الصفحة الرئيسية")} sub={tr("الأسهم تغيّر ترتيب الأقسام من الأعلى إلى الأسفل.")}>

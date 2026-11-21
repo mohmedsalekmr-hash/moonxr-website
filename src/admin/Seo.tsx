@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { seo as defSeo, DEFAULT_SHARE_IMAGE, type Seo, type SeoPage } from "@/data/seo";
 import { Section } from "./Projects";
 import { uploadShareImage } from "./media";
-import { countMissingEn, MissingEn, SaveBar, TField } from "./ui";
+import { countMissingEn, MissingEn, SaveBar, TField, PageHead } from "./ui";
 import { useContentKey } from "./useContent";
 
 const PAGES: { id: SeoPage; name: string; path: { fr: string; ar: string; en: string } }[] = [
@@ -55,8 +55,7 @@ export default function SeoTab() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">{tr("الظهور والمشاركة")}</h1>
-      <p className="mt-1 text-sm text-black/55">{tr("عنوان كل صفحة ووصفها كما يظهران في Google، والصورة التي تظهر عند إرسال الرابط في واتساب أو LinkedIn. صفحات المشاريع تأخذ عنوانها ووصفها وصورتها من المشروع نفسه.")}</p>
+      <PageHead title={tr("الظهور والمشاركة")} sub={tr("عنوان كل صفحة ووصفها كما يظهران في Google، والصورة التي تظهر عند إرسال الرابط في واتساب أو LinkedIn. صفحات المشاريع تأخذ عنوانها ووصفها وصورتها من المشروع نفسه.")} />
       <MissingEn n={countMissingEn(s)} />
       {c.err && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{c.err}</p>}
 

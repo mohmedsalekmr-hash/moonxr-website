@@ -3,6 +3,7 @@
 import { adminLocale, tr } from "./i18n";
 import { useEffect, useState } from "react";
 import { sb } from "./sb";
+import { PageHead } from "./ui";
 
 type Req = {
   id: string;
@@ -59,8 +60,7 @@ export default function RequestsTab({ onCount }: { onCount?: (n: number) => void
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">{tr("الطلبات")}</h1>
-      <p className="mt-1 text-sm text-black/55">{tr("كل رسالة يرسلها زائر من صفحة «تواصل معنا» تصل هنا. بعد الرد عليها اضغط «تم الرد» لتنتقل إلى الأرشيف.")}</p>
+      <PageHead title={tr("الطلبات")} sub={tr("كل رسالة يرسلها زائر من صفحة «تواصل معنا» تصل هنا. بعد الرد عليها اضغط «تم الرد» لتنتقل إلى الأرشيف.")} />
       {err && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{err}</p>}
 
       <div className="mt-5 flex gap-2">

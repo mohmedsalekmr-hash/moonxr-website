@@ -1,6 +1,7 @@
 "use client";
 
 import { tr } from "./i18n";
+import { PageHead } from "./ui";
 import { useState } from "react";
 
 const COLORS = [
@@ -51,8 +52,7 @@ function Swatch({ name, hex, use }: { name: string; hex: string; use: string }) 
 export default function BrandTab() {
   return (
     <div>
-      <h1 className="text-2xl font-bold">{tr("دليل الهوية")}</h1>
-      <p className="mt-1 text-sm text-black/55">{tr("الألوان والقواعد التي يستعملها الموقع. استعملها أيضاً في منشورات LinkedIn والعروض حتى يبقى كل شيء بنفس الهوية. اضغط على أي لون لنسخ رمزه.")}</p>
+      <PageHead title={tr("دليل الهوية")} sub={tr("الألوان والقواعد التي يستعملها الموقع. استعملها أيضاً في منشورات LinkedIn والعروض حتى يبقى كل شيء بنفس الهوية. اضغط على أي لون لنسخ رمزه.")} />
 
       <h2 className="mt-8 text-lg font-bold">{tr("الألوان")}</h2>
       <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">

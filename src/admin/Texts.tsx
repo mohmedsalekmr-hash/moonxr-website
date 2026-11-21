@@ -7,7 +7,7 @@ import { ui as defUi } from "@/data/i18n";
 import { aboutPage, partnersPage } from "@/data/pages";
 import { explorer as defExplorer, steps as defSteps, type Step } from "@/data/explorer";
 import { Section } from "./Projects";
-import { ADMIN_LANGS, countMissingEn, emptyT, Field, FocusPicker, MediaBox, MissingEn, moveItem, RowTools, SaveBar, TField, type T } from "./ui";
+import { ADMIN_LANGS, countMissingEn, emptyT, Field, FocusPicker, MediaBox, MissingEn, moveItem, PageHead, RowTools, SaveBar, TField, type T } from "./ui";
 import { merge, useContentKey } from "./useContent";
 
 type UI = typeof defUi;
@@ -198,6 +198,7 @@ export default function TextsTab({ focus }: { focus?: string }) {
     sb.from("projects").select("slug,title,cover").order("position").then(({ data }) => setProjects(data ?? []));
   }, []);
   const [open, setOpen] = useState<string>(focus ?? "home");
+  const [q, setQ] = useState("");
   const all = [c, about, pp, ex];
   if (!c.value || !about.value || !pp.value || !ex.value) return <p className="text-black/40">…</p>;
   const a = about.value;
@@ -213,27 +214,52 @@ export default function TextsTab({ focus }: { focus?: string }) {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">{tr("نصوص الموقع")}</h1>
-      <p className="mt-1 text-sm text-black/55">{tr("كل نص يظهر في الموقع، مرتّباً حسب الصفحات، بالعربية والفرنسية والإنجليزية. الخانة الإنجليزية الفارغة تظهر بالبرتقالي، ويعرض الموقع مكانها النص الفرنسي.")}</p>
+      <PageHead title={tr("نصوص الموقع")} sub={tr("كل نص يظهر في الموقع، مرتّباً حسب الصفحات، بالعربية والفرنسية والإنجليزية. الخانة الإنجليزية الفارغة تظهر بالبرتقالي، ويعرض الموقع مكانها النص الفرنسي.")} />
       <MissingEn n={countMissingEn([c.value, about.value, pp.value, ex.value])} />
       {all.map((x) => x.err).find(Boolean) && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{all.map((x) => x.err).find(Boolean)}</p>}
 
-      <div className="mt-6 flex flex-wrap gap-2">
-        {tabs.map((g) => (
-          <button
-            key={g.id}
-            onClick={() => setOpen(g.id)}
-            className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${open === g.id ? "bg-navy text-white" : "bg-white text-black/60 ring-1 ring-black/10 hover:text-black"}`}
-          >
-            {g.name}
-          </button>
-        ))}
-      </div>
-
+      <div className="mt-4 grid items-start gap-5 lg:grid-cols-[14rem_minmax(0,1fr)]">
+      {/* the groups, like the settings menus of Stripe or Vercel */}
+      <nav className="card p-1.5 lg:sticky lg:top-24">
+        <div className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
+        {tabs.map((g) => {
+          const pg = PAGES.find((x) => x.id === g.id);
+          const miss = pg ? countMissingEn(pg.fields.map(([path]) => get(c.value, path))) : 0;
+          return (
+            <button
+              key={g.id}
+              onClick={() => {
+                setOpen(g.id);
+                setQ("");
+              }}
+              aria-current={open === g.id ? "page" : undefined}
+              className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-start text-[0.85rem] transition lg:w-full ${open === g.id ? "bg-brand-soft font-semibold text-navy" : "font-medium text-black/60 hover:bg-black/[0.04] hover:text-black"}`}
+            >
+              <span className="flex-1 whitespace-nowrap lg:whitespace-normal">{g.name}</span>
+              {miss > 0 && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" title={tr("{0} نصوص", miss)} />}
+            </button>
+          );
+        })}
+        </div>
+      </nav>
+      <div className="min-w-0 [&>section:first-child]:!mt-0">
       {page && (
-        <Section title={page.name} sub={page.sub}>
+        <Section
+          title={page.name}
+          sub={page.sub}
+          actions={
+            <div className="relative w-48 shrink-0">
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("تصفية…")} className="inp !min-h-9 ps-8 text-[0.82rem]" />
+              <svg viewBox="0 0 24 24" className="pointer-events-none absolute start-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-black/35" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+                <path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4" />
+              </svg>
+            </div>
+          }
+        >
           {page.fields.map(([path, label]) => {
             const v = get(c.value, path);
+            const n = (x: string) => x.toLowerCase();
+            if (q && !n(`${label} ${v?.ar ?? ""} ${v?.fr ?? ""} ${v?.en ?? ""}`).includes(n(q))) return null;
             return v ? <TField key={path} label={label} multi={(v.fr ?? "").length > 70} value={v} onChange={(nv) => c.setValue(set(c.value!, path, nv))} /> : null;
           })}
           {page.id === "contact" && (
@@ -246,12 +272,12 @@ export default function TextsTab({ focus }: { focus?: string }) {
         <Section title={tr("صفحة «من نحن»")}>
           <TField label={tr("العنوان")} value={a.title} onChange={(v) => setA({ title: v })} />
           <TField label={tr("الفقرة تحت العنوان")} multi value={a.sub} onChange={(v) => setA({ sub: v })} />
-          <div className="rounded-xl bg-black/[0.025] p-4">
+          <div className="rounded-xl border border-line p-4">
             <div className="text-sm font-semibold">{tr("صور البطاقات في أعلى الصفحة")}</div>
             <p className="mt-1 text-xs text-black/50">{tr("بدون صور هنا: يعرض الموقع صورة الغلاف لكل مشروع. كل صورة مرتبطة بمشروع يفتح عند الضغط عليها.")}</p>
             <div className="mt-3 grid gap-3">
               {(a.heroShots ?? []).map((x, i) => (
-                <div key={i} className="flex gap-3 rounded-xl bg-white p-3 ring-1 ring-black/[0.06]">
+                <div key={i} className="flex gap-3 rounded-xl bg-canvas p-3">
                   <div className="w-40 shrink-0">
                     <MediaBox folder="about" height="h-28" value={x.src ? { src: x.src } : null} onChange={(m) => setA({ heroShots: a.heroShots.map((y, j) => (j === i ? { ...y, src: m.src } : y)) })} />
                   </div>
@@ -284,7 +310,7 @@ export default function TextsTab({ focus }: { focus?: string }) {
           <TField label={tr("«التزامنا» – العنوان الصغير")} value={a.pillars.kicker} onChange={(v) => setA({ pillars: { ...a.pillars, kicker: v } })} />
           <TField label={tr("«التزامنا» – العنوان")} value={a.pillars.title} onChange={(v) => setA({ pillars: { ...a.pillars, title: v } })} />
           {a.pillars.items.map((it, i) => (
-            <div key={i} className="flex gap-3 rounded-xl bg-black/[0.025] p-4">
+            <div key={i} className="flex gap-3 rounded-xl border border-line p-4">
               <div className="grid flex-1 gap-3">
                 <TField label={tr("الالتزام {0}", i + 1)} value={it.t} onChange={(v) => setA({ pillars: { ...a.pillars, items: a.pillars.items.map((x, j) => (j === i ? { ...x, t: v } : x)) } })} />
                 <TField label={tr("الشرح")} multi value={it.d} onChange={(v) => setA({ pillars: { ...a.pillars, items: a.pillars.items.map((x, j) => (j === i ? { ...x, d: v } : x)) } })} />
@@ -302,7 +328,7 @@ export default function TextsTab({ focus }: { focus?: string }) {
           <TField label={tr("«الاسم» – العنوان")} value={a.xr.title} onChange={(v) => setA({ xr: { ...a.xr, title: v } })} />
           <TField label={tr("«الاسم» – الفقرة")} multi value={a.xr.text} onChange={(v) => setA({ xr: { ...a.xr, text: v } })} />
           {a.xr.items.map((it, i) => (
-            <div key={i} className="flex gap-3 rounded-xl bg-black/[0.025] p-4">
+            <div key={i} className="flex gap-3 rounded-xl border border-line p-4">
               <div className="grid flex-1 gap-3">
                 <div className="grid gap-3 md:grid-cols-[8rem_1fr]">
                   <Field label={tr("الرمز")} value={it.k} onChange={(v) => setA({ xr: { ...a.xr, items: a.xr.items.map((x, j) => (j === i ? { ...x, k: v } : x)) } })} />
@@ -372,7 +398,7 @@ export default function TextsTab({ focus }: { focus?: string }) {
           </Section>
           <Section title={tr("النظارة ثلاثية الأبعاد – النقاط")} sub={tr("نقطة لكل جزء، بنفس ترتيب الجولة.")}>
             {steps.map((s, i) => (
-              <div key={s.id} className="grid gap-3 rounded-xl bg-black/[0.025] p-4">
+              <div key={s.id} className="grid gap-3 rounded-xl border border-line p-4">
                 <div className="text-xs font-semibold text-black/45">
                   {i + 1} · {s.group === "headset" ? tr("النظارة") : tr("يد التحكم")}
                 </div>
@@ -384,6 +410,9 @@ export default function TextsTab({ focus }: { focus?: string }) {
           </Section>
         </>
       )}
+
+      </div>
+      </div>
 
       <SaveBar
         dirty={all.some((x) => x.dirty)}

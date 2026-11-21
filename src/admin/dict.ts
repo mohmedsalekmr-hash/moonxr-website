@@ -552,4 +552,7 @@ export const DICT: Record<string, [fr: string, en: string]> = {
   "لا توجد معلومات بعد.": ["Aucune information pour l'instant.", "No details yet."],
   "مخفي — لا يظهر للزوار": ["Masqué — invisible pour les visiteurs", "Hidden — not shown to visitors"],
   "منشور — يظهر للزوار": ["Publié — visible pour les visiteurs", "Published — shown to visitors"],
+  "تصفية…": ["Filtrer…", "Filter…"],
+  "أظهر أو أخفِ أقسام كل صفحة، ورتّب أقسام الصفحة الرئيسية.": ["Affichez ou masquez les sections de chaque page et réordonnez celles de l'accueil.", "Show or hide each page's sections and reorder the home page sections."],
+  "تعديل النصوص والصور في الموقع": ["Modifier textes et photos sur le site", "Edit texts and photos on the site"],
 };

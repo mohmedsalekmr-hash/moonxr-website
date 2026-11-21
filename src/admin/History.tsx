@@ -3,6 +3,7 @@
 import { adminLocale, tr } from "./i18n";
 import { useEffect, useState } from "react";
 import { sb } from "./sb";
+import { PageHead } from "./ui";
 import { saveAndPublish } from "./save";
 
 type Entry = {
@@ -71,8 +72,7 @@ export default function HistoryTab() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">{tr("السجل")}</h1>
-      <p className="mt-1 text-sm text-black/55">{tr("كل تعديل أو حذف يحفظ النسخة التي كانت قبله لمدة 90 يوماً. إذا أخطأت في شيء، استرجع النسخة السابقة من هنا.")}</p>
+      <PageHead title={tr("السجل")} sub={tr("كل تعديل أو حذف يحفظ النسخة التي كانت قبله لمدة 90 يوماً. إذا أخطأت في شيء، استرجع النسخة السابقة من هنا.")} />
       {msg && <p className={`mt-4 rounded-lg p-3 text-sm ${msg.ok ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-700"}`}>{msg.text}</p>}
       <div className="card mt-6 divide-y divide-black/[0.06]">
         {list === null && <p className="p-5 text-black/40">…</p>}
