@@ -646,8 +646,9 @@ section[data-explore] { color: #fff; }
 .cs-in { animation: rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both; }
 .cs-in-2 { animation-delay: 0.3s; }
 /* the moon rises once from the horizon, then stays */
-.moon-rise { transform: translate(-50%, -16%); animation: moon-rise 2.6s cubic-bezier(0.16, 0.8, 0.2, 1) both; }
+.moon-rise { transform: translate(-50%, -30%); animation: moon-rise 2.6s cubic-bezier(0.16, 0.8, 0.2, 1) both; }
 @media (min-width: 768px) { .moon-rise { transform: translate(-50%, -18%); animation-name: moon-rise-md; } }
-@keyframes moon-rise { from { transform: translate(-50%, 0); opacity: 0; } to { transform: translate(-50%, -16%); opacity: 1; } }
+@keyframes moon-rise { from { transform: translate(-50%, 0); opacity: 0; } to { transform: translate(-50%, -30%); opacity: 1; } }
 @keyframes moon-rise-md { from { transform: translate(-50%, 0); opacity: 0; } to { transform: translate(-50%, -18%); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .moon-rise, .cs-in { animation: none; } }
+.cs-field:focus-visible { outline: none; }

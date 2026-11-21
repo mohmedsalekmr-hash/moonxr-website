@@ -8,7 +8,7 @@ import { sendRequest } from "@/app/[lang]/contact/actions";
 /**
  * The contact page: one dark stage in the brand colours (no photo, so it speaks for every service).
  * Left: a big promise and the direct channels. Right: the form, built into the page (no card).
- * Background: a soft moon rising once from the horizon.
+ * Background: the real Moon rising once from the horizon.
  */
 export default function ContactStage({ lang }: { lang: Locale }) {
   const { ui, contact: CONTACT } = useShared();
@@ -77,7 +77,7 @@ export default function ContactStage({ lang }: { lang: Locale }) {
 
   const wa = `https://wa.me/${(CONTACT.whatsapp || CONTACT.phone).replace(/\D/g, "")}`;
   const field =
-    "mt-1.5 w-full rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3 text-[0.95rem] text-white outline-none backdrop-blur-sm transition placeholder:text-white/30 hover:border-white/25 focus:border-[#8fa6e6] focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(111,138,214,0.25)] focus-visible:outline-none";
+    "cs-field mt-1.5 w-full rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3 text-[0.95rem] text-white outline-none backdrop-blur-sm transition placeholder:text-white/30 hover:border-white/25 focus:border-[#8fa6e6] focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(111,138,214,0.25)] focus-visible:outline-none";
   const label = "block text-sm font-medium text-white/70";
 
   return (
@@ -85,15 +85,16 @@ export default function ContactStage({ lang }: { lang: Locale }) {
       {/* background */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_0%,#142454,transparent_70%)]" />
-          <div className="moon-rise absolute left-1/2 top-full aspect-square w-[160vw] rounded-full md:w-[78vw] md:max-w-[1100px]">
-            {/* a soft halo, the lit surface, a thin golden rim */}
-            <div className="absolute -inset-[12%] rounded-full bg-[radial-gradient(closest-side,rgba(111,138,214,0.35),transparent)]" />
-            <div className="absolute inset-0 rounded-full bg-[radial-gradient(120%_80%_at_50%_0%,rgba(201,213,245,0.55)_0%,rgba(111,138,214,0.35)_18%,rgba(37,60,128,0.35)_42%,rgba(20,36,84,0)_70%)]" />
-            <div className="absolute inset-0 rounded-full shadow-[inset_0_2px_0_0_rgba(250,182,45,0.8),0_-20px_90px_-10px_rgba(250,182,45,0.35)]" />
+          <div className="moon-rise absolute left-1/2 top-full aspect-square w-[130vw] md:w-[72vw] md:max-w-[1150px]">
+            {/* the real Moon (NASA SVS render from LRO data), dimmed into the night, with a soft glow and no hard edge */}
+            <div className="absolute -inset-[8%] rounded-full bg-[radial-gradient(closest-side,rgba(190,205,245,0.22),rgba(111,138,214,0.08)_60%,transparent)]" />
+            <img src="/media/moon.webp" alt="" width={1800} height={1800} className="absolute inset-0 h-full w-full select-none opacity-90 [filter:brightness(0.82)_contrast(1.05)]" draggable={false} />
+            <div className="absolute inset-0 rounded-full bg-[radial-gradient(130%_100%_at_50%_0%,transparent_38%,rgba(10,20,49,0.45)_58%,#0a1431_78%)]" />
           </div>
-        </div>
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-navy-deep to-transparent" />
+      </div>
 
-      <div className="wrap grid min-h-[100svh] items-center gap-10 pb-16 pt-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:gap-16 lg:pb-20 lg:pt-32">
+      <div className="wrap grid min-h-[100svh] items-center gap-10 pb-48 pt-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:gap-16 lg:pb-20 lg:pt-32">
         {/* the promise and the direct channels */}
         <div className="cs-in">
           <div className="kicker !text-sun">{ui.nav.contact[lang]}</div>
