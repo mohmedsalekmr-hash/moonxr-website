@@ -6,7 +6,9 @@ import { notFound } from "next/navigation";
 import { hasLocale } from "@/data/i18n";
 
 import PageHead from "@/components/PageHead";
-import ProjectFilter from "@/components/ProjectFilter";
+import ProjectStack from "@/components/ProjectStack";
+import { projectTag } from "@/data/projects";
+import { href as pageHref } from "@/data/i18n";
 import CTA from "@/components/CTA";
 import Page from "@/components/Page";
 
@@ -28,11 +30,20 @@ export default async function ProjectsPage({ params }: PageProps<"/[lang]/projet
 ui.work.sub[lang]
         }
       />
-      <section className="pb-24">
-        <div className="wrap">
-          <ProjectFilter projects={projects} lang={lang} />
-        </div>
-      </section>
+      {/* every project as a card; scrolling, the next one slides over the previous */}
+      <ProjectStack
+        items={projects.map((p) => ({
+          slug: p.slug,
+          href: `${pageHref(lang, "projets")}/${p.slug}`,
+          image: p.cover.src,
+          pos: p.cover.pos,
+          tag: projectTag[p.category][lang],
+          title: p.title[lang],
+          short: p.short[lang],
+          meta: p.meta[lang],
+        }))}
+        view={ui.work.view[lang]}
+      />
       <CTA lang={lang} />
     </Page>
   );

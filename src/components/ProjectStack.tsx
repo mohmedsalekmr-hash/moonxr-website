@@ -10,7 +10,7 @@ import type { ShowcaseItem } from "./Showcase";
  * for a moment and the next one slides over it, while the one underneath shrinks and dims.
  * Every card: a large clear photo, then the project's name, line and link.
  */
-export default function ProjectStack({ items, head, all, view }: { items: ShowcaseItem[]; head: React.ReactNode; all: { href: string; label: string }; view: string }) {
+export default function ProjectStack({ items, head, all, view }: { items: ShowcaseItem[]; head?: React.ReactNode; all?: { href: string; label: string }; view: string }) {
   const cards = useRef<(HTMLDivElement | null)[]>([]);
 
   // the card underneath shrinks and dims as the next one covers it
@@ -50,14 +50,16 @@ export default function ProjectStack({ items, head, all, view }: { items: Showca
 
   return (
     <section className="relative bg-white pb-16 pt-4 text-ink md:pb-28 md:pt-8">
+      {(head || all) && (
       <div className="wrap flex items-end justify-between gap-6">
         <div>{head}</div>
-        <Link href={all.href} className="hidden shrink-0 rounded-full border border-ink/15 px-5 py-2.5 text-sm font-semibold transition-colors hover:border-sun hover:bg-sun md:inline-flex">
+        {all && <Link href={all.href} className="hidden shrink-0 rounded-full border border-ink/15 px-5 py-2.5 text-sm font-semibold transition-colors hover:border-sun hover:bg-sun md:inline-flex">
           {all.label}
-        </Link>
+        </Link>}
       </div>
+      )}
 
-      <div className="wrap mt-10 md:mt-14">
+      <div className={`wrap ${head || all ? "mt-10 md:mt-14" : ""}`}>
         {items.map((it, i) => (
           <div key={it.slug} className="sticky mb-6 md:mb-10" style={{ top: `calc(var(--stack-top) + ${i * 14}px)`, zIndex: i + 1 }}>
             <div ref={(el) => void (cards.current[i] = el)} className="origin-top will-change-transform">
@@ -102,11 +104,13 @@ export default function ProjectStack({ items, head, all, view }: { items: Showca
         ))}
       </div>
       {/* outside the stack, so the last card never sits on top of it */}
-      <div className="wrap relative z-10 mt-6 flex justify-center md:mt-10">
-        <Link href={all.href} className="btn btn-sun">
-          {all.label} <span className="rtl:rotate-180">→</span>
-        </Link>
-      </div>
+      {all && (
+        <div className="wrap relative z-10 mt-6 flex justify-center md:mt-10">
+          <Link href={all.href} className="btn btn-sun">
+            {all.label} <span className="rtl:rotate-180">→</span>
+          </Link>
+        </div>
+      )}
     </section>
   );
 }
