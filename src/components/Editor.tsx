@@ -183,8 +183,16 @@ export default function Editor({ onClose }: { onClose: () => void }) {
   /** The clicked element, or the nearest parent, whose text or photo is stored somewhere. */
   const cache = useRef(new WeakMap<HTMLElement, Target | null>());
   const resolve = useCallback(
-    (start: HTMLElement): Target | null => {
+    (start: HTMLElement, x: number, y: number): Target | null => {
       if (!sources) return null;
+      // photos first: the one actually visible under the pointer (slideshows stack several, most of them hidden)
+      if (start instanceof HTMLImageElement || !norm(start.innerText || "")) {
+        const img = visibleImgAt(x, y);
+        if (img) {
+          const src = normSrc(img.currentSrc || img.src);
+          return { el: img, kind: "img", img: src, hits: find(sources, lang, { img: src }) };
+        }
+      }
       if (cache.current.has(start)) return cache.current.get(start)!;
       const r = look(start);
       cache.current.set(start, r);
@@ -193,6 +201,23 @@ export default function Editor({ onClose }: { onClose: () => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [sources, lang],
   );
+  /** The topmost image under the point that can really be seen (not faded out, not hidden). */
+  const visibleImgAt = (x: number, y: number): HTMLImageElement | null => {
+    for (const el of document.elementsFromPoint(x, y)) {
+      if (el.closest("[data-mx-editor]")) continue;
+      if (!(el instanceof HTMLImageElement)) continue;
+      let shown = true;
+      for (let n: Element | null = el; n && n !== document.body; n = n.parentElement) {
+        const cs = getComputedStyle(n);
+        if (cs.visibility === "hidden" || cs.display === "none" || parseFloat(cs.opacity) < 0.15) {
+          shown = false;
+          break;
+        }
+      }
+      if (shown) return el;
+    }
+    return null;
+  };
   const look = (start: HTMLElement): Target | null => {
       if (!sources) return null;
       let el: HTMLElement | null = start;
@@ -231,7 +256,7 @@ export default function Editor({ onClose }: { onClose: () => void }) {
       if (target) return;
       const t = e.target as HTMLElement;
       if (t.closest("[data-mx-editor]")) return mark(null);
-      const r = resolve(t);
+      const r = resolve(t, e.clientX, e.clientY);
       mark(r?.el ?? null);
     };
     const onClick = (e: MouseEvent) => {
@@ -239,7 +264,7 @@ export default function Editor({ onClose }: { onClose: () => void }) {
       if (t.closest("[data-mx-editor]") || e.altKey || e.ctrlKey || e.metaKey) return;
       e.preventDefault();
       e.stopPropagation();
-      const r = resolve(t);
+      const r = resolve(t, e.clientX, e.clientY);
       if (!r || !r.hits.length) {
         setMiss(r?.kind === "img" ? tr("هذه الصورة يختارها الموقع تلقائياً. غيّرها من لوحة التحكم.") : tr("هذا الجزء لا يُعدَّل من هنا."));
         setTimeout(() => setMiss(""), 2600);

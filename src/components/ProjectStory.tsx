@@ -179,11 +179,12 @@ function Lightbox({ items, start, onClose, L, rtl }: { items: SceneMedia[]; star
         {arrow(-1)}
         <div ref={track} className="no-scrollbar flex h-full snap-x snap-mandatory overflow-x-auto overscroll-contain">
           {items.map((m, k) => (
-            <div key={k} data-i={k} className="grid h-full w-full shrink-0 snap-center place-items-center px-3 md:px-24">
+            <div key={k} data-i={k} className="h-full w-full shrink-0 snap-center px-3 py-1 md:px-24">
               {m.type === "video" ? (
-                <video data-i={k} src={m.src} poster={m.poster} controls playsInline loop className="max-h-full max-w-full rounded-[var(--radius-sm)]" />
+                <video data-i={k} src={m.src} poster={m.poster} controls playsInline loop className="h-full w-full object-contain" />
               ) : (
-                <img {...rimg(m.src, "100vw")} alt="" width={m.w} height={m.h} loading={Math.abs(k - start) < 2 ? "eager" : "lazy"} className="max-h-full max-w-full rounded-[var(--radius-sm)] object-contain" />
+                // the whole photo, never cropped: it fills the slide's box and keeps its proportions
+                <img {...rimg(m.src, "100vw")} alt="" width={m.w} height={m.h} loading={Math.abs(k - start) < 2 ? "eager" : "lazy"} className="h-full w-full object-contain" />
               )}
             </div>
           ))}
