@@ -162,6 +162,9 @@ export const ui = {
     btn: { fr: "Écrire un message", ar: "أرسل رسالة", en: "Write a message" },
   },
   footer: {
+    contact: { fr: "Contact", ar: "تواصل", en: "Contact" },
+    city: { fr: "Nouakchott, Mauritanie", ar: "نواكشوط، موريتانيا", en: "Nouakchott, Mauritania" },
+    whatsapp: { fr: "WhatsApp", ar: "واتساب", en: "WhatsApp" },
     tag: {
       fr: "Division technologie immersive de Moon Technology · Nouakchott, Mauritanie",
       ar: "قسم التقنيات التفاعلية في Moon Technology · نواكشوط، موريتانيا",

@@ -618,3 +618,8 @@ section[data-explore] { color: #fff; }
 }
 @keyframes partner-shadow { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(0.82); opacity: 0.6; } }
 @media (prefers-reduced-motion: reduce) { .partner-shadow { animation: none; } }
+
+/* footer links: a line draws under them on hover */
+.foot-link { background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 1.5px; transition: background-size 0.35s ease, opacity 0.2s; padding-bottom: 2px; }
+[dir="rtl"] .foot-link { background-position: 100% 100%; }
+.foot-link:hover { background-size: 100% 1.5px; }
