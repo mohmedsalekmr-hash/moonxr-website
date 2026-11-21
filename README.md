@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Moon XR — website
 
-## Getting Started
+Showcase site of Moon Technology's XR division (Nouakchott), in French, Arabic and English, with an admin to edit all content.
 
-First, run the development server:
+> **Not a developer?** Read [`docs/دليل-الطوارئ.md`](docs/دليل-الطوارئ.md) — what to do if something goes wrong.
+
+## Stack
+
+| Part | Tool |
+|---|---|
+| Framework | Next.js 16 (App Router), React 19, TypeScript |
+| Styling | Tailwind CSS 4 |
+| Content, auth, uploads | Supabase (Postgres + RLS, Auth, Storage) |
+| Hosting | Vercel (project `moonxr-site`) |
+| 3D headset | three.js |
+
+## Where things are
+
+- `src/app/[lang]/…` — public pages; `fr` is the default, `ar` is right-to-left, `/en/…` pages have English addresses.
+- `src/data/` — **default content**. Everything editable in /admin is merged over these defaults (`src/lib/content.ts`): if the database is down or slow (> 4 s), the site keeps working with them.
+- `src/admin/` — the admin (`/admin`), a client app talking to Supabase with the signed-in admin's session. Access is enforced by row-level security (only users listed in `admins` can write).
+- `src/components/EditMode.tsx` + `Editor.tsx` — edit-in-place on the public site for a signed-in admin.
+- `src/app/api/revalidate` — refreshes the cached pages after a save (secret header). `src/app/api/keepalive` — daily ping so the free Supabase project never pauses.
+
+## Commands
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm ci
+npm run dev          # local site on http://localhost:3000
+npm run check        # types + lint + production build
+npm start            # serve the build
+npm run check:pages  # every page (from the sitemap) on a computer and a phone: errors, broken files, overflow
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`.env.local` needs `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (and `REVALIDATE_SECRET` for the refresh route). Without them the site runs on the default content.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Automation (GitHub Actions)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `check.yml` — on every push to `main`: `npm run check` then `npm run check:pages`. Red = do not deploy.
+- `uptime.yml` — every hour: the live pages and the database answer; a failure e-mails the owner.
+- `backup.yml` — every night: encrypted database dump + mirror of uploaded media on the `backups` branch (30 nights kept). Restore steps in that branch's README.
 
-## Learn More
+## Deploying
 
-To learn more about Next.js, take a look at the following resources:
+`main` is the code in production. Deploy only a commit whose `Check` is green:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+vercel deploy --prod
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Rollback: Vercel → Deployments → previous deployment → Promote to Production (content is in the database, not in the deployment, so nothing is lost).

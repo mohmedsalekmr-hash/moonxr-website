@@ -1,0 +1,39 @@
+# Every change pushed to GitHub is checked before it can be trusted:
+#  1. the code has no type or lint errors and builds
+#  2. every page of the site opens on a computer and a phone without errors (scripts/check-pages.mjs)
+# A red ✗ next to a commit on GitHub means: do not publish it.
+# No secrets needed: without the database the site uses the content written in the code,
+# which also proves the site still works if the database is unreachable.
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Types, lint and build
+        run: npm run check
+      - name: Browser for the page check
+        run: npx playwright install --with-deps chromium
+      - name: Every page, computer and phone
+        run: |
+          npx next start -p 3000 &
+          npx --yes wait-on@8 --timeout 60000 http://localhost:3000/fr
+          npm run check:pages
