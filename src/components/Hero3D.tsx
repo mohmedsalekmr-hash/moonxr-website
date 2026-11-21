@@ -61,6 +61,7 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
     if (!ready) return;
     if (stage < 0) {
       if (explore) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- the 3D scene (outside React) drives the stage; React follows it
         setExplore(false);
         setActive(null);
         activeRef.current = null;
@@ -612,6 +613,14 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
     api.current?.drift(explore && !!active);
   }, [explore, active]);
 
+  const [moved, setMoved] = useState(false);
+  const [nudge, setNudge] = useState(0);
+  // the gesture handlers read the current part without re-binding on every change
+  const stageRef = useRef(stage);
+  useEffect(() => {
+    stageRef.current = stage;
+  }, [stage]);
+
   // keyboard: arrows go to the previous / next part
   useEffect(() => {
     if (!explore) return;
@@ -631,10 +640,6 @@ export default function Hero3D({ rtl = false, lang, data }: { rtl?: boolean; lan
    * One gesture = one part: inside the story, a flick of the wheel, a swipe or an arrow key goes to the
    * next (or previous) part, whole. Before the first part and after the last one the page scrolls normally.
    */
-  const [moved, setMoved] = useState(false);
-  const stageRef = useRef(stage);
-  stageRef.current = stage;
-  const [nudge, setNudge] = useState(0);
   useEffect(() => {
     if (!explore) return;
     let lock = 0, acc = 0, y0 = 0, x0 = 0;

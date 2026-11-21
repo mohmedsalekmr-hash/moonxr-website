@@ -18,6 +18,7 @@ export default function EditMode() {
   useEffect(() => {
     try {
       const signedIn = Object.keys(localStorage).some((k) => k.startsWith("sb-") && k.endsWith("-auth-token"));
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- the session is only readable in the browser, after the first render
       setCan(signedIn);
       // «عدّل الموقع مباشرة» in the admin opens the site with ?edit=1
       const asked = new URLSearchParams(location.search).get("edit") === "1";

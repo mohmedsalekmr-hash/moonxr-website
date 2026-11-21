@@ -5,7 +5,14 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  { rules: { "@next/next/no-img-element": "off" } },
+  {
+    rules: {
+      // images are already compressed when uploaded; plain <img> keeps them as they are
+      "@next/next/no-img-element": "off",
+      // a leading _ marks a value that is left out on purpose
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_", destructuredArrayIgnorePattern: "^_" }],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

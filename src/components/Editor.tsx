@@ -317,7 +317,11 @@ function Panel({ target, lang, onClose }: { target: Target; lang: Lang; onClose:
   const [val, setVal] = useState<unknown>(cur);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-  useEffect(() => setVal(getAt(target.hits[pick].src.value, target.hits[pick].path)), [pick, target]);
+  // another source picked (same text used in several places): show its value
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resets the edited value when the picked source changes
+    setVal(getAt(target.hits[pick].src.value, target.hits[pick].path));
+  }, [pick, target]);
 
   const save = async () => {
     setBusy(true);

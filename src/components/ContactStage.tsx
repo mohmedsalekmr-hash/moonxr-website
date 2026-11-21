@@ -40,6 +40,7 @@ export default function ContactStage({ lang }: { lang: Locale }) {
     // a need chosen elsewhere on the site arrives as ?type=<index>
     const q = new URLSearchParams(location.search).get("type");
     const i = Number(q);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the address is only known in the browser, after the first render
     if (q !== null && Number.isInteger(i) && types[i]) setType(types[i]);
   }, [types]);
 
