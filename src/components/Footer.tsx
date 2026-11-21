@@ -23,6 +23,13 @@ export default async function Footer({ lang }: { lang: Locale }) {
   if (LOOK === "compare")
     return (
       <>
+        {/* trying the colours: ?footer=navy|brand|soft picks one in this browser; visitors see navy */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var q=new URLSearchParams(location.search).get('footer');if(q&&/^(navy|brand|soft)$/.test(q))localStorage.setItem('mx-footer',q);var f=localStorage.getItem('mx-footer');if(f)document.documentElement.setAttribute('data-footer',f)}catch(e){}",
+          }}
+        />
         <FooterBlock lang={lang} look="navy" />
         <FooterBlock lang={lang} look="brand" />
         <FooterBlock lang={lang} look="soft" />
@@ -68,7 +75,7 @@ async function FooterBlock({ lang, look }: { lang: Locale; look: Look }) {
   ];
 
   return (
-    <footer data-look={look} className={`relative isolate overflow-hidden ${T.bg} ${T.text}`}>
+    <footer data-look={look} className={`foot-look relative isolate overflow-hidden ${T.bg} ${T.text}`}>
       {/* the «O» of Moon, very large and barely there */}
       <span aria-hidden className={`pointer-events-none absolute -bottom-[22rem] -end-[14rem] -z-10 h-[44rem] w-[44rem] rounded-full border-[5.5rem] ${T.ring} md:-bottom-[26rem] md:-end-[10rem] md:h-[56rem] md:w-[56rem] md:border-[7rem]`} />
 
