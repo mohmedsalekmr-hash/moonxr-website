@@ -634,3 +634,24 @@ section[data-explore] { color: #fff; }
 .flow-tick { fill: none; stroke: var(--color-brand); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 50; stroke-dashoffset: 50; animation: flow-draw 0.45s 0.45s ease forwards; }
 @keyframes flow-draw { to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) { .cm-veil, .cm-panel, .cm-step { animation: none; } .flow-ring, .flow-tick { animation: none; stroke-dashoffset: 0; } }
+
+/* contact page */
+.cs-chip {
+  display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(8px);
+  font-size: 0.9rem; font-weight: 600; color: #fff; transition: background 0.2s ease, border-color 0.2s ease;
+}
+.cs-chip:hover { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.3); }
+.cs-in { animation: rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both; }
+.cs-in-2 { animation-delay: 0.3s; }
+/* the moon rises once from the horizon, then stays */
+.moon-rise { transform: translate(-50%, -16%); animation: moon-rise 2.6s cubic-bezier(0.16, 0.8, 0.2, 1) both; }
+@media (min-width: 768px) { .moon-rise { transform: translate(-50%, -24%); animation-name: moon-rise-md; } }
+@keyframes moon-rise { from { transform: translate(-50%, 0); opacity: 0; } to { transform: translate(-50%, -16%); opacity: 1; } }
+@keyframes moon-rise-md { from { transform: translate(-50%, 0); opacity: 0; } to { transform: translate(-50%, -24%); opacity: 1; } }
+/* brand colours drifting very slowly */
+.aurora { animation: aurora 22s ease-in-out infinite alternate; }
+.aurora-b { animation-duration: 28s; animation-direction: alternate-reverse; }
+.aurora-c { animation-duration: 34s; }
+@keyframes aurora { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(8vw, 6vh) scale(1.15); } 100% { transform: translate(-6vw, 10vh) scale(0.95); } }
+@media (prefers-reduced-motion: reduce) { .moon-rise, .aurora, .cs-in { animation: none; } }

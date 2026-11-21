@@ -213,6 +213,15 @@ export const ui = {
     call: { fr: "Appeler", ar: "اتصال", en: "Call" },
     mail: { fr: "E-mail", ar: "البريد", en: "Email" },
     form: { fr: "Votre demande", ar: "طلبكم", en: "Your request" },
+    hero: { fr: "Créons votre prochaine expérience.", ar: "لنصنع تجربتكم القادمة.", en: "Let's create your next experience." },
+    heroSub: {
+      fr: "Événement, formation ou démonstration : parlez-nous de votre projet, nous vous répondons sous 24 heures.",
+      ar: "فعالية أو تدريب أو عرض تجريبي: حدّثونا عن مشروعكم، ونرد عليكم خلال 24 ساعة.",
+      en: "Event, training or demonstration: tell us about your project and we will reply within 24 hours.",
+    },
+    need: { fr: "De quoi avez-vous besoin ?", ar: "ماذا تحتاجون؟", en: "What do you need?" },
+    direct: { fr: "Ou directement", ar: "أو مباشرة", en: "Or directly" },
+    city: { fr: "Nouakchott", ar: "نواكشوط", en: "Nouakchott" },
   },
   story: {
     sound: { fr: "Activer le son", ar: "تشغيل الصوت", en: "Turn sound on" },
