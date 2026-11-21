@@ -623,10 +623,3 @@ section[data-explore] { color: #fff; }
 .foot-link { background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 1.5px; transition: background-size 0.35s ease, opacity 0.2s; padding-bottom: 2px; }
 [dir="rtl"] .foot-link { background-position: 100% 100%; }
 .foot-link:hover { background-size: 100% 1.5px; }
-
-/* footer colour trial: one footer shows, navy unless another was picked with ?footer= */
-.foot-look { display: none; }
-html:not([data-footer]) .foot-look[data-look="navy"],
-html[data-footer="navy"] .foot-look[data-look="navy"],
-html[data-footer="brand"] .foot-look[data-look="brand"],
-html[data-footer="soft"] .foot-look[data-look="soft"] { display: block; }

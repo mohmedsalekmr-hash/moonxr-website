@@ -1,33 +1,21 @@
+import Link from "next/link";
 import { getContent } from "@/lib/content";
-import { type Locale } from "@/data/i18n";
+import { type Locale, href as pageHref } from "@/data/i18n";
 import { Reveal } from "@/components/Media";
-import CTAPanel from "@/components/CTAPanel";
 
-/** Closing chapter of every page: the one blue card of the site — pick your need, then reach us your way. */
+/** Closing line of every page: one question and one button to the contact page (no box). */
 export default async function CTA({ lang }: { lang: Locale; fade?: boolean }) {
-  const { ui, contact: CONTACT } = await getContent();
+  const { ui } = await getContent();
   return (
-    <section className="relative bg-white pb-16 pt-10 md:pb-24 md:pt-16">
-      <div className="wrap relative">
+    <section className="bg-white py-16 md:py-24">
+      <div className="wrap">
         <Reveal>
-          <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-brand shadow-[0_40px_80px_-40px_rgba(10,20,49,0.6)] ring-1 ring-white/10">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(55%_70%_at_0%_0%,rgba(111,138,214,0.35),transparent_70%)]" />
-            <div className="pointer-events-none absolute -bottom-24 -end-24 h-72 w-72 rounded-full border border-white/10" />
-            <div className="pointer-events-none absolute -bottom-40 -end-40 h-[26rem] w-[26rem] rounded-full border border-white/[0.06]" />
-            <CTAPanel
-              lang={lang}
-              kicker={ui.nav.contact[lang]}
-              title={ui.cta.title[lang]}
-              lead={ui.cta.sub[lang]}
-              ask={ui.ctaBox.ask[lang]}
-              t={ui.ctaBox}
-              types={[...ui.contact.types[lang]]}
-              email={CONTACT.email}
-              phone={CONTACT.phone}
-              phoneHref={CONTACT.phoneHref}
-              whatsapp={(CONTACT.whatsapp || CONTACT.phone).replace(/[^\d]/g, "")}
-              city={ui.contact.city[lang]}
-            />
+          <div className="flex flex-col items-start gap-6 border-t border-line pt-12 md:flex-row md:items-center md:justify-between md:gap-10 md:pt-16">
+            <h2 className="font-display max-w-2xl text-[1.9rem] font-bold leading-[1.1] md:text-5xl">{ui.cta.title[lang]}</h2>
+            <Link href={pageHref(lang, "contact")} className="btn btn-sun shrink-0 px-7 py-4 text-base">
+              {ui.nav.contact[lang]}
+              <span className="rtl:rotate-180">→</span>
+            </Link>
           </div>
         </Reveal>
       </div>
