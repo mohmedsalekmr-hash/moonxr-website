@@ -5,14 +5,12 @@ import { useShared } from "@/components/ContentProvider";
 import { type Locale } from "@/data/i18n";
 import { sendRequest } from "@/app/[lang]/contact/actions";
 
-export type ContactBg = "moon" | "aurora";
-
 /**
  * The contact page: one dark stage in the brand colours (no photo, so it speaks for every service).
- * Left: a big promise and the direct channels. Right: one clean card with the form.
- * Background: "moon" = a soft moon rising once from the horizon · "aurora" = brand colours drifting slowly.
+ * Left: a big promise and the direct channels. Right: the form, built into the page (no card).
+ * Background: a soft moon rising once from the horizon.
  */
-export default function ContactStage({ lang, bg }: { lang: Locale; bg: ContactBg }) {
+export default function ContactStage({ lang }: { lang: Locale }) {
   const { ui, contact: CONTACT } = useShared();
   const P = ui.contactPage;
   const c = ui.contact;
@@ -79,14 +77,13 @@ export default function ContactStage({ lang, bg }: { lang: Locale; bg: ContactBg
 
   const wa = `https://wa.me/${(CONTACT.whatsapp || CONTACT.phone).replace(/\D/g, "")}`;
   const field =
-    "mt-1.5 w-full rounded-xl border border-ink/10 bg-soft/60 px-4 py-3 text-[0.95rem] text-ink outline-none transition placeholder:text-ink/30 focus:border-brand focus:bg-white focus:shadow-[0_0_0_3px_rgba(37,60,128,0.1)]";
-  const label = "block text-sm font-medium text-ink/65";
+    "mt-1.5 w-full rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3 text-[0.95rem] text-white outline-none backdrop-blur-sm transition placeholder:text-white/30 hover:border-white/25 focus:border-[#8fa6e6] focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(111,138,214,0.25)] focus-visible:outline-none";
+  const label = "block text-sm font-medium text-white/70";
 
   return (
     <section className="relative isolate min-h-[100svh] overflow-hidden bg-navy-deep text-white">
       {/* background */}
-      {bg === "moon" ? (
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_0%,#142454,transparent_70%)]" />
           <div className="moon-rise absolute left-1/2 top-full aspect-square w-[160vw] rounded-full md:w-[78vw] md:max-w-[1100px]">
             {/* a soft halo, the lit surface, a thin golden rim */}
@@ -95,14 +92,6 @@ export default function ContactStage({ lang, bg }: { lang: Locale; bg: ContactBg
             <div className="absolute inset-0 rounded-full shadow-[inset_0_2px_0_0_rgba(250,182,45,0.8),0_-20px_90px_-10px_rgba(250,182,45,0.35)]" />
           </div>
         </div>
-      ) : (
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <div className="aurora aurora-a absolute -left-[10%] -top-[25%] h-[85vh] w-[85vh] rounded-full bg-[#2f55c9] opacity-90 blur-[110px]" />
-          <div className="aurora aurora-b absolute -right-[15%] top-[10%] h-[70vh] w-[70vh] rounded-full bg-[#6f8ad6] opacity-70 blur-[120px]" />
-          <div className="aurora aurora-c absolute bottom-[-30%] left-[35%] h-[55vh] w-[55vh] rounded-full bg-sun opacity-55 blur-[120px]" />
-          <div className="absolute inset-0 bg-navy-deep/20" />
-        </div>
-      )}
 
       <div className="wrap grid min-h-[100svh] items-center gap-10 pb-16 pt-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:gap-16 lg:pb-20 lg:pt-32">
         {/* the promise and the direct channels */}
@@ -133,17 +122,17 @@ export default function ContactStage({ lang, bg }: { lang: Locale; bg: ContactBg
         </div>
 
         {/* the form */}
-        <div className="cs-in cs-in-2 rounded-[1.75rem] bg-white p-6 text-ink shadow-[0_50px_120px_-40px_rgba(0,0,0,0.6)] md:p-8">
+        <div className="cs-in cs-in-2">
           {state === "done" ? (
-            <div className="grid min-h-[440px] place-items-center content-center text-center" role="status">
-              <svg viewBox="0 0 64 64" className="h-16 w-16" aria-hidden>
+            <div className="grid min-h-[440px] place-items-center content-center text-center" role="status" aria-live="polite">
+              <svg viewBox="0 0 64 64" className="cs-done h-16 w-16" aria-hidden>
                 <circle cx="32" cy="32" r="30" className="flow-ring" />
                 <path d="M19 33l9 9 17-19" className="flow-tick" />
               </svg>
               <p className="font-display mt-5 text-2xl font-bold" style={{ animation: "rise .6s .4s both" }}>
                 {ui.flow.done[lang].replace("{name}", name)}
               </p>
-              <p className="mt-2 max-w-xs text-ink/60" style={{ animation: "rise .6s .55s both" }}>
+              <p className="mt-2 max-w-xs text-white/65" style={{ animation: "rise .6s .55s both" }}>
                 {ui.flow.doneSub[lang]}
               </p>
             </div>
@@ -159,7 +148,7 @@ export default function ContactStage({ lang, bg }: { lang: Locale; bg: ContactBg
                       aria-pressed={type === t}
                       onClick={() => setType(type === t ? "" : t)}
                       className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                        type === t ? "border-brand bg-brand text-white" : "border-ink/12 text-ink/75 hover:border-brand/50 hover:text-brand"
+                        type === t ? "border-sun bg-sun text-ink" : "border-white/15 bg-white/[0.04] text-white/80 hover:border-white/35 hover:text-white"
                       }`}
                     >
                       {t}
@@ -179,7 +168,7 @@ export default function ContactStage({ lang, bg }: { lang: Locale; bg: ContactBg
               </div>
               <label className={label}>
                 <span>
-                  {c.phone[lang]} <span className="font-normal text-ink/40">({ui.flow.optional[lang]})</span>
+                  {c.phone[lang]} <span className="font-normal text-white/40">({ui.flow.optional[lang]})</span>
                 </span>
                 <input name="phone" type="tel" maxLength={40} autoComplete="tel" dir="ltr" className={`${field} rtl:text-right`} />
               </label>
@@ -190,7 +179,7 @@ export default function ContactStage({ lang, bg }: { lang: Locale; bg: ContactBg
               {/* robots fill this, people never see it */}
               <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
               {(state === "invalid" || state === "flood" || state === "server") && (
-                <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">
+                <p className="rounded-xl border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-200">
                   {state === "invalid" ? ui.form.invalid[lang] : state === "flood" ? ui.form.flood[lang] : ui.form.server[lang]}
                 </p>
               )}
