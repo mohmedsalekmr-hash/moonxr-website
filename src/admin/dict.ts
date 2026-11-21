@@ -521,4 +521,10 @@ export const DICT: Record<string, [fr: string, en: string]> = {
   "{0} نصوص بدون ترجمة إنجليزية (يظهر مكانها النص الفرنسي).": ["{0} textes sans traduction anglaise (le texte français s'affiche à la place).", "{0} texts without an English translation (the French text shows instead)."],
   "زر «استكشف بنفسك»": ["Bouton « Explorer moi-même »", "“Explore on my own” button"],
   "«انزل لاكتشاف النظارة»": ["« Faites défiler pour découvrir le casque »", "“Scroll to discover the headset”"],
+  "حسابات التواصل الاجتماعي": ["Réseaux sociaux", "Social accounts"],
+  "تظهر في أسفل كل صفحات الموقع، بنفس هذا الترتيب. اترك القائمة فارغة إذا لم تكن هناك حسابات.": ["Ils apparaissent en bas de toutes les pages, dans cet ordre. Laissez la liste vide s'il n'y a pas de comptes.", "They appear at the bottom of every page, in this order. Leave the list empty if there are no accounts."],
+  "المنصة": ["Plateforme", "Platform"],
+  "+ حساب": ["+ Compte", "+ Account"],
+  "كل رابط يجب أن يبدأ بـ https://": ["Chaque lien doit commencer par https://", "Each link must start with https://"],
+  "البريد والهاتف وواتساب تظهر في أسفل الصفحات وفي صفحة التواصل، ومعها حسابات التواصل الاجتماعي.": ["L'e-mail, le téléphone et WhatsApp apparaissent en bas des pages et sur la page contact, avec les réseaux sociaux.", "E-mail, phone and WhatsApp appear at the bottom of the pages and on the contact page, with the social accounts."],
 };

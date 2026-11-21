@@ -40,6 +40,8 @@ export const CONTACT = {
   phoneHref: "tel:+22230454777",
   /** WhatsApp number (international format); empty = same as the phone */
   whatsapp: "+222 30 45 47 77",
+  /** Social accounts shown in the footer, in this order (edited in the admin) */
+  socials: [] as { name: string; url: string }[],
 };
 
 export const ui = {

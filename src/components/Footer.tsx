@@ -37,7 +37,7 @@ async function FooterBlock({ lang, look }: { lang: Locale; look: Look }) {
   const f = ui.footer;
   const wa = (CONTACT.whatsapp || CONTACT.phone).replace(/[^\d]/g, "");
   // social accounts are added in the admin (phase 2); none yet → the corner stays empty
-  const socials = ((CONTACT as { socials?: Social[] }).socials ?? []).filter((s) => s.url);
+  const socials = ((CONTACT as { socials?: Social[] }).socials ?? []).filter((s) => s.name && /^https?:\/\//.test(s.url));
 
   const cols: { title: string; links: { href: string; label: string; ext?: boolean; ltr?: boolean }[] }[] = [
     {
