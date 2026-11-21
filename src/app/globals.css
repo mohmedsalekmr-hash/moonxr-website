@@ -8,7 +8,7 @@
   --color-navy: #142454;         /* dark brand blue: dark sections, footer, photo veils */
   --color-navy-deep: #0a1431;    /* darkest brand blue: header on dark, 3D studio, video panels */
   --color-sun: #fab62d;          /* logo yellow: main buttons, highlights on dark */
-  --color-sun-hover: var(--color-sun-hover);
+  --color-sun-hover: #f0a818;    /* a touch deeper on hover */
   --color-sun-deep: #b97a00;     /* yellow readable on white (small labels) */
   --color-ink: #0a0f1f;          /* text */
   --color-mute: #5d667a;
@@ -623,3 +623,14 @@ section[data-explore] { color: #fff; }
 .foot-link { background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 1.5px; transition: background-size 0.35s ease, opacity 0.2s; padding-bottom: 2px; }
 [dir="rtl"] .foot-link { background-position: 100% 100%; }
 .foot-link:hover { background-size: 100% 1.5px; }
+
+/* contact window: the page stays visible behind, softly blurred */
+.cm-veil { animation: fadein 0.25s ease both; }
+.cm-panel { animation: cm-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.cm-step { animation: cm-step 0.3s ease both; }
+@keyframes cm-in { from { opacity: 0; transform: translateY(24px) scale(0.985); } to { opacity: 1; transform: none; } }
+@keyframes cm-step { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.flow-ring { fill: none; stroke: var(--color-brand); stroke-width: 3; stroke-dasharray: 190; stroke-dashoffset: 190; animation: flow-draw 0.6s ease forwards; }
+.flow-tick { fill: none; stroke: var(--color-brand); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 50; stroke-dashoffset: 50; animation: flow-draw 0.45s 0.45s ease forwards; }
+@keyframes flow-draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .cm-veil, .cm-panel, .cm-step { animation: none; } .flow-ring, .flow-tick { animation: none; stroke-dashoffset: 0; } }

@@ -59,9 +59,9 @@ export const seo: Seo = {
   contact: {
     title: { fr: "Contact", ar: "تواصل معنا", en: "Contact" },
     desc: {
-      fr: "Parlez-nous de votre projet. Réponse sous 48 h.",
-      ar: "حدّثونا عن مشروعكم، ونرد خلال 48 ساعة.",
-      en: "Tell us about your project. Reply within 48 hours.",
+      fr: "Parlez-nous de votre projet. Réponse sous 24 h.",
+      ar: "حدّثونا عن مشروعكم، ونرد خلال 24 ساعة.",
+      en: "Tell us about your project. Reply within 24 hours.",
     },
   },
 };
