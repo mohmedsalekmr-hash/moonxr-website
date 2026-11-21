@@ -46,13 +46,13 @@ export default function Overview({ go, email }: { go: Go; email: string }) {
 
   return (
     <div>
-      <p className="text-sm font-semibold text-black/45">{new Date().toLocaleDateString(adminLocale(), { weekday: "long", day: "numeric", month: "long" })}</p>
-      <h1 className="mt-1 text-[1.75rem] font-bold leading-tight">
-        {hello}{tr("،")}{" "}<span className="text-navy">{name}</span>
+      <p className="text-[0.8rem] font-medium text-black/45">{new Date().toLocaleDateString(adminLocale(), { weekday: "long", day: "numeric", month: "long" })}</p>
+      <h1 className="mt-1 text-[1.6rem] font-bold tracking-tight">
+        {hello}{tr("،")} {name}
       </h1>
 
       {/* the main way to change the site: on the site itself */}
-      <a href={EDIT_URL()} target="_blank" className="group mt-6 flex items-center gap-4 rounded-2xl bg-navy p-5 text-white shadow-[0_24px_50px_-30px_rgba(20,36,84,.9)] transition hover:-translate-y-0.5 sm:p-6">
+      <a href={EDIT_URL()} target="_blank" className="group mt-5 flex items-center gap-4 rounded-2xl bg-navy p-5 text-white transition lg:hidden">
         <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-sun text-ink">
           <Icon d={ICON.pen} className="h-6 w-6" />
         </span>
@@ -64,7 +64,7 @@ export default function Overview({ go, email }: { go: Go; email: string }) {
       </a>
 
       {/* what needs attention */}
-      <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
+      <div className="card mt-6 grid grid-cols-2 overflow-hidden xl:grid-cols-4 [&>*]:border-line max-xl:[&>*:nth-child(-n+2)]:border-b xl:[&>*:not(:last-child)]:border-e max-xl:[&>*:nth-child(odd)]:border-e">
         <Card
           tone={fresh.length ? "sun" : "plain"}
           icon={ICON.requests}
@@ -90,8 +90,8 @@ export default function Overview({ go, email }: { go: Go; email: string }) {
         {/* latest requests */}
         <section className="card p-5">
           <div className="flex items-center justify-between">
-            <h2 className="font-bold">{tr("آخر الطلبات")}</h2>
-            <button className="text-sm font-semibold text-navy hover:underline" onClick={() => go("requests")}>{tr("الكل ←")}</button>
+            <h2 className="card-title">{tr("آخر الطلبات")}</h2>
+            <button className="text-[0.8rem] font-semibold text-brand hover:underline" onClick={() => go("requests")}>{tr("الكل ←")}</button>
           </div>
           <ul className="mt-3 divide-y divide-black/[0.06]">
             {req === null && <li className="py-6 text-center text-sm text-black/40">…</li>}
@@ -117,19 +117,19 @@ export default function Overview({ go, email }: { go: Go; email: string }) {
         {/* shortcuts + recent edits */}
         <div className="space-y-6">
           <section className="card p-5">
-            <h2 className="font-bold">{tr("اختصارات")}</h2>
+            <h2 className="card-title">{tr("اختصارات")}</h2>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <Quick icon={ICON.plus} label={tr("مشروع جديد")} onClick={() => go("projects", "new")} />
               <Quick icon={ICON.contact} label={tr("الهاتف والبريد")} onClick={() => go("contact")} />
               <Quick icon={ICON.seo} label={tr("صورة المشاركة")} onClick={() => go("seo")} />
-              <a href={site} target="_blank" className="flex items-center gap-2 rounded-xl bg-black/[0.035] px-3 py-3 text-sm font-semibold text-black/70 transition hover:bg-black/[0.07] hover:text-black">
+              <a href={site} target="_blank" className="flex items-center gap-2 rounded-lg border border-line px-3 py-2.5 text-sm font-semibold text-black/70 transition hover:border-black/20 hover:bg-canvas hover:text-black">
                 <Icon d={ICON.external} className="h-4 w-4 text-navy" />{tr("عرض الموقع")}</a>
             </div>
           </section>
           <section className="card p-5">
             <div className="flex items-center justify-between">
-              <h2 className="font-bold">{tr("آخر التعديلات")}</h2>
-              <button className="text-sm font-semibold text-navy hover:underline" onClick={() => go("history")}>{tr("السجل ←")}</button>
+              <h2 className="card-title">{tr("آخر التعديلات")}</h2>
+              <button className="text-[0.8rem] font-semibold text-brand hover:underline" onClick={() => go("history")}>{tr("السجل ←")}</button>
             </div>
             <ul className="mt-2 space-y-2.5">
               {hist?.length === 0 && <li className="py-3 text-sm text-black/40">{tr("لا توجد تعديلات بعد.")}</li>}
@@ -151,22 +151,24 @@ export default function Overview({ go, email }: { go: Go; email: string }) {
 }
 
 function Card({ icon, value, label, action, onClick, tone = "plain" }: { icon: string; value: number | string; label: string; action: string; onClick: () => void; tone?: "plain" | "sun" | "amber" }) {
-  const t = { plain: "bg-white", sun: "bg-sun/15 ring-sun/40", amber: "bg-amber-50 ring-amber-200" }[tone];
   return (
-    <button onClick={onClick} className={`group flex flex-col rounded-2xl p-4 text-start sm:p-5 ring-1 ring-black/[0.07] transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-28px_rgba(20,36,84,0.6)] ${t}`}>
-      <span className="grid h-9 w-9 place-items-center rounded-xl bg-navy/[0.07] text-navy">
-        <Icon d={icon} className="h-[1.1rem] w-[1.1rem]" />
+    <button onClick={onClick} className="group flex flex-col p-5 text-start transition hover:bg-canvas">
+      <span className="flex items-center gap-2 text-[0.8rem] font-medium text-black/55">
+        <Icon d={icon} className="h-4 w-4 text-black/40" />
+        {label}
       </span>
-      <span className="mt-3 text-2xl font-bold tabular-nums sm:mt-4 sm:text-3xl">{value}</span>
-      <span className="mt-0.5 text-[0.8rem] leading-snug text-black/55 sm:text-sm">{label}</span>
-      <span className="mt-3 text-xs font-semibold text-navy opacity-70 transition group-hover:opacity-100">{action} {adminLang() === "ar" ? "←" : "→"}</span>
+      <span className="mt-2 flex items-center gap-2 text-[1.75rem] font-bold tabular-nums tracking-tight">
+        {value}
+        {tone === "sun" && <span className="badge badge-warn badge-dot text-[0.68rem]">{tr("جديد")}</span>}
+      </span>
+      <span className="mt-2 text-xs font-semibold text-brand opacity-0 transition group-hover:opacity-100">{action} {adminLang() === "ar" ? "←" : "→"}</span>
     </button>
   );
 }
 
 function Quick({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) {
   return (
-    <button onClick={onClick} className="flex items-center gap-2 rounded-xl bg-black/[0.035] px-3 py-3 text-sm font-semibold text-black/70 transition hover:bg-black/[0.07] hover:text-black">
+    <button onClick={onClick} className="flex items-center gap-2 rounded-lg border border-line px-3 py-2.5 text-sm font-semibold text-black/70 transition hover:border-black/20 hover:bg-canvas hover:text-black">
       <Icon d={icon} className="h-4 w-4 text-navy" />
       {label}
     </button>

@@ -132,7 +132,7 @@ export default function ProjectsTab({ focus, isNew }: { focus?: string; isNew?: 
                 {countMissingEn(r) > 0 && <span className="shrink-0 rounded-full bg-amber-100 px-2 py-px text-[0.7rem] font-semibold text-amber-800">{tr("EN ناقص")}</span>}
               </div>
               <div className="truncate text-xs text-black/45" dir="ltr">
-                /projets/{r.slug} · {r.scenes?.length ?? 0} scènes
+                /projets/{r.slug} · {tr("{0} مشاهد", r.scenes?.length ?? 0)}
               </div>
             </div>
             <Toggle

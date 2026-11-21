@@ -127,75 +127,88 @@ export function Shell({ tab, go, email, newCount, children }: { tab: Tab; go: Go
   // «متقدّم» stays folded unless one of its pages is open
   const [adv, setAdv] = useState(false);
   const advOpen = adv || NAV.some((g) => g.advanced && g.items.some((x) => x.id === tab));
-  const item = (i: (typeof ALL)[number], onPick?: () => void) => (
-    <button
-      key={i.id}
-      onClick={() => {
-        go(i.id);
-        onPick?.();
-      }}
-      aria-current={tab === i.id ? "page" : undefined}
-      className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[0.92rem] font-semibold transition ${
-        tab === i.id ? "bg-navy text-white shadow-[0_8px_20px_-12px_rgba(20,36,84,0.8)]" : "text-black/60 hover:bg-black/[0.04] hover:text-black"
-      }`}
-    >
-      <Icon d={i.icon} className={`h-[1.15rem] w-[1.15rem] ${tab === i.id ? "text-sun" : "text-black/40 group-hover:text-black/70"}`} />
-      <span className="flex-1 text-start">{i.label}</span>
-      {i.id === "requests" && newCount > 0 && <span className="rounded-full bg-sun px-2 py-0.5 text-[0.7rem] font-bold text-ink">{newCount}</span>}
-    </button>
-  );
+  const item = (i: (typeof ALL)[number], onPick?: () => void) => {
+    const on = tab === i.id;
+    return (
+      <button
+        key={i.id}
+        onClick={() => {
+          go(i.id);
+          onPick?.();
+        }}
+        aria-current={on ? "page" : undefined}
+        className={`group relative flex h-9 w-full items-center gap-3 rounded-lg px-3 text-[0.875rem] transition ${
+          on ? "bg-brand-soft font-semibold text-navy" : "font-medium text-black/60 hover:bg-black/[0.04] hover:text-black"
+        }`}
+      >
+        {on && <span className="absolute inset-y-2 start-0 w-[3px] rounded-full bg-navy" />}
+        <Icon d={i.icon} className={`h-[1.05rem] w-[1.05rem] shrink-0 ${on ? "text-navy" : "text-black/40 group-hover:text-black/65"}`} />
+        <span className="flex-1 truncate text-start">{i.label}</span>
+        {i.id === "requests" && newCount > 0 && <span className="rounded-full bg-sun px-1.5 py-px text-[0.68rem] font-bold text-ink">{newCount}</span>}
+      </button>
+    );
+  };
 
   return (
-    <div className="min-h-screen lg:ps-64">
+    <div className="min-h-screen lg:ps-60">
       {/* sidebar (computer) */}
-      <aside className="fixed inset-y-0 start-0 z-30 hidden w-64 flex-col border-e border-black/[0.06] bg-white lg:flex">
-        <div className="px-5 pb-4 pt-5">
-                    <img src="/media/logos/moonxr-l.svg?v=2" alt="Moon XR" className="h-10 w-auto" />
-          <div className="mt-2 text-xs font-semibold text-black/40">{tr("لوحة التحكم")}</div>
+      <aside className="fixed inset-y-0 start-0 z-30 hidden w-60 flex-col border-e border-line bg-white lg:flex">
+        <div className="flex h-16 items-center gap-2.5 border-b border-line px-5">
+          <img src="/media/logos/moonxr-l.svg?v=2" alt="Moon XR" className="h-7 w-auto" />
         </div>
-        <button
-          onClick={() => setSearch(true)}
-          className="mx-4 mb-3 flex items-center gap-2 rounded-xl bg-black/[0.04] px-3 py-2 text-sm text-black/45 transition hover:bg-black/[0.07] hover:text-black/70"
-        >
-          <Icon d={ICON.search} className="h-4 w-4" />
-          <span className="flex-1 text-start">{tr("بحث…")}</span>
-          <kbd className="rounded bg-white px-1.5 py-0.5 font-sans text-[0.65rem] text-black/45 ring-1 ring-black/10" dir="ltr">
-            Ctrl K
-          </kbd>
-        </button>
-        <a href={EDIT_URL()} target="_blank" className="mx-4 mb-4 flex items-center justify-center gap-2 rounded-xl bg-sun px-3 py-2.5 text-sm font-bold text-ink shadow-[0_10px_24px_-14px_rgba(250,182,45,.9)] transition hover:brightness-95">
-          <Icon d={ICON.pen} className="h-4 w-4" />
-          {tr("عدّل الموقع مباشرة")}
-        </a>
-        <nav className="flex-1 space-y-5 overflow-y-auto px-3 pb-4">
+        <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
           {NAV.map((g) =>
             g.advanced ? (
               <div key={g.group}>
-                <button type="button" onClick={() => setAdv(!advOpen)} className="mb-1.5 flex w-full items-center justify-between px-3 text-[0.7rem] font-bold uppercase tracking-wide text-black/35 hover:text-black/60">
+                <button type="button" onClick={() => setAdv(!advOpen)} className="mb-1 flex w-full items-center justify-between rounded-md px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-black/40 hover:text-black/65">
                   {g.group}
-                  <span className={`transition-transform ${advOpen ? "rotate-180" : ""}`}>▾</span>
+                  <svg viewBox="0 0 24 24" className={`h-3.5 w-3.5 transition-transform ${advOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
                 </button>
                 {advOpen && <div className="space-y-0.5">{g.items.map((i) => item(i))}</div>}
               </div>
             ) : (
               <div key={g.group || "main"}>
-                {g.group && <div className="mb-1.5 px-3 text-[0.7rem] font-bold uppercase tracking-wide text-black/35">{g.group}</div>}
+                {g.group && <div className="mb-1 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-black/40">{g.group}</div>}
                 <div className="space-y-0.5">{g.items.map((i) => item(i))}</div>
               </div>
             ),
           )}
         </nav>
-        <div className="space-y-1 border-t border-black/[0.06] p-3">
-          <a href={site} target="_blank" className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-black/60 hover:bg-black/[0.04] hover:text-black">
-            <Icon d={ICON.external} className="h-4 w-4 text-black/40" />{tr("عرض الموقع")}</a>
+        <div className="space-y-2 border-t border-line p-3">
           <LangPicker />
           <Account email={email} />
         </div>
       </aside>
 
+      {/* top bar (computer): search, view the site, edit the site */}
+      <header className="sticky top-0 z-20 hidden h-16 items-center gap-3 border-b border-line bg-white/85 px-8 backdrop-blur-md lg:flex">
+        <button
+          onClick={() => setSearch(true)}
+          className="flex h-9 w-full max-w-md items-center gap-2.5 rounded-lg border border-line bg-canvas px-3 text-sm text-black/45 transition hover:border-black/20 hover:text-black/70"
+        >
+          <Icon d={ICON.search} className="h-4 w-4" />
+          <span className="flex-1 text-start">{tr("ابحث عن مشروع، نص، شعار، أو قسم…")}</span>
+          <kbd className="rounded border border-line bg-white px-1.5 py-px font-sans text-[0.65rem] text-black/45" dir="ltr">
+            Ctrl K
+          </kbd>
+        </button>
+        <div className="ms-auto flex items-center gap-2">
+          <a href={site} target="_blank" className="btn btn-secondary">
+            <Icon d={ICON.external} className="h-4 w-4" />
+            {tr("عرض الموقع")}
+          </a>
+          <a href={EDIT_URL()} target="_blank" className="btn btn-accent">
+            <Icon d={ICON.pen} className="h-4 w-4" />
+            {tr("عدّل الموقع مباشرة")}
+          </a>
+        </div>
+      </header>
+
       {/* top bar (phone and tablet) */}
-      <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-black/[0.06] bg-white/90 px-4 py-2.5 backdrop-blur lg:hidden">
-                <img src="/media/logos/moonxr-l.svg?v=2" alt="Moon XR" className="h-8 w-auto" />
+      <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-white/90 px-4 backdrop-blur lg:hidden">
+        <img src="/media/logos/moonxr-l.svg?v=2" alt="Moon XR" className="h-8 w-auto" />
         <div className="ms-auto flex items-center gap-1">
           <button onClick={() => setSearch(true)} className="grid h-10 w-10 place-items-center rounded-full text-black/60 hover:bg-black/5" aria-label={tr("بحث")}>
             <Icon d={ICON.search} />
@@ -206,10 +219,10 @@ export function Shell({ tab, go, email, newCount, children }: { tab: Tab; go: Go
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 pb-28 pt-6 md:px-8 lg:pb-12 lg:pt-8">{children}</main>
+      <main className="mx-auto max-w-[72rem] px-4 pb-28 pt-6 md:px-8 lg:pb-16 lg:pt-8">{children}</main>
 
       {/* bottom bar (phone) */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-black/[0.08] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
         {MOBILE.map((id) => {
           const i = ALL.find((x) => x.id === id)!;
           return (
@@ -252,7 +265,7 @@ export function Shell({ tab, go, email, newCount, children }: { tab: Tab; go: Go
 
       {toast && (
         <div key={toast.id} role="status" className="fixed inset-x-0 bottom-20 z-50 flex justify-center px-4 lg:bottom-6">
-          <div className={`flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-xl ${toast.kind === "ok" ? "bg-emerald-600" : "bg-red-600"}`} style={{ animation: "mx-pop .25s ease-out" }}>
+          <div className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-xl ${toast.kind === "ok" ? "bg-ink" : "bg-red-600"}`} style={{ animation: "mx-pop .25s ease-out" }}>
             <Icon d={toast.kind === "ok" ? ICON.check : ICON.alert} className="h-4 w-4" />
             {toast.text}
           </div>
@@ -265,16 +278,11 @@ export function Shell({ tab, go, email, newCount, children }: { tab: Tab; go: Go
 function LangPicker() {
   const cur = adminLang();
   return (
-    <div className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-black/60">
-      <Icon d={ICON.globe} className="h-4 w-4 text-black/40" />
-      <div className="flex flex-1 gap-1 rounded-full bg-black/[0.05] p-0.5">
+    <div className="flex items-center gap-2 px-2" title={tr("لغة لوحة التحكم")}>
+      <Icon d={ICON.globe} className="h-4 w-4 shrink-0 text-black/40" />
+      <div className="seg flex-1">
         {ADMIN_UI_LANGS.map((l) => (
-          <button
-            key={l.k}
-            onClick={() => l.k !== cur && confirmLeave() && setAdminLang(l.k)}
-            className={`flex-1 rounded-full px-2 py-1 text-xs font-semibold transition ${cur === l.k ? "bg-white text-black shadow-sm" : "text-black/50 hover:text-black"}`}
-            title={tr("لغة لوحة التحكم")}
-          >
+          <button key={l.k} type="button" aria-pressed={cur === l.k} onClick={() => l.k !== cur && confirmLeave() && setAdminLang(l.k)} className="flex-1">
             {l.short}
           </button>
         ))}
@@ -287,9 +295,9 @@ function Account({ email }: { email: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div>
-      <button onClick={() => setOpen((v) => !v)} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-start hover:bg-black/[0.04]">
+      <button onClick={() => setOpen((v) => !v)} className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-start hover:bg-black/[0.04]">
         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-navy text-xs font-bold uppercase text-white">{email.slice(0, 1)}</span>
-        <span className="min-w-0 flex-1 truncate text-xs text-black/55" dir="ltr">
+        <span className="min-w-0 flex-1 truncate text-[0.8rem] font-medium text-black/65" dir="ltr">
           {email}
         </span>
       </button>

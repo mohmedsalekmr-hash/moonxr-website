@@ -527,4 +527,11 @@ export const DICT: Record<string, [fr: string, en: string]> = {
   "+ حساب": ["+ Compte", "+ Account"],
   "كل رابط يجب أن يبدأ بـ https://": ["Chaque lien doit commencer par https://", "Each link must start with https://"],
   "البريد والهاتف وواتساب تظهر في أسفل الصفحات وفي صفحة التواصل، ومعها حسابات التواصل الاجتماعي.": ["L'e-mail, le téléphone et WhatsApp apparaissent en bas des pages et sur la page contact, avec les réseaux sociaux.", "E-mail, phone and WhatsApp appear at the bottom of the pages and on the contact page, with the social accounts."],
+  "اللغة": ["Langue", "Language"],
+  "جارٍ الدخول…": ["Connexion…", "Signing in…"],
+  "لوحة تحكم موقع Moon XR": ["Tableau de bord du site Moon XR", "Moon XR website dashboard"],
+  "كل محتوى موقعكم، في مكان واحد.": ["Tout le contenu de votre site, au même endroit.", "All your website content, in one place."],
+  "المشاريع، الشعارات، النصوص والطلبات، بثلاث لغات.": ["Projets, logos, textes et demandes, en trois langues.", "Projects, logos, texts and requests, in three languages."],
+  "{0} مشاهد": ["{0} scènes", "{0} scenes"],
+  "جديد": ["Nouveau", "New"],
 };

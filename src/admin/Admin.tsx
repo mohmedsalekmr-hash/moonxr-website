@@ -110,114 +110,81 @@ function Center({ children }: { children: React.ReactNode }) {
 }
 
 function Login() {
-  const [mode, setMode] = useState<"in" | "up">("in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [show, setShow] = useState(false);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    setMsg(null);
-    if (mode === "in") {
-      const { error } = await sb.auth.signInWithPassword({ email, password });
-      if (error)
-        setMsg({
-          ok: false,
-          text:
-            error.code === "email_not_confirmed"
-              ? tr("الحساب لم يُفعَّل بعد")
-              : tr("البريد أو كلمة المرور غير صحيحة"),
-        });
-    } else {
-      const { data, error } = await sb.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: `${location.origin}/admin` },
-      });
-      if (error) setMsg({ ok: false, text: error.message });
-      else if (!data.session)
-        setMsg({
-          ok: true,
-          text: tr("تم إنشاء الحساب. أخبرنا ليتم تفعيله ومنحه صلاحية المدير، ثم سجّل الدخول."),
-        });
-    }
+    setErr("");
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) setErr(error.code === "email_not_confirmed" ? tr("الحساب لم يُفعَّل بعد") : tr("البريد أو كلمة المرور غير صحيحة"));
     setBusy(false);
   };
 
   return (
-    <Center>
-      <form onSubmit={submit} className="card w-full max-w-sm p-8">
-        {}
-        <img
-          src="/media/logos/moonxr-l.svg?v=2"
-          alt="Moon XR"
-          className="h-10 w-auto"
-        />
-        <h1 className="mt-6 text-xl font-bold text-ink">
-          {mode === "in" ? tr("تسجيل الدخول") : tr("إنشاء حساب المدير")}
-        </h1>
-        <div className="mt-6 space-y-4">
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold text-ink">{tr("البريد الإلكتروني")}</span>
-            <input
-              dir="ltr"
-              type="email"
-              required
-              className="inp"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold text-ink">{tr("كلمة المرور")}</span>
-            <div className="relative">
-              <input
-                dir="ltr"
-                type={show ? "text" : "password"}
-                required
-                minLength={8}
-                className="inp pe-16"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete={
-                  mode === "in" ? "current-password" : "new-password"
-                }
-              />
-              <button
-                type="button"
-                onClick={() => setShow(!show)}
-                className="absolute end-2 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-black/50 hover:text-black"
-              >
-                {show ? tr("إخفاء") : tr("إظهار")}
-              </button>
-            </div>
-          </label>
+    <div className="grid min-h-screen bg-white lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+      {/* the form */}
+      <div className="flex flex-col px-6 py-8 sm:px-12">
+        <img src="/media/logos/moonxr-l.svg?v=2" alt="Moon XR" className="h-9 w-auto self-start" />
+        <form onSubmit={submit} className="m-auto w-full max-w-sm py-12">
+          <h1 className="text-2xl font-bold tracking-tight">{tr("تسجيل الدخول")}</h1>
+          <p className="mt-2 text-black/55">{tr("لوحة تحكم موقع Moon XR")}</p>
+          <div className="mt-8 space-y-5">
+            <label className="block">
+              <span className="lbl">{tr("البريد الإلكتروني")}</span>
+              <input dir="ltr" type="email" required autoFocus className="inp !min-h-11" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+            </label>
+            <label className="block">
+              <span className="lbl">{tr("كلمة المرور")}</span>
+              {/* the field is left-to-right, so the eye sits on its right, inside the space kept for it */}
+              <div dir="ltr" className="relative">
+                <input type={show ? "text" : "password"} required minLength={8} className="inp !min-h-11 pr-11" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+                <button
+                  type="button"
+                  onClick={() => setShow(!show)}
+                  className="absolute right-1.5 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-md text-black/45 hover:bg-black/5 hover:text-black"
+                  aria-label={show ? tr("إخفاء") : tr("إظهار")}
+                  title={show ? tr("إخفاء") : tr("إظهار")}
+                >
+                  <svg viewBox="0 0 24 24" className="h-[1.1rem] w-[1.1rem]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+                    <circle cx="12" cy="12" r="3" />
+                    {show && <path d="M4 4l16 16" />}
+                  </svg>
+                </button>
+              </div>
+            </label>
+          </div>
+          {err && (
+            <p role="alert" className="mt-4 rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700 ring-1 ring-red-200">
+              {err}
+            </p>
+          )}
+          <button className="btn btn-primary mt-7 w-full !min-h-11 text-[0.95rem]" disabled={busy}>
+            {busy ? tr("جارٍ الدخول…") : tr("دخول")}
+          </button>
+        </form>
+        <p className="text-xs text-black/40">© {new Date().getFullYear()} Moon Technology</p>
+      </div>
+
+      {/* the brand side */}
+      <div className="relative hidden overflow-hidden bg-[#0a1431] lg:block">
+        <div className="absolute inset-0 bg-[radial-gradient(70%_55%_at_50%_0%,#1d2f6b,transparent_70%)]" />
+        <div className="absolute left-1/2 top-full aspect-square w-[115%]" style={{ animation: "mx-moon 2.4s cubic-bezier(.16,.8,.2,1) both" }}>
+          <div className="absolute -inset-[8%] rounded-full bg-[radial-gradient(closest-side,rgba(190,205,245,0.22),transparent)]" />
+          <img src="/media/moon.webp" alt="" className="absolute inset-0 h-full w-full opacity-90 [filter:brightness(0.85)]" />
+          <div className="absolute inset-0 rounded-full bg-[radial-gradient(130%_100%_at_50%_0%,transparent_38%,rgba(10,20,49,0.45)_58%,#0a1431_78%)]" />
         </div>
-        {msg && (
-          <p
-            className={`mt-4 text-sm leading-6 ${msg.ok ? "text-emerald-700" : "text-red-700"}`}
-          >
-            {msg.text}
-          </p>
-        )}
-        <button
-          className="btn btn-dark mt-6 w-full justify-center py-2.5"
-          disabled={busy}
-        >
-          {busy ? "…" : mode === "in" ? tr("دخول") : tr("إنشاء الحساب")}
-        </button>
-        <button
-          type="button"
-          className="mt-4 w-full text-center text-sm text-black/50 hover:text-black"
-          onClick={() => setMode(mode === "in" ? "up" : "in")}
-        >
-          {mode === "in" ? tr("أول مرة؟ أنشئ حسابك") : tr("لديك حساب؟ سجّل الدخول")}
-        </button>
-      </form>
-    </Center>
+        <div className="relative p-14 text-white">
+          <div className="text-sm font-semibold text-sun">Moon XR</div>
+          <p className="mt-4 max-w-md text-[2.1rem] font-bold leading-tight">{tr("كل محتوى موقعكم، في مكان واحد.")}</p>
+          <p className="mt-4 max-w-sm text-white/60">{tr("المشاريع، الشعارات، النصوص والطلبات، بثلاث لغات.")}</p>
+        </div>
+      </div>
+    </div>
   );
 }

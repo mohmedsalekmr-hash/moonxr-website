@@ -35,36 +35,45 @@ export function MissingEn({ n }: { n: number }) {
   );
 }
 
-/** One text in Arabic, French and English, side by side. An empty English box is marked. */
+/**
+ * One text in Arabic, French and English. One language is shown at a time (tabs, like Shopify's translations);
+ * a dot on a tab marks a language still empty, and an empty English shows the French meanwhile.
+ */
 export function TField({ label, value, onChange, multi, hint }: { label: string; value?: T | null; onChange: (v: T) => void; multi?: boolean; hint?: string }) {
   const v = value ?? emptyT();
+  const [k, setK] = useState<"ar" | "fr" | "en">("ar");
+  const l = ADMIN_LANGS.find((x) => x.k === k)!;
+  const enMissing = missingEn(v);
   const Tag = multi ? "textarea" : "input";
   return (
     <div>
-      <div className="mb-1.5 flex items-baseline gap-2 text-sm font-semibold">
-        {label}
-        {hint && <span className="text-xs font-normal text-black/45">{hint}</span>}
+      <div className="mb-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+        <span className="text-[0.82rem] font-semibold text-black/80">
+          {label}
+          {hint && <span className="hint ms-2">{hint}</span>}
+        </span>
+        <div className="seg" role="group" aria-label={tr("اللغة")}>
+          {ADMIN_LANGS.map((x) => {
+            const empty = !(v[x.k] ?? "").trim();
+            return (
+              <button key={x.k} type="button" aria-pressed={k === x.k} onClick={() => setK(x.k)} title={x.name}>
+                {x.k === "ar" ? "ع" : x.k.toUpperCase()}
+                {empty && <span className={`absolute end-1 top-1 h-1.5 w-1.5 rounded-full ${x.k === "en" && enMissing ? "bg-amber-500" : "bg-black/25"}`} />}
+              </button>
+            );
+          })}
+        </div>
       </div>
-      <div className="grid gap-2 md:grid-cols-3">
-        {ADMIN_LANGS.map((l) => {
-          const empty = l.k === "en" && missingEn(v);
-          return (
-            <label key={l.k} className="block">
-              <span className={`mb-1 flex items-center gap-1.5 text-[0.7rem] font-semibold ${empty ? "text-amber-700" : "text-black/40"}`}>
-                {l.name}
-                {empty && <span className="rounded-full bg-amber-100 px-1.5 py-px text-[0.65rem]">{tr("ناقص — يظهر بالفرنسية")}</span>}
-              </span>
-              <Tag
-                dir={l.dir}
-                rows={multi ? 4 : undefined}
-                className={`inp ${empty ? "!border-amber-400 !bg-amber-50/60" : ""}`}
-                value={v[l.k] ?? ""}
-                onChange={(e) => onChange({ ...emptyT(), ...v, [l.k]: e.target.value })}
-              />
-            </label>
-          );
-        })}
-      </div>
+      <Tag
+        key={k}
+        dir={l.dir}
+        rows={multi ? 4 : undefined}
+        className={`inp ${k === "en" && enMissing ? "!border-amber-300 !bg-amber-50/50" : ""}`}
+        value={v[k] ?? ""}
+        placeholder={k === "en" && enMissing ? v.fr : undefined}
+        onChange={(e) => onChange({ ...emptyT(), ...v, [k]: e.target.value })}
+      />
+      {k === "en" && enMissing && <p className="mt-1 text-xs text-amber-700">{tr("ناقص — يظهر بالفرنسية")}</p>}
     </div>
   );
 }
@@ -72,9 +81,9 @@ export function TField({ label, value, onChange, multi, hint }: { label: string;
 export function Field({ label, value, onChange, dir = "ltr", placeholder, hint }: { label: string; value?: string | null; onChange: (v: string) => void; dir?: "ltr" | "rtl"; placeholder?: string; hint?: string }) {
   return (
     <label className="block">
-      <span className="mb-1.5 flex items-baseline gap-2 text-sm font-semibold">
+      <span className="lbl">
         {label}
-        {hint && <span className="text-xs font-normal text-black/45">{hint}</span>}
+        {hint && <span className="hint ms-2">{hint}</span>}
       </span>
       <input dir={dir} className="inp" value={value ?? ""} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
     </label>
@@ -84,7 +93,7 @@ export function Field({ label, value, onChange, dir = "ltr", placeholder, hint }
 export function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) => void; label?: string }) {
   return (
     <button type="button" onClick={() => onChange(!on)} className="inline-flex items-center gap-2 text-sm" aria-pressed={on}>
-      <span className={`relative h-5 w-9 rounded-full transition ${on ? "bg-emerald-500" : "bg-black/20"}`}>
+      <span className={`relative h-5 w-9 shrink-0 rounded-full transition ${on ? "bg-navy" : "bg-black/20"}`}>
         <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${on ? "start-[1.1rem]" : "start-0.5"}`} />
       </span>
       {label}
@@ -92,14 +101,26 @@ export function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boo
   );
 }
 
+const Ico = ({ d }: { d: string }) => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d={d} />
+  </svg>
+);
+
 /** Up / down / delete buttons for an item in a list. */
 export function RowTools({ i, n, move, remove }: { i: number; n: number; move: (from: number, to: number) => void; remove?: () => void }) {
   return (
-    <div className="flex shrink-0 gap-1">
-      <button type="button" className="icon-btn" disabled={i === 0} onClick={() => move(i, i - 1)} title={tr("إلى الأعلى")}>↑</button>
-      <button type="button" className="icon-btn" disabled={i === n - 1} onClick={() => move(i, i + 1)} title={tr("إلى الأسفل")}>↓</button>
+    <div className="flex shrink-0 items-center gap-0.5">
+      <button type="button" className="icon-btn" disabled={i === 0} onClick={() => move(i, i - 1)} title={tr("إلى الأعلى")} aria-label={tr("إلى الأعلى")}>
+        <Ico d="M12 19V5M6 11l6-6 6 6" />
+      </button>
+      <button type="button" className="icon-btn" disabled={i === n - 1} onClick={() => move(i, i + 1)} title={tr("إلى الأسفل")} aria-label={tr("إلى الأسفل")}>
+        <Ico d="M12 5v14M6 13l6 6 6-6" />
+      </button>
       {remove && (
-        <button type="button" className="icon-btn text-red-700" onClick={remove} title={tr("حذف")}>✕</button>
+        <button type="button" className="icon-btn danger" onClick={remove} title={tr("حذف")} aria-label={tr("حذف")}>
+          <Ico d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6" />
+        </button>
       )}
     </div>
   );
@@ -157,7 +178,7 @@ export function MediaBox({
           e.preventDefault();
           pick(e.dataTransfer.files[0]);
         }}
-        className={`group relative block w-full overflow-hidden rounded-xl border border-dashed border-black/20 bg-black/[0.03] ${height}`}
+        className={`group relative block w-full overflow-hidden rounded-xl border border-dashed border-black/20 bg-canvas transition hover:border-brand/50 ${height}`}
       >
         {value?.src ? (
           isVideo ? (
@@ -192,14 +213,35 @@ export function SaveBar({ dirty, saving, onSave, onCancel }: { dirty: boolean; s
       pending.delete(id);
     };
   }, [dirty, id]);
+  // Ctrl/⌘ + S saves
+  useEffect(() => {
+    if (!dirty) return;
+    const on = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        if (!saving) onSave();
+      }
+    };
+    window.addEventListener("keydown", on);
+    return () => window.removeEventListener("keydown", on);
+  }, [dirty, saving, onSave]);
+  if (!dirty && !saving) return null;
+  // Like Shopify: while there are changes, a dark bar covers the top of the page with «discard» and «save».
   return (
-    <div className={`sticky bottom-4 z-20 mt-8 flex items-center justify-between gap-3 rounded-2xl bg-navy px-5 py-3 text-white shadow-xl transition ${dirty || saving ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"}`}>
-      <span className="text-sm">{saving ? tr("جارٍ الحفظ والنشر…") : tr("لديك تعديلات غير محفوظة")}</span>
-      <div className="flex gap-2">
+    <div className="fixed inset-x-0 top-0 z-40 lg:start-60" style={{ animation: "mx-down .2s ease-out" }}>
+      <div className="flex h-14 items-center gap-3 bg-ink px-4 text-white shadow-lg md:px-8 lg:h-16">
+        <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 text-sun" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
+          <path d="M12 8v5M12 16h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z" />
+        </svg>
+        <span className="min-w-0 flex-1 truncate text-sm font-semibold">{saving ? tr("جارٍ الحفظ والنشر…") : tr("لديك تعديلات غير محفوظة")}</span>
         {onCancel && (
-          <button type="button" className="btn text-white/80 hover:text-white" onClick={onCancel} disabled={saving}>{tr("تراجع")}</button>
+          <button type="button" className="btn btn-sm border-white/20 bg-transparent text-white hover:bg-white/10" onClick={onCancel} disabled={saving}>
+            {tr("تراجع")}
+          </button>
         )}
-        <button type="button" className="btn bg-sun text-ink hover:brightness-105" onClick={onSave} disabled={saving}>{tr("حفظ ونشر")}</button>
+        <button type="button" className="btn btn-sm btn-accent" onClick={onSave} disabled={saving}>
+          {tr("حفظ ونشر")}
+        </button>
       </div>
     </div>
   );
