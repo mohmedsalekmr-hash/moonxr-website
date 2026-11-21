@@ -275,3 +275,180 @@ export function FocusPicker({ src, value, onChange }: { src?: string; value?: st
     </div>
   );
 }
+
+/* ───────────────────────── page structure ───────────────────────── */
+
+/** The title row of every admin page: optional «← back» link, title, one line of help, actions on the other side. */
+export function PageHead({ title, sub, back, actions, badge }: { title: React.ReactNode; sub?: string; back?: { label: string; onClick: () => void }; actions?: React.ReactNode; badge?: React.ReactNode }) {
+  return (
+    <div className="mb-6">
+      {back && (
+        <button type="button" onClick={back.onClick} className="mb-3 inline-flex items-center gap-1.5 text-[0.82rem] font-semibold text-black/50 hover:text-black">
+          <svg viewBox="0 0 24 24" className="h-4 w-4 rtl:rotate-180" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+          {back.label}
+        </button>
+      )}
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+        <div className="min-w-0">
+          <h1 className="flex flex-wrap items-center gap-3 text-[1.6rem] font-bold tracking-tight">
+            <span className="min-w-0 truncate">{title}</span>
+            {badge}
+          </h1>
+          {sub && <p className="mt-1 max-w-2xl text-[0.88rem] leading-6 text-black/55">{sub}</p>}
+        </div>
+        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      </div>
+    </div>
+  );
+}
+
+/** A white card with a title row; the body has the standard padding. */
+export function Panel({ title, sub, actions, children, flush, className = "" }: { title?: string; sub?: string; actions?: React.ReactNode; children: React.ReactNode; flush?: boolean; className?: string }) {
+  return (
+    <section className={`card overflow-hidden ${className}`}>
+      {(title || actions) && (
+        <div className="card-head">
+          <div className="min-w-0">
+            {title && <h2 className="card-title">{title}</h2>}
+            {sub && <p className="mt-0.5 text-[0.8rem] leading-5 text-black/50">{sub}</p>}
+          </div>
+          {actions}
+        </div>
+      )}
+      <div className={flush ? "" : "flex flex-col gap-5 p-5"}>{children}</div>
+    </section>
+  );
+}
+
+/** Status pill: published / hidden. */
+export function Status({ on, onLabel = tr("منشور"), offLabel = tr("مخفي") }: { on: boolean; onLabel?: string; offLabel?: string }) {
+  return (
+    <span className={`badge badge-dot shrink-0 max-sm:!px-1.5 ${on ? "badge-ok" : "badge-muted"}`} title={on ? onLabel : offLabel}>
+      <span className="max-sm:sr-only">{on ? onLabel : offLabel}</span>
+    </span>
+  );
+}
+
+export const GRIP = "M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01";
+const Chevron = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-black/30 rtl:rotate-180" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d="M9 6l6 6-6 6" />
+  </svg>
+);
+
+/**
+ * A list of rows that can be reordered by dragging the ⋮⋮ handle (computer) or with the arrows (phone).
+ * Clicking a row opens it. Like the product lists of Shopify.
+ */
+export function SortList<X>({
+  items,
+  keyOf,
+  onMove,
+  onOpen,
+  render,
+  empty,
+}: {
+  items: X[];
+  keyOf: (x: X, i: number) => string;
+  onMove?: (from: number, to: number) => void;
+  onOpen?: (x: X, i: number) => void;
+  render: (x: X, i: number) => React.ReactNode;
+  empty?: string;
+}) {
+  const [drag, setDrag] = useState<number | null>(null);
+  const [over, setOver] = useState<number | null>(null);
+  if (!items.length) return <p className="px-5 py-10 text-center text-sm text-black/40">{empty ?? tr("لا توجد عناصر بعد.")}</p>;
+  return (
+    <ul className="rows">
+      {items.map((x, i) => (
+        <li
+          key={keyOf(x, i)}
+          onDragOver={(e) => {
+            if (drag === null) return;
+            e.preventDefault();
+            setOver(i);
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            if (drag !== null && drag !== i) onMove?.(drag, i);
+            setDrag(null);
+            setOver(null);
+          }}
+          className={`row-hover relative flex items-center gap-3 px-3 py-2.5 sm:px-4 ${drag === i ? "opacity-40" : ""} ${onOpen ? "cursor-pointer" : ""}`}
+          onClick={(e) => {
+            if ((e.target as HTMLElement).closest("button,a,input,select,label,[data-stop]")) return;
+            onOpen?.(x, i);
+          }}
+        >
+          {over === i && drag !== null && drag !== i && <span className={`pointer-events-none absolute inset-x-3 h-0.5 rounded-full bg-brand ${drag < i ? "bottom-0" : "top-0"}`} />}
+          {onMove && (
+            <>
+              <button
+                type="button"
+                draggable
+                onDragStart={(e) => {
+                  setDrag(i);
+                  e.dataTransfer.effectAllowed = "move";
+                  const row = (e.currentTarget as HTMLElement).closest("li");
+                  if (row) e.dataTransfer.setDragImage(row, 20, 20);
+                }}
+                onDragEnd={() => {
+                  setDrag(null);
+                  setOver(null);
+                }}
+                className="hidden h-8 w-5 shrink-0 cursor-grab place-items-center rounded text-black/30 hover:text-black/60 active:cursor-grabbing md:grid"
+                title={tr("اسحب لتغيير الترتيب")}
+                aria-label={tr("اسحب لتغيير الترتيب")}
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden>
+                  <path d={GRIP} />
+                </svg>
+              </button>
+              {/* phone: two small stacked arrows */}
+              <div className="-my-1 flex shrink-0 flex-col md:hidden">
+                <button type="button" className="grid h-5 w-6 place-items-center text-black/40 disabled:opacity-20" disabled={i === 0} onClick={() => onMove(i, i - 1)} aria-label={tr("إلى الأعلى")}>
+                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 15l6-6 6 6" /></svg>
+                </button>
+                <button type="button" className="grid h-5 w-6 place-items-center text-black/40 disabled:opacity-20" disabled={i === items.length - 1} onClick={() => onMove(i, i + 1)} aria-label={tr("إلى الأسفل")}>
+                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 9l6 6 6-6" /></svg>
+                </button>
+              </div>
+            </>
+          )}
+          <div className="flex min-w-0 flex-1 items-center gap-3">{render(x, i)}</div>
+          {onOpen && <Chevron />}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** A panel that slides in from the side to edit one item, while the list stays behind (Shopify / Linear). */
+export function Drawer({ open, title, onClose, children, footer }: { open: boolean; title: string; onClose: () => void; children: React.ReactNode; footer?: React.ReactNode }) {
+  useEffect(() => {
+    if (!open) return;
+    const on = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", on);
+    return () => window.removeEventListener("keydown", on);
+  }, [open, onClose]);
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-30" role="dialog" aria-modal="true" aria-label={title}>
+      <div className="absolute inset-0 bg-ink/30" onClick={onClose} style={{ animation: "mx-pop .15s ease-out" }} />
+      <div className="absolute inset-y-0 end-0 flex w-full max-w-xl flex-col bg-white shadow-2xl" style={{ animation: "mx-drawer .22s cubic-bezier(.2,.8,.2,1)" }}>
+        <div className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-line px-5">
+          <h2 className="truncate text-base font-bold">{title}</h2>
+          <button type="button" className="icon-btn" onClick={onClose} aria-label={tr("إغلاق")}>
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
+        <div className="flex-1 space-y-5 overflow-y-auto p-5">{children}</div>
+        {footer && <div className="flex shrink-0 items-center gap-2 border-t border-line px-5 py-3">{footer}</div>}
+      </div>
+    </div>
+  );
+}
