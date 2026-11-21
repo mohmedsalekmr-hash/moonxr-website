@@ -19,8 +19,11 @@ if (typeof window !== "undefined") {
     const v = localStorage.getItem(KEY);
     if (v === "fr" || v === "en") current = v;
   } catch {}
-  document.documentElement.lang = current;
-  document.documentElement.dir = current === "ar" ? "rtl" : "ltr";
+  // only the admin itself takes the admin's language; the public site (edit mode) keeps its own
+  if (location.pathname.startsWith("/admin")) {
+    document.documentElement.lang = current;
+    document.documentElement.dir = current === "ar" ? "rtl" : "ltr";
+  }
 }
 
 export const adminLang = () => current;
